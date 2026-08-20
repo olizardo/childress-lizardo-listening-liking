@@ -1,5 +1,0 @@
-` format tags natively serialize to disk automatically, and that manually using `cat > file.qmd` on top of those tags creates a duplicate `-1.qmd` file that breaks rendering.
-2. **Modern `ggplot2` Aesthetics:** Warning agents to explicitly use `linewidth` instead of the deprecated `size` mapping for `geom_line` and `geom_segment` layers to avoid polluting the render logs.
-3. **Multinomial Standard Errors:** Warning agents that `nnet::multinom` combined with `sandwich::vcovCL` creates flat matrices that break standard `lmtest::coeftest()` data frame formatting, and instructing them to manually compute $Z$-scores and $p$-values via matrix multiplication from the extracted diagonals instead.
-
-The system will now proactively remember all of this for your future projects!
