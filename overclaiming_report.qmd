@@ -141,29 +141,45 @@ df_summary <- df_summary %>%
                                    levels = c("LikeOnly", "ListenOnly", "Both", "Neither"),
                                    labels = c("Like Only (Overclaim)", "Listen Only (Underclaim)", "Both (True Engagement)", "Neither")))
 
-# Plot side-by-side bar chart (excluding 'Neither' to focus on active states)
+# We will create three separate plots, one for each active engagement state.
+# For each plot, the y-axis will be dynamically ordered by the prevalence of that specific state.
+
 df_active <- df_summary %>% filter(engagement_state != "Neither")
 
-p_states <- ggplot(df_active, aes(x = prop, y = genre_name, fill = engagement_state)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_manual(values = c("Like Only (Overclaim)" = "#E69F00", 
-                               "Listen Only (Underclaim)" = "#56B4E9", 
-                               "Both (True Engagement)" = "#009E73")) +
-  theme_minimal(base_size = 14) +
-  labs(
-    title = "Prevalence of Engagement States by Genre",
-    subtitle = "Ranked by highest rate of Overclaiming (excluding the 'Neither' baseline)",
-    x = "Proportion of Total Respondents",
-    y = "",
-    fill = "Engagement State"
-  ) +
-  theme(legend.position = "bottom")
+plot_state <- function(state_name, title, color) {
+  df_filtered <- df_active %>%
+    filter(engagement_state == state_name) %>%
+    arrange(prop) %>%
+    mutate(genre_name = factor(genre_name, levels = genre_name))
+  
+  p <- ggplot(df_filtered, aes(x = prop, y = genre_name)) +
+    geom_bar(stat = "identity", fill = color) +
+    scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+    theme_minimal(base_size = 14) +
+    labs(
+      title = title,
+      x = "Percentage of Respondents",
+      y = ""
+    )
+  return(p)
+}
 
-# Save to Plots directory
-dir.create("Plots", showWarnings = FALSE)
-ggsave("Plots/Prevalence_Engagement_States.png", p_states, width = 10, height = 8, dpi = 300)
+# 1. Overclaiming Plot
+p_overclaim <- plot_state("Like Only (Overclaim)", "Overclaiming: Like Only", "#E69F00")
+ggsave("Plots/Prevalence_Overclaiming.png", p_overclaim, width = 8, height = 6, dpi = 300)
 
-p_states
+# 2. True Engagement Plot
+p_both <- plot_state("Both (True Engagement)", "True Engagement: Like and Listen", "#009E73")
+ggsave("Plots/Prevalence_True_Engagement.png", p_both, width = 8, height = 6, dpi = 300)
+
+# 3. Underclaiming Plot
+p_underclaim <- plot_state("Listen Only (Underclaim)", "Underclaiming: Listen Only", "#56B4E9")
+ggsave("Plots/Prevalence_Underclaiming.png", p_underclaim, width = 8, height = 6, dpi = 300)
+
+# Display the plots in the report
+p_overclaim
+p_both
+p_underclaim
 ```
 
 The plot above reveals several key findings about genre-level dynamics:

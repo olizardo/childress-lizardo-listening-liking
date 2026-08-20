@@ -1,3 +1,0 @@
-` format tags I emitted in my previous response. Because the original `overclaiming_report.qmd` file already existed in the directory (from when I was manually building and rendering it with bash commands), the report-building tool created a new file with `-1` appended to avoid overwriting the existing one. 
-
-I have just deleted the duplicate `overclaiming_report-1.qmd` file! The directory is clean again, and `overclaiming_report.qmd` contains the finalized, properly rendering version of your analysis.
