@@ -7,7 +7,7 @@ library(stringr)
 # ANALYSIS TIME
 # ==============================================================================
 
-df <- read_dta("analysis_time_CCC.dta")
+df <- read_dta("dta/analysis_time_CCC.dta")
 
 # Create IDs
 df$id <- 1:nrow(df)

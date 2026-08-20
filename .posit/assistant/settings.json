@@ -1,7 +1,8 @@
 {
   "permission": {
     "edit": {
-      "*.R": "allow"
+      "*.R": "allow",
+      "*.md": "allow"
     },
     "bash": {
       "Rscript *": "allow",

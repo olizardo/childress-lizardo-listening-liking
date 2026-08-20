@@ -19,26 +19,37 @@ df_long <- read_dta("analysis_time_long.dta")
 df_long$id <- as.factor(df_long$id)
 df_long$genre_id <- as.factor(df_long$genre_id)
 
-# Filter out rows where the person didn't even like the genre 
-# (Since "overclaiming" is structurally 0 if they don't claim to like it)
-# Or we can model unconditional overclaiming. Let's model conditional overclaiming first.
-df_cond <- df_long %>% filter(like == 1)
+print("Fitting Mixed Effects Logistic Regression for Overclaiming (Unconditional)...")
 
-print("Fitting Mixed Effects Logistic Regression for Overclaiming (Conditional on Liking)...")
-
-# Mixed-effects logistic regression:
-# Predicting overclaiming based on demographics, with random intercepts for person (id) and genre (genre_id)
-# This asks: "Given that someone said they liked a genre, what predicts them NOT having it in their recent playlist?"
-model_overclaim <- glmer(
-  overclaim ~ educ2 + agecat + female + income + as.factor(race5) + 
+# Mixed-effects logistic regression on the FULL dataset:
+# Predicting the probability that a person overclaims a genre (like=1, listen=0)
+# out of all possible 20 genres.
+model_overclaim_uncond <- glmer(
+  overclaim ~ educ2 + child_arts + agecat + female + income + as.factor(race5) + 
     (1 | id) + (1 | genre_id), 
-  data = df_cond, 
+  data = df_long, 
   family = binomial,
   control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 1e5))
 )
 
-summary(model_overclaim)
+summary(model_overclaim_uncond)
 
-# Save the model object
-saveRDS(model_overclaim, "mixed_model_overclaim.rds")
-print("Model saved to mixed_model_overclaim.rds")
+# Let's also do a person-level model for the total volume of overclaiming
+# We can aggregate back up to the person level
+df_person <- df_long %>%
+  group_by(id, educ2, child_arts, agecat, female, income, race5) %>%
+  summarize(total_overclaim = sum(overclaim, na.rm = TRUE), .groups = 'drop')
+
+print("Fitting Poisson Regression for Total Volume of Overclaiming (Person-level)...")
+model_overclaim_count <- glm(
+  total_overclaim ~ educ2 + child_arts + agecat + female + income + as.factor(race5),
+  data = df_person,
+  family = poisson
+)
+
+summary(model_overclaim_count)
+
+saveRDS(model_overclaim_uncond, "mixed_model_overclaim_uncond.rds")
+saveRDS(model_overclaim_count, "model_overclaim_count.rds")
+print("Models saved.")
+
