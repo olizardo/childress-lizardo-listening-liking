@@ -12,7 +12,8 @@
       "sort *": "allow",
       "uniq *": "allow",
       "find *": "allow",
-      "xargs *": "allow"
+      "xargs *": "allow",
+      "quarto render *": "allow"
     },
     "executeCode": {
       "*": "allow"
