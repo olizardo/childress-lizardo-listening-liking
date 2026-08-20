@@ -288,8 +288,12 @@ format_gt_table <- function(df, title) {
 ```{r}
 #| label: results-overclaim
 #| echo: false
+dir.create("Tabs", showWarnings = FALSE)
+
 df_overclaim <- make_clean_df_twoway(2)
-format_gt_table(df_overclaim, "**Predictors of Overclaiming (Like Only)**")
+gt_overclaim <- format_gt_table(df_overclaim, "**Predictors of Overclaiming (Like Only)**")
+gtsave(gt_overclaim, "Tabs/Table_Overclaim.html")
+gt_overclaim
 ```
 
 ### Predictors of Underclaiming (Listen Only)
@@ -297,7 +301,9 @@ format_gt_table(df_overclaim, "**Predictors of Overclaiming (Like Only)**")
 #| label: results-underclaim
 #| echo: false
 df_underclaim <- make_clean_df_twoway(1)
-format_gt_table(df_underclaim, "**Predictors of Underclaiming (Listen Only)**")
+gt_underclaim <- format_gt_table(df_underclaim, "**Predictors of Underclaiming (Listen Only)**")
+gtsave(gt_underclaim, "Tabs/Table_Underclaim.html")
+gt_underclaim
 ```
 
 ### Predictors of True Engagement (Both)
@@ -305,7 +311,9 @@ format_gt_table(df_underclaim, "**Predictors of Underclaiming (Listen Only)**")
 #| label: results-true
 #| echo: false
 df_true <- make_clean_df_twoway(3)
-format_gt_table(df_true, "**Predictors of True Engagement (Like and Listen)**")
+gt_true <- format_gt_table(df_true, "**Predictors of True Engagement (Like and Listen)**")
+gtsave(gt_true, "Tabs/Table_True_Engagement.html")
+gt_true
 ```
 
 The application of two-way clustering reveals a comprehensive picture of genre engagement. **Childhood arts exposure** (`child_arts`) is the strongest and most robust predictor of overclaiming (reporting liking without listening). While it also increases the probability of True Engagement, its effect on Overclaiming is almost twice as strong. Conversely, **Education** (`educ2`) significantly predicts Underclaiming (listening without reporting liking), suggesting that highly educated individuals may consume genres they decline to formally endorse.
@@ -342,22 +350,24 @@ pred_df_rob <- as.data.frame(pred_marg) %>%
 arts_labels <- c("1 (None)", "2", "3", "4 (Moderate)", "5", "6", "7 (Extensive)")
 
 p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = response.level)) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, alpha = 0.15, position = position_dodge(width = 0.5)) +
   geom_point(size = 3, position = position_dodge(width = 0.5)) +
   coord_flip() +
-  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  scale_color_brewer(palette = "Dark2") +
   scale_x_continuous(breaks = 1:7, labels = arts_labels) +
   theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  ) +
   labs(
     title = "Effect of Childhood Arts Exposure on Genre Engagement",
     subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
     x = "Level of Childhood Arts Exposure",
     y = "Predicted Probability",
     color = "Engagement State"
-  ) +
-  theme(
-    legend.position = "bottom",
-    legend.direction = "vertical"
   )
 
 # Save to Plots directory
@@ -367,7 +377,7 @@ ggsave("Plots/ChildArts_Effects_RobustCI_Errorbars.png", p_margins, width = 9, h
 p_margins
 ```
 
-As childhood arts exposure increases, respondents genuinely engage with more music (the red line rises). However, their propensity to overclaim genres (the yellow line) rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
+As childhood arts exposure increases, respondents genuinely engage with more music (the "True Engagement" estimates increase). However, their propensity to overclaim genres ("Like Only") rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
 
 ### Education and Engagement States
 
@@ -401,22 +411,24 @@ pred_df_educ <- as.data.frame(pred_marg_educ) %>%
 educ_labels <- c("Less than HS", "HS Grad", "Some College", "Associates", "BA", "Grad Degree")
 
 p_margins_educ <- ggplot(pred_df_educ, aes(x = educ2, y = estimate, color = response.level)) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, alpha = 0.15, position = position_dodge(width = 0.5)) +
   geom_point(size = 3, position = position_dodge(width = 0.5)) +
   coord_flip() +
-  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  scale_color_brewer(palette = "Dark2") +
   scale_x_continuous(breaks = 1:6, labels = educ_labels) +
   theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  ) +
   labs(
     title = "Effect of Education on Genre Engagement",
     subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
     x = "Education Level",
     y = "Predicted Probability",
     color = "Engagement State"
-  ) +
-  theme(
-    legend.position = "bottom",
-    legend.direction = "vertical"
   )
 
 # Save to Plots directory
