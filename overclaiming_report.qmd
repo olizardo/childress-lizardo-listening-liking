@@ -80,6 +80,29 @@ df_long <- df_raw %>%
   mutate(genre_id = as.factor(genre_id))
 ```
 
+# Defining the Competing Engagement States
+
+To study overclaiming comprehensively, we frame the behavior as a multi-state competing outcome. For every genre-person pair, a respondent can fall into one of four mutually exclusive engagement states:
+
+1. **Neither**: Does not like it, does not listen to it. (Baseline)
+2. **Listen Only (Underclaim)**: Listens to it, but didn't report liking it in the abstract.
+3. **Like Only (Overclaim)**: Reports liking it, but it is entirely absent from their listening.
+4. **Both (True Engagement)**: Reports liking it AND actively listens to it.
+
+```{r}
+#| label: create-outcomes-clean
+df_long <- df_long %>%
+  mutate(
+    engagement_state = case_when(
+      like == 0 & listen == 0 ~ "Neither",
+      like == 0 & listen == 1 ~ "ListenOnly",
+      like == 1 & listen == 0 ~ "LikeOnly",
+      like == 1 & listen == 1 ~ "Both"
+    ),
+    engagement_state = factor(engagement_state, levels = c("Neither", "ListenOnly", "LikeOnly", "Both"))
+  )
+```
+
 # Descriptive Analysis: Genre-Level Engagement States
 
 Before fitting inferential models, we can visualize the magnitude of these different engagement states across the genres. We calculate the absolute proportion of respondents who fall into each state (Listen Only, Like Only, Both, or Neither) for each of the 20 genres.
@@ -121,7 +144,7 @@ df_summary <- df_summary %>%
 # Plot side-by-side bar chart (excluding 'Neither' to focus on active states)
 df_active <- df_summary %>% filter(engagement_state != "Neither")
 
-ggplot(df_active, aes(x = prop, y = genre_name, fill = engagement_state)) +
+p_states <- ggplot(df_active, aes(x = prop, y = genre_name, fill = engagement_state)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = c("Like Only (Overclaim)" = "#E69F00", 
                                "Listen Only (Underclaim)" = "#56B4E9", 
@@ -135,6 +158,12 @@ ggplot(df_active, aes(x = prop, y = genre_name, fill = engagement_state)) +
     fill = "Engagement State"
   ) +
   theme(legend.position = "bottom")
+
+# Save to Plots directory
+dir.create("Plots", showWarnings = FALSE)
+ggsave("Plots/Prevalence_Engagement_States.png", p_states, width = 10, height = 8, dpi = 300)
+
+p_states
 ```
 
 The plot above reveals several key findings about genre-level dynamics:
@@ -143,27 +172,6 @@ The plot above reveals several key findings about genre-level dynamics:
 - **Highly Underclaimed**: No genre is dominated by underclaiming, but Contemporary Pop has the highest absolute rate of "Listen Only", meaning many people listen to it without bothering to rate it highly on the survey.
 
 # Defining the Competing Engagement States
-
-To study overclaiming comprehensively, we frame the behavior as a multi-state competing outcome. For every genre-person pair, a respondent can fall into one of four mutually exclusive engagement states:
-
-1. **Neither**: Does not like it, does not listen to it. (Baseline)
-2. **Listen Only (Underclaim)**: Listens to it, but didn't report liking it in the abstract.
-3. **Like Only (Overclaim)**: Reports liking it, but it is entirely absent from their listening.
-4. **Both (True Engagement)**: Reports liking it AND actively listens to it.
-
-```{r}
-#| label: create-outcomes
-df_long <- df_long %>%
-  mutate(
-    engagement_state = case_when(
-      like == 0 & listen == 0 ~ "Neither",
-      like == 0 & listen == 1 ~ "ListenOnly",
-      like == 1 & listen == 0 ~ "LikeOnly",
-      like == 1 & listen == 1 ~ "Both"
-    ),
-    engagement_state = factor(engagement_state, levels = c("Neither", "ListenOnly", "LikeOnly", "Both"))
-  )
-```
 
 # Multinomial Model and Robust Inference
 
@@ -249,7 +257,7 @@ pred_df_rob <- as.data.frame(pred_marg) %>%
 
 arts_labels <- c("1 (None)", "2", "3", "4 (Moderate)", "5", "6", "7 (Extensive)")
 
-ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = response.level)) +
+p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = response.level)) +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.15, linewidth = 0.8, position = position_dodge(width = 0.2)) +
   geom_line(linewidth = 1.2, position = position_dodge(width = 0.2)) +
   geom_point(size = 3, position = position_dodge(width = 0.2)) +
@@ -268,6 +276,12 @@ ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = response.level)) +
     legend.direction = "vertical",
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
+
+# Save to Plots directory
+dir.create("Plots", showWarnings = FALSE)
+ggsave("Plots/ChildArts_Effects_RobustCI_Errorbars.png", p_margins, width = 9, height = 7, dpi = 300)
+
+p_margins
 ```
 
 As childhood arts exposure increases, respondents genuinely engage with more music (the red line rises). However, their propensity to overclaim genres (the yellow line) rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
