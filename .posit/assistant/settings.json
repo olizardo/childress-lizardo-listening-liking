@@ -1,0 +1,16 @@
+{
+  "permission": {
+    "edit": {
+      "*.R": "allow"
+    },
+    "bash": {
+      "Rscript *": "allow",
+      "cat *": "allow",
+      "grep *": "allow",
+      "sort *": "allow",
+      "uniq *": "allow",
+      "find *": "allow",
+      "xargs *": "allow"
+    }
+  }
+}
