@@ -154,13 +154,17 @@ plot_state <- function(state_name, title, color) {
     arrange(prop) %>%
     mutate(genre_name = factor(genre_name, levels = genre_name))
   
+  avg_prop <- mean(df_filtered$prop)
+  
   p <- ggplot(df_filtered, aes(x = prop, y = genre_name)) +
+    geom_vline(xintercept = avg_prop, linetype = "dashed", color = "gray40", size = 0.8) +
     geom_segment(aes(x = 0, xend = prop, y = genre_name, yend = genre_name), color = "gray60") +
     geom_point(color = color, size = 4) +
     scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
     theme_minimal(base_size = 14) +
     labs(
       title = title,
+      subtitle = "Dashed line represents the cross-genre average",
       x = "Percentage of Respondents",
       y = ""
     )
@@ -202,7 +206,7 @@ Because our data is in a long format where the same respondent appears 20 times 
 #| label: multinomial-model
 #| results: hide
 model_fixed <- multinom(
-  engagement_state ~ educ2 + child_arts + agecat + female + income + as.factor(race5),
+  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5),
   data = df_long
 )
 ```
@@ -237,6 +241,7 @@ make_clean_df_twoway <- function(row_idx) {
     mutate(Predictor = case_when(
       Predictor == "(Intercept)" ~ "Intercept",
       Predictor == "educ2" ~ "Education",
+      Predictor == "parent_educ" ~ "Parental Education",
       Predictor == "child_arts" ~ "Childhood Arts Exposure",
       Predictor == "agecat" ~ "Age Category",
       Predictor == "female" ~ "Female",
@@ -337,9 +342,9 @@ pred_df_rob <- as.data.frame(pred_marg) %>%
 arts_labels <- c("1 (None)", "2", "3", "4 (Moderate)", "5", "6", "7 (Extensive)")
 
 p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = response.level)) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.15, linewidth = 0.8, position = position_dodge(width = 0.2)) +
-  geom_line(linewidth = 1.2, position = position_dodge(width = 0.2)) +
-  geom_point(size = 3, position = position_dodge(width = 0.2)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, position = position_dodge(width = 0.5)) +
+  geom_point(size = 3, position = position_dodge(width = 0.5)) +
+  coord_flip() +
   scale_color_viridis_d(option = "plasma", end = 0.9) +
   scale_x_continuous(breaks = 1:7, labels = arts_labels) +
   theme_minimal(base_size = 14) +
@@ -352,8 +357,7 @@ p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = respo
   ) +
   theme(
     legend.position = "bottom",
-    legend.direction = "vertical",
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    legend.direction = "vertical"
   )
 
 # Save to Plots directory
@@ -364,3 +368,59 @@ p_margins
 ```
 
 As childhood arts exposure increases, respondents genuinely engage with more music (the red line rises). However, their propensity to overclaim genres (the yellow line) rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
+
+### Education and Engagement States
+
+We perform the exact same marginal probability calculation for the highest level of education attained (`educ2`) to see how it affects the competing engagement states.
+
+```{r}
+#| label: marginal-effects-educ
+#| fig-width: 9
+#| fig-height: 7
+# Generate robust predictions for education
+pred_marg_educ <- predictions(
+  model_fixed,
+  newdata = datagrid(educ2 = seq(min(df_long$educ2, na.rm=TRUE), max(df_long$educ2, na.rm=TRUE), by=1)), 
+  vcov = robust_vcov_twoway
+)
+
+pred_df_educ <- as.data.frame(pred_marg_educ) %>%
+  mutate(response.level = case_when(
+    group == "Neither" ~ "Neither (No Like, No Listen)",
+    group == "ListenOnly" ~ "Listen Only (Underclaim)",
+    group == "LikeOnly" ~ "Like Only (Overclaim)",
+    group == "Both" ~ "Both (True Engagement)"
+  )) %>%
+  mutate(response.level = factor(response.level, levels = c(
+    "Neither (No Like, No Listen)", 
+    "Listen Only (Underclaim)", 
+    "Both (True Engagement)", 
+    "Like Only (Overclaim)"
+  )))
+
+educ_labels <- c("Less than HS", "HS Grad", "Some College", "Associates", "BA", "Grad Degree")
+
+p_margins_educ <- ggplot(pred_df_educ, aes(x = educ2, y = estimate, color = response.level)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, position = position_dodge(width = 0.5)) +
+  geom_point(size = 3, position = position_dodge(width = 0.5)) +
+  coord_flip() +
+  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  scale_x_continuous(breaks = 1:6, labels = educ_labels) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Effect of Education on Genre Engagement",
+    subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
+    x = "Education Level",
+    y = "Predicted Probability",
+    color = "Engagement State"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  )
+
+# Save to Plots directory
+ggsave("Plots/Education_Effects_RobustCI_Errorbars.png", p_margins_educ, width = 9, height = 7, dpi = 300)
+
+p_margins_educ
+```
