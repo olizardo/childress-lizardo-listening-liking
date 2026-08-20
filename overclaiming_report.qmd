@@ -69,8 +69,10 @@ for (g in 1:20) {
 }
 
 # Pivot data to long format for person-genre analysis
+# We also create a composite parental education variable
 df_long <- df_raw %>%
-  select(id, educ2, child_arts, agecat, income, female, urban_rural2, race5, social,
+  mutate(parent_educ = pmax(mom_educ, dad_educ, na.rm = TRUE)) %>%
+  select(id, educ2, parent_educ, child_arts, agecat, income, female, urban_rural2, race5, social,
          starts_with("like_g"), starts_with("listen_g")) %>%
   pivot_longer(
     cols = matches("^(like|listen)_g\\d+"),
@@ -153,7 +155,8 @@ plot_state <- function(state_name, title, color) {
     mutate(genre_name = factor(genre_name, levels = genre_name))
   
   p <- ggplot(df_filtered, aes(x = prop, y = genre_name)) +
-    geom_bar(stat = "identity", fill = color) +
+    geom_segment(aes(x = 0, xend = prop, y = genre_name, yend = genre_name), color = "gray60") +
+    geom_point(color = color, size = 4) +
     scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
     theme_minimal(base_size = 14) +
     labs(
@@ -216,31 +219,91 @@ se_mat_twoway <- matrix(robust_se_twoway, nrow = nrow(est), ncol = ncol(est), by
 z_vals_twoway <- est / se_mat_twoway
 p_vals_twoway <- (1 - pnorm(abs(z_vals_twoway), 0, 1)) * 2
 
-# Helper function to extract cleanly
+# Helper function to extract cleanly and build a nice gt table
+library(gt)
+library(dplyr)
+
 make_clean_df_twoway <- function(row_idx) {
-  data.frame(
+  df <- data.frame(
     Predictor = colnames(est),
     Estimate = round(est[row_idx, ], 3),
     Robust_SE = round(se_mat_twoway[row_idx, ], 3),
     Z = round(z_vals_twoway[row_idx, ], 2),
     P_Value = round(p_vals_twoway[row_idx, ], 3)
   )
+  
+  # Clean up predictor names
+  df <- df %>%
+    mutate(Predictor = case_when(
+      Predictor == "(Intercept)" ~ "Intercept",
+      Predictor == "educ2" ~ "Education",
+      Predictor == "child_arts" ~ "Childhood Arts Exposure",
+      Predictor == "agecat" ~ "Age Category",
+      Predictor == "female" ~ "Female",
+      Predictor == "income" ~ "Household Income",
+      Predictor == "as.factor(race5)2" ~ "Race: Black",
+      Predictor == "as.factor(race5)3" ~ "Race: Hispanic",
+      Predictor == "as.factor(race5)4" ~ "Race: Asian",
+      Predictor == "as.factor(race5)5" ~ "Race: Other/Mixed",
+      TRUE ~ Predictor
+    )) %>%
+    mutate(
+      Sig = case_when(
+        P_Value < 0.001 ~ "***",
+        P_Value < 0.01 ~ "**",
+        P_Value < 0.05 ~ "*",
+        P_Value < 0.1 ~ ".",
+        TRUE ~ ""
+      )
+    )
+    
+  return(df)
+}
+
+format_gt_table <- function(df, title) {
+  df %>%
+    gt() %>%
+    tab_header(
+      title = md(title)
+    ) %>%
+    cols_label(
+      Robust_SE = "Robust SE",
+      P_Value = "p-value",
+      Sig = ""
+    ) %>%
+    fmt_number(
+      columns = c(Estimate, Robust_SE, Z),
+      decimals = 3
+    ) %>%
+    opt_stylize(style = 6, color = "cyan")
 }
 ```
 
 ### Predictors of Overclaiming (Like Only)
 ```{r}
 #| label: results-overclaim
-make_clean_df_twoway(2) %>% filter(Predictor %in% c("educ2", "child_arts", "as.factor(race5)2"))
+#| echo: false
+df_overclaim <- make_clean_df_twoway(2)
+format_gt_table(df_overclaim, "**Predictors of Overclaiming (Like Only)**")
+```
+
+### Predictors of Underclaiming (Listen Only)
+```{r}
+#| label: results-underclaim
+#| echo: false
+df_underclaim <- make_clean_df_twoway(1)
+format_gt_table(df_underclaim, "**Predictors of Underclaiming (Listen Only)**")
 ```
 
 ### Predictors of True Engagement (Both)
 ```{r}
 #| label: results-true
-make_clean_df_twoway(3) %>% filter(Predictor %in% c("educ2", "child_arts", "as.factor(race5)2"))
+#| echo: false
+df_true <- make_clean_df_twoway(3)
+format_gt_table(df_true, "**Predictors of True Engagement (Like and Listen)**")
 ```
 
-The application of two-way clustering reveals a crucial finding: **Childhood arts exposure** (`child_arts`) is the only demographic variable that remains a highly significant and robust predictor of overclaiming. While it does increase the probability of True Engagement, its effect on Overclaiming is almost twice as strong. Conversely, racial differences that appeared significant under simpler models wash out once clustering accounts for baseline differences across the 20 genres.
+The application of two-way clustering reveals a comprehensive picture of genre engagement. **Childhood arts exposure** (`child_arts`) is the strongest and most robust predictor of overclaiming (reporting liking without listening). While it also increases the probability of True Engagement, its effect on Overclaiming is almost twice as strong. Conversely, **Education** (`educ2`) significantly predicts Underclaiming (listening without reporting liking), suggesting that highly educated individuals may consume genres they decline to formally endorse.
 
 # Visualizing the Effect of Arts Exposure
 
