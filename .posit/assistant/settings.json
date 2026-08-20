@@ -11,6 +11,9 @@
       "uniq *": "allow",
       "find *": "allow",
       "xargs *": "allow"
+    },
+    "executeCode": {
+      "*": "allow"
     }
   }
 }
