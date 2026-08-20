@@ -105,7 +105,27 @@ for (g in 1:20) {
   for (i in 1:10) {
     df[[paste0("listen_g", g)]] <- df[[paste0("listen_g", g)]] | (df[[paste0("genre_final", i)]] == g)
   }
+  
+  # Calculate overclaiming: they like it (1) but didn't listen to it (0)
+  df[[paste0("overclaim_g", g)]] <- ifelse(df[[paste0("like_g", g)]] == 1 & df[[paste0("listen_g", g)]] == 0, 1, 0)
 }
+
+# Total number of genres a person overclaimed
+overclaim_cols <- paste0("overclaim_g", 1:20)
+df$total_overclaim <- rowSums(df[, overclaim_cols], na.rm = TRUE)
+
+# Pivot data to long format for mixed effects analysis
+df_long_overclaim <- df %>%
+  select(id, educ2, child_arts, agecat, income, female, urban_rural2, race5, social,
+         starts_with("like_g"), starts_with("listen_g"), starts_with("overclaim_g")) %>%
+  pivot_longer(
+    cols = matches("^(like|listen|overclaim)_g\\d+"),
+    names_to = c(".value", "genre_id"),
+    names_pattern = "^([a-z]+)_g(\\d+)$"
+  ) %>%
+  mutate(genre_id = as.factor(genre_id))
+
+write_dta(df_long_overclaim, "analysis_time_long.dta")
 
 # Linear models (examples matching the Stata regressions)
 # You can run these natively:
