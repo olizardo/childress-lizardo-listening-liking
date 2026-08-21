@@ -27,8 +27,18 @@ for (g in 1:20) {
 }
 
 df_long <- df_raw %>%
-  mutate(parent_educ = pmax(mom_educ, dad_educ, na.rm = TRUE)) %>%
-  select(id, educ2, parent_educ, child_arts, agecat, female, income, race5,
+  mutate(
+    parent_educ = pmax(mom_educ, dad_educ, na.rm = TRUE),
+    platform = case_when(
+      grepl("spotify", stream_source, ignore.case = TRUE) ~ "Spotify",
+      grepl("itunes", stream_source, ignore.case = TRUE) ~ "iTunes",
+      grepl("winamp", stream_source, ignore.case = TRUE) ~ "Winamp",
+      grepl("rotation", stream_source, ignore.case = TRUE) & !grepl("itunes|spotify|winamp", stream_source, ignore.case = TRUE) ~ "Free Recall",
+      stream_source == "" ~ "Free Recall",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  select(id, educ2, parent_educ, child_arts, agecat, female, income, race5, platform,
          starts_with("like_g"), starts_with("listen_g")) %>%
   pivot_longer(
     cols = matches("^(like|listen)_g\\d+"),
@@ -48,7 +58,7 @@ df_long <- df_raw %>%
 
 cat("Fitting mblogit model...\n")
 fit_mblogit <- mblogit(
-  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5),
+  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform),
   random = list(~ 1|id, ~ 1|genre_id),
   data = df_long
 )
