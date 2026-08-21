@@ -82,9 +82,9 @@ df_long <- df_raw %>%
   mutate(genre_id = as.factor(genre_id))
 ```
 
-# Defining the Competing Engagement States
+# Defining the Competing Complex Tastes
 
-To study overclaiming comprehensively, we frame the behavior as a multi-state competing outcome. For every genre-person pair, a respondent can fall into one of four mutually exclusive engagement states:
+To study overclaiming comprehensively, we frame the behavior as a multi-state competing outcome. For every genre-person pair, a respondent can fall into one of four mutually exclusive complex tastes:
 
 1. **Neither**: Does not like it, does not listen to it. (Baseline)
 2. **Listen Only (Underclaim)**: Listens to it, but didn't report liking it in the abstract.
@@ -105,9 +105,9 @@ df_long <- df_long %>%
   )
 ```
 
-# Descriptive Analysis: Genre-Level Engagement States
+# Descriptive Analysis: Genre-Level Complex Tastes
 
-Before fitting inferential models, we can visualize the magnitude of these different engagement states across the genres. We calculate the absolute proportion of respondents who fall into each state (Listen Only, Like Only, Both, or Neither) for each of the 20 genres.
+Before fitting inferential models, we can visualize the magnitude of these different complex tastes across the genres. We calculate the absolute proportion of respondents who fall into each state (Listen Only, Like Only, Both, or Neither) for each of the 20 genres.
 
 ```{r}
 #| label: descriptive-plot
@@ -245,7 +245,7 @@ make_clean_df_twoway <- function(row_idx) {
       Predictor == "parent_educ" ~ "Parental Education",
       Predictor == "child_arts" ~ "Childhood Arts Exposure",
       Predictor == "agecat" ~ "Age Category",
-      Predictor == "female" ~ "Female",
+      Predictor == "female" ~ "Gender ID (Woman)",
       Predictor == "income" ~ "Household Income",
       Predictor == "as.factor(race5)2" ~ "Race: Black",
       Predictor == "as.factor(race5)3" ~ "Race: Hispanic",
@@ -313,7 +313,7 @@ wald_results[[1]] <- do_wald(c(2, 13, 24), "Education", 3)
 wald_results[[2]] <- do_wald(c(3, 14, 25), "Parental Education", 3)
 wald_results[[3]] <- do_wald(c(4, 15, 26), "Childhood Arts Exposure", 3)
 wald_results[[4]] <- do_wald(c(5, 16, 27), "Age Category", 3)
-wald_results[[5]] <- do_wald(c(6, 17, 28), "Female", 3)
+wald_results[[5]] <- do_wald(c(6, 17, 28), "Gender ID (Woman)", 3)
 wald_results[[6]] <- do_wald(c(7, 18, 29), "Household Income", 3)
 # Race has 4 dummies spanning the 3 equations (12 total terms)
 wald_results[[7]] <- do_wald(c(8, 9, 10, 11, 19, 20, 21, 22, 30, 31, 32, 33), "Race (Joint)", 12)
@@ -433,7 +433,7 @@ p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = respo
     subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
     x = "Level of Childhood Arts Exposure",
     y = "Predicted Probability",
-    color = "Engagement State"
+    color = "Complex Tastes"
   )
 
 # Save to Plots directory
@@ -628,9 +628,9 @@ p_ame_under
 
 The effect of arts exposure on underclaiming is universally flat or negative across almost all genres. The only genres that show a mild negative effect (meaning arts exposure makes you *less* likely to underclaim them) are Contemporary Rock, Rap/Hip Hop, and Latin. For most of the cultural hierarchy, childhood arts exposure simply has no bearing on whether someone listens to a genre in secret.
 
-### Education and Engagement States
+### Education and Complex Tastes
 
-We perform the exact same marginal probability calculation for the highest level of education attained (`educ2`) to see how it affects the competing engagement states.
+We perform the exact same marginal probability calculation for the highest level of education attained (`educ2`) to see how it affects the competing complex tastes.
 
 ```{r}
 #| label: marginal-effects-educ
@@ -677,7 +677,7 @@ p_margins_educ <- ggplot(pred_df_educ, aes(x = educ2, y = estimate, color = resp
     subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
     x = "Education Level",
     y = "Predicted Probability",
-    color = "Engagement State"
+    color = "Complex Tastes"
   )
 
 # Save to Plots directory
