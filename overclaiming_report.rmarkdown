@@ -1,0 +1,688 @@
+---
+title: "Musical Overclaiming: Liking vs. Listening in the Abstract"
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: cosmo
+---
+
+::: {.callout-note}
+This report was generated using AI under general human direction. At the time of generation, the contents have not been comprehensively reviewed by a human analyst.
+:::
+
+# Introduction
+
+The core goal of this analysis is to study "overclaiming" in musical tastes: instances where individuals report that they like a musical genre in the abstract, but that genre is entirely absent when querying the artists and songs actually present on their recent playlists.
+
+To capture this phenomenon, we wrangle survey data to explicitly map abstract genre preferences to concrete listening behavior. We then deploy a multinomial logistic regression framework with two-way clustered standard errors (accounting for both person-level and genre-level variance) to identify which demographic profiles are most prone to overclaiming.
+
+# Data Wrangling and Preparation
+
+The foundational step requires taking raw, self-reported recent streams/artists and mapping them to 20 consistent numeric genre codes. We then align these 20 genres with the 20 corresponding survey questions regarding abstract genre liking.
+
+```{r}
+#| label: load-packages
+#| message: false
+#| warning: false
+library(haven)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(nnet)
+library(sandwich)
+library(lmtest)
+library(marginaleffects)
+```
+
+## Binary Indicators for Liking and Listening
+
+We process the core dataset to create two binary indicators for each of the 20 genres:
+1. **Liking (`like`)**: Scored as 1 if the respondent rated their liking of the genre as a 5, 6, or 7 on a 7-point Likert scale.
+2. **Listening (`listen`)**: Scored as 1 if the genre appeared anywhere in their top 10 reported playlist artists.
+
+We then pivot this data into a long format where each row represents a single person-genre pair.
+
+```{r}
+#| label: data-preparation
+# Load the base dataset
+df_raw <- read_dta("dta/analysis_time_CCC.dta")
+
+# Create IDs
+df_raw$id <- 1:nrow(df_raw)
+
+# Map the 20 abstract liking questions to the 20 genre codes
+genre_mapping <- list(
+  g1=21, g2=22, g3=24, g4=39, g5=26, g6=36, g7=37, g8=23, g9=31, g10=27,
+  g11=28, g12=40, g13=29, g14=30, g15=25, g16=32, g17=38, g18=33, g19=34, g20=35
+)
+
+# Calculate binary like (5-7) and binary listen indicators
+for (g in 1:20) {
+  like_col <- paste0("like_music_genres_", genre_mapping[[paste0("g", g)]])
+  df_raw[[paste0("like_g", g)]] <- ifelse(df_raw[[like_col]] >= 5 & df_raw[[like_col]] <= 7, 1, 0)
+  
+  df_raw[[paste0("listen_g", g)]] <- 0
+  for (i in 1:10) {
+    df_raw[[paste0("listen_g", g)]] <- df_raw[[paste0("listen_g", g)]] | (df_raw[[paste0("genre_final", i)]] == g)
+  }
+}
+
+# Pivot data to long format for person-genre analysis
+# We also create a composite parental education variable
+df_long <- df_raw %>%
+  mutate(parent_educ = pmax(mom_educ, dad_educ, na.rm = TRUE)) %>%
+  select(id, educ2, parent_educ, child_arts, agecat, income, female, urban_rural2, race5, social,
+         starts_with("like_g"), starts_with("listen_g")) %>%
+  pivot_longer(
+    cols = matches("^(like|listen)_g\\d+"),
+    names_to = c(".value", "genre_id"),
+    names_pattern = "^([a-z]+)_g(\\d+)$"
+  ) %>%
+  mutate(genre_id = as.factor(genre_id))
+```
+
+# Defining the Competing Engagement States
+
+To study overclaiming comprehensively, we frame the behavior as a multi-state competing outcome. For every genre-person pair, a respondent can fall into one of four mutually exclusive engagement states:
+
+1. **Neither**: Does not like it, does not listen to it. (Baseline)
+2. **Listen Only (Underclaim)**: Listens to it, but didn't report liking it in the abstract.
+3. **Like Only (Overclaim)**: Reports liking it, but it is entirely absent from their listening.
+4. **Both (True Engagement)**: Reports liking it AND actively listens to it.
+
+```{r}
+#| label: create-outcomes-clean
+df_long <- df_long %>%
+  mutate(
+    engagement_state = case_when(
+      like == 0 & listen == 0 ~ "Neither",
+      like == 0 & listen == 1 ~ "ListenOnly",
+      like == 1 & listen == 0 ~ "LikeOnly",
+      like == 1 & listen == 1 ~ "Both"
+    ),
+    engagement_state = factor(engagement_state, levels = c("Neither", "ListenOnly", "LikeOnly", "Both"))
+  )
+```
+
+# Descriptive Analysis: Genre-Level Engagement States
+
+Before fitting inferential models, we can visualize the magnitude of these different engagement states across the genres. We calculate the absolute proportion of respondents who fall into each state (Listen Only, Like Only, Both, or Neither) for each of the 20 genres.
+
+```{r}
+#| label: descriptive-plot
+#| fig-width: 10
+#| fig-height: 8
+genre_labels <- data.frame(
+  genre_id = as.character(1:20),
+  genre_name = c(
+    "Swing/Big Band", "Bluegrass", "R&B/Blues", "Classic Rock", "Classical",
+    "Contemporary Pop", "Contemporary Rock", "Country", "Easy Listening", "Folk",
+    "Gospel", "Heavy Metal", "Jazz", "Latin", "Musicals",
+    "New Age", "Oldies", "Opera", "Rap/Hip Hop", "Reggae"
+  )
+)
+
+# Calculate proportions of each engagement state by genre
+df_summary <- df_long %>%
+  group_by(genre_id, engagement_state) %>%
+  summarize(count = n(), .groups = "drop_last") %>%
+  mutate(prop = count / sum(count)) %>%
+  ungroup() %>%
+  left_join(genre_labels, by = "genre_id")
+
+# Order genres by how frequently they are Overclaimed (LikeOnly)
+order_by_overclaim <- df_summary %>%
+  filter(engagement_state == "LikeOnly") %>%
+  arrange(prop) %>%
+  pull(genre_name)
+
+df_summary <- df_summary %>%
+  mutate(genre_name = factor(genre_name, levels = order_by_overclaim)) %>%
+  mutate(engagement_state = factor(engagement_state, 
+                                   levels = c("LikeOnly", "ListenOnly", "Both", "Neither"),
+                                   labels = c("Like Only (Overclaim)", "Listen Only (Underclaim)", "Both (True Engagement)", "Neither")))
+
+# We will create three separate plots, one for each active engagement state.
+# For each plot, the y-axis will be dynamically ordered by the prevalence of that specific state.
+
+df_active <- df_summary %>% filter(engagement_state != "Neither")
+
+plot_state <- function(state_name, title, color) {
+  df_filtered <- df_active %>%
+    filter(engagement_state == state_name) %>%
+    arrange(prop) %>%
+    mutate(genre_name = factor(genre_name, levels = genre_name))
+  
+  avg_prop <- mean(df_filtered$prop)
+  
+  p <- ggplot(df_filtered, aes(x = prop, y = genre_name)) +
+    geom_vline(xintercept = avg_prop, linetype = "dashed", color = "gray40", size = 0.8) +
+    geom_segment(aes(x = 0, xend = prop, y = genre_name, yend = genre_name), color = "gray60") +
+    geom_point(color = color, size = 4) +
+    scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+    theme_minimal(base_size = 14) +
+    labs(
+      title = title,
+      subtitle = "Dashed line represents the cross-genre average",
+      x = "Percentage of Respondents",
+      y = ""
+    )
+  return(p)
+}
+
+# 1. Overclaiming Plot
+p_overclaim <- plot_state("Like Only (Overclaim)", "Overclaiming: Like Only", "#E69F00")
+ggsave("Plots/Prevalence_Overclaiming.png", p_overclaim, width = 8, height = 6, dpi = 300)
+
+# 2. True Engagement Plot
+p_both <- plot_state("Both (True Engagement)", "True Engagement: Like and Listen", "#009E73")
+ggsave("Plots/Prevalence_True_Engagement.png", p_both, width = 8, height = 6, dpi = 300)
+
+# 3. Underclaiming Plot
+p_underclaim <- plot_state("Listen Only (Underclaim)", "Underclaiming: Listen Only", "#56B4E9")
+ggsave("Plots/Prevalence_Underclaiming.png", p_underclaim, width = 8, height = 6, dpi = 300)
+
+# Display the plots in the report
+p_overclaim
+p_both
+p_underclaim
+```
+
+The plot above reveals several key findings about genre-level dynamics:
+- **Highly Overclaimed**: Easy Listening, Reggae, Classical, and New Age have massive rates of "Like Only" (overclaiming) but almost no "True Engagement" (Both).
+- **Highly Consistent**: Contemporary Pop and Contemporary Rock boast the highest rates of "True Engagement" (Both). 
+- **Highly Underclaimed**: No genre is dominated by underclaiming, but Contemporary Pop has the highest absolute rate of "Listen Only", meaning many people listen to it without bothering to rate it highly on the survey.
+
+# Defining the Competing Engagement States
+
+# Multinomial Model and Robust Inference
+
+We deploy a fixed-effects multinomial logistic regression (`nnet::multinom`) to model the probability of falling into these states. 
+
+Because our data is in a long format where the same respondent appears 20 times (once for each genre), the observations are not independent. To prevent artificially low $p$-values, we calculate **Two-Way Clustered Standard Errors**. This approach clusters the standard errors simultaneously at the respondent level (`id`) and the genre level (`genre_id`), accounting for variance driven by individual respondent tendencies as well as baseline differences in how heavily specific genres are overclaimed.
+
+```{r}
+#| label: multinomial-model
+#| results: hide
+model_fixed <- multinom(
+  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5),
+  data = df_long
+)
+```
+
+```{r}
+#| label: clustered-se
+# Calculate two-way clustered standard errors (Person + Genre)
+robust_vcov_twoway <- vcovCL(model_fixed, cluster = df_long[, c("id", "genre_id")])
+robust_se_twoway <- sqrt(diag(robust_vcov_twoway))
+
+# Manually compute z-scores and p-values
+est <- summary(model_fixed)$coefficients
+se_mat_twoway <- matrix(robust_se_twoway, nrow = nrow(est), ncol = ncol(est), byrow = TRUE)
+z_vals_twoway <- est / se_mat_twoway
+p_vals_twoway <- (1 - pnorm(abs(z_vals_twoway), 0, 1)) * 2
+
+# Helper function to extract cleanly and build a nice gt table
+library(gt)
+library(dplyr)
+library(aod)
+
+make_clean_df_twoway <- function(row_idx) {
+  df <- data.frame(
+    Predictor = colnames(est),
+    Estimate = round(est[row_idx, ], 3),
+    Robust_SE = round(se_mat_twoway[row_idx, ], 3),
+    Z = round(z_vals_twoway[row_idx, ], 2),
+    P_Value = round(p_vals_twoway[row_idx, ], 3)
+  )
+  
+  # Clean up predictor names
+  df <- df %>%
+    mutate(Predictor = case_when(
+      Predictor == "(Intercept)" ~ "Intercept",
+      Predictor == "educ2" ~ "Education",
+      Predictor == "parent_educ" ~ "Parental Education",
+      Predictor == "child_arts" ~ "Childhood Arts Exposure",
+      Predictor == "agecat" ~ "Age Category",
+      Predictor == "female" ~ "Female",
+      Predictor == "income" ~ "Household Income",
+      Predictor == "as.factor(race5)2" ~ "Race: Black",
+      Predictor == "as.factor(race5)3" ~ "Race: Hispanic",
+      Predictor == "as.factor(race5)4" ~ "Race: Asian",
+      Predictor == "as.factor(race5)5" ~ "Race: Other/Mixed",
+      TRUE ~ Predictor
+    )) %>%
+    mutate(
+      Sig = case_when(
+        P_Value < 0.001 ~ "***",
+        P_Value < 0.01 ~ "**",
+        P_Value < 0.05 ~ "*",
+        P_Value < 0.1 ~ ".",
+        TRUE ~ ""
+      )
+    )
+    
+  return(df)
+}
+
+format_gt_table <- function(df, title) {
+  df %>%
+    gt() %>%
+    tab_header(
+      title = md(title)
+    ) %>%
+    cols_label(
+      Robust_SE = "Robust SE",
+      P_Value = "p-value",
+      Sig = ""
+    ) %>%
+    fmt_number(
+      columns = c(Estimate, Robust_SE, Z),
+      decimals = 3
+    ) %>%
+    opt_stylize(style = 6, color = "cyan")
+}
+```
+
+### Global Variable Importance (Wald Tests)
+
+Before looking at the coefficients for specific engagement states, we can test the overall, joint significance of each predictor across the entire multinomial model using robust Wald tests. The null hypothesis is that a variable's coefficients are simultaneously zero across all three modeled equations (ListenOnly, LikeOnly, and Both, relative to Neither).
+
+```{r}
+#| label: wald-tests
+#| echo: false
+# Calculate robust Wald tests for each predictor across all equations
+b_vec <- as.vector(t(est))
+wald_results <- list()
+
+do_wald <- function(indices, var_name, df_val) {
+  w <- wald.test(Sigma = robust_vcov_twoway, b = b_vec, Terms = indices)
+  data.frame(
+    Predictor = var_name, 
+    Chi_Square = w$result$chi2["chi2"], 
+    DF = df_val, 
+    P_Value = w$result$chi2["P"], 
+    row.names = NULL
+  )
+}
+
+# The vcov matrix is 33x33 (11 terms * 3 equations)
+# eq1: 1-11, eq2: 12-22, eq3: 23-33
+wald_results[[1]] <- do_wald(c(2, 13, 24), "Education", 3)
+wald_results[[2]] <- do_wald(c(3, 14, 25), "Parental Education", 3)
+wald_results[[3]] <- do_wald(c(4, 15, 26), "Childhood Arts Exposure", 3)
+wald_results[[4]] <- do_wald(c(5, 16, 27), "Age Category", 3)
+wald_results[[5]] <- do_wald(c(6, 17, 28), "Female", 3)
+wald_results[[6]] <- do_wald(c(7, 18, 29), "Household Income", 3)
+# Race has 4 dummies spanning the 3 equations (12 total terms)
+wald_results[[7]] <- do_wald(c(8, 9, 10, 11, 19, 20, 21, 22, 30, 31, 32, 33), "Race (Joint)", 12)
+
+wald_df <- do.call(rbind, wald_results) %>%
+  arrange(desc(Chi_Square)) %>%
+  mutate(
+    Sig = case_when(
+      P_Value < 0.001 ~ "***",
+      P_Value < 0.01 ~ "**",
+      P_Value < 0.05 ~ "*",
+      P_Value < 0.1 ~ ".",
+      TRUE ~ ""
+    )
+  )
+
+wald_gt <- wald_df %>%
+  gt() %>%
+  tab_header(
+    title = md("**Joint Significance of Predictors (Robust Wald Tests)**"),
+    subtitle = "Null Hypothesis: Coefficients are zero across all states"
+  ) %>%
+  cols_label(
+    Chi_Square = html("&chi;<sup>2</sup>"),
+    P_Value = "p-value",
+    Sig = ""
+  ) %>%
+  fmt_number(columns = c(Chi_Square), decimals = 2) %>%
+  fmt_number(columns = c(P_Value), decimals = 4) %>%
+  opt_stylize(style = 6, color = "cyan")
+
+dir.create("Tabs", showWarnings = FALSE)
+gtsave(wald_gt, "Tabs/Table_Wald_Tests.html")
+wald_gt
+```
+
+### Predictors of Overclaiming (Like Only)
+```{r}
+#| label: results-overclaim
+#| echo: false
+dir.create("Tabs", showWarnings = FALSE)
+
+df_overclaim <- make_clean_df_twoway(2)
+gt_overclaim <- format_gt_table(df_overclaim, "**Predictors of Overclaiming (Like Only)**")
+gtsave(gt_overclaim, "Tabs/Table_Overclaim.html")
+gt_overclaim
+```
+
+### Predictors of Underclaiming (Listen Only)
+```{r}
+#| label: results-underclaim
+#| echo: false
+df_underclaim <- make_clean_df_twoway(1)
+gt_underclaim <- format_gt_table(df_underclaim, "**Predictors of Underclaiming (Listen Only)**")
+gtsave(gt_underclaim, "Tabs/Table_Underclaim.html")
+gt_underclaim
+```
+
+### Predictors of True Engagement (Both)
+```{r}
+#| label: results-true
+#| echo: false
+df_true <- make_clean_df_twoway(3)
+gt_true <- format_gt_table(df_true, "**Predictors of True Engagement (Like and Listen)**")
+gtsave(gt_true, "Tabs/Table_True_Engagement.html")
+gt_true
+```
+
+The application of two-way clustering reveals a comprehensive picture of genre engagement. **Childhood arts exposure** (`child_arts`) is the strongest and most robust predictor of overclaiming (reporting liking without listening). While it also increases the probability of True Engagement, its effect on Overclaiming is almost twice as strong. Conversely, **Education** (`educ2`) significantly predicts Underclaiming (listening without reporting liking), suggesting that highly educated individuals may consume genres they decline to formally endorse.
+
+# Visualizing the Effect of Arts Exposure
+
+To make these multinomial dynamics intuitive, we calculate the marginal predicted probabilities for each of the four states across the spectrum of childhood arts exposure. We apply our two-way cluster-robust variance-covariance matrix to generate the 95% confidence intervals.
+
+```{r}
+#| label: marginal-effects-plot
+#| fig-width: 9
+#| fig-height: 7
+# Generate robust predictions using the two-way clustered vcov matrix
+pred_marg <- predictions(
+  model_fixed,
+  newdata = datagrid(child_arts = 1:7), 
+  vcov = robust_vcov_twoway
+)
+
+pred_df_rob <- as.data.frame(pred_marg) %>%
+  mutate(response.level = case_when(
+    group == "Neither" ~ "Neither (No Like, No Listen)",
+    group == "ListenOnly" ~ "Listen Only (Underclaim)",
+    group == "LikeOnly" ~ "Like Only (Overclaim)",
+    group == "Both" ~ "Both (True Engagement)"
+  )) %>%
+  mutate(response.level = factor(response.level, levels = c(
+    "Neither (No Like, No Listen)", 
+    "Listen Only (Underclaim)", 
+    "Both (True Engagement)", 
+    "Like Only (Overclaim)"
+  )))
+
+arts_labels <- c("1 (None)", "2", "3", "4 (Moderate)", "5", "6", "7 (Extensive)")
+
+p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = response.level)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, alpha = 0.15, position = position_dodge(width = 0.5)) +
+  geom_point(size = 3, position = position_dodge(width = 0.5)) +
+  coord_flip() +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_continuous(breaks = 1:7, labels = arts_labels) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  ) +
+  labs(
+    title = "Effect of Childhood Arts Exposure on Genre Engagement",
+    subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
+    x = "Level of Childhood Arts Exposure",
+    y = "Predicted Probability",
+    color = "Engagement State"
+  )
+
+# Save to Plots directory
+dir.create("Plots", showWarnings = FALSE)
+ggsave("Plots/ChildArts_Effects_RobustCI_Errorbars.png", p_margins, width = 9, height = 7, dpi = 300)
+
+p_margins
+```
+
+As childhood arts exposure increases, respondents genuinely engage with more music (the "True Engagement" estimates increase). However, their propensity to overclaim genres ("Like Only") rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
+
+### Overclaiming Across Different Genres (Interaction Effects)
+
+To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we can fit a fixed-effects model that interacts `child_arts` with `genre_id`.
+
+```{r}
+#| label: marginal-effects-genre-interaction
+#| fig-width: 12
+#| fig-height: 8
+# Fit the interaction model (child_arts * genre_id)
+model_int <- multinom(
+  engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + child_arts * genre_id,
+  data = df_long, 
+  MaxNWts = 5000, 
+  maxit = 300,
+  trace = FALSE
+)
+
+# Calculate marginal predictions across the spectrum for every genre
+pred_int <- predictions(
+  model_int,
+  newdata = datagrid(child_arts = 1:7, genre_id = unique(df_long$genre_id))
+)
+
+# Filter for just the Overclaiming state and merge in the clean labels
+pred_df_int <- as.data.frame(pred_int) %>%
+  filter(group == "LikeOnly") %>%
+  mutate(genre_id = as.character(genre_id)) %>%
+  left_join(genre_labels, by = "genre_id")
+
+p_int <- ggplot(pred_df_int, aes(x = child_arts, y = estimate)) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), fill = "#1b9e77", alpha = 0.2) +
+  geom_line(color = "#1b9e77", linewidth = 1.2) +
+  facet_wrap(~ genre_name, scales = "free_y", ncol = 5) +
+  scale_x_continuous(breaks = c(1, 4, 7), labels = c("None", "Mod", "Ext")) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold")
+  ) +
+  labs(
+    title = "Effect of Childhood Arts Exposure on Overclaiming by Genre",
+    subtitle = "Marginal predicted probabilities of 'Like Only' (y-axes vary by genre baseline)",
+    x = "Childhood Arts Exposure",
+    y = "Predicted Probability of Overclaiming"
+  )
+
+# Save to Plots directory
+ggsave("Plots/ChildArts_Genre_Interaction.png", p_int, width = 12, height = 8, dpi = 300)
+
+p_int
+```
+
+As the faceted plot reveals, the effect of childhood arts exposure on overclaiming is highly heterogeneous. Culturally legitimated genres (Classical, Opera, Jazz, Musicals) show incredibly steep slopes, whereas genres like Country, Easy Listening, and Heavy Metal show much flatter (or non-existent) responses to arts exposure.
+
+To quantify and formally compare the strength of this effect across genres, we can calculate the **Average Marginal Effect (AME)** of a 1-unit increase in childhood arts exposure for each genre.
+
+```{r}
+#| label: marginal-effects-genre-ame
+#| fig-width: 9
+#| fig-height: 7
+# Calculate the Average Marginal Effect (slope) of child_arts for each genre
+ame_genre <- avg_slopes(
+  model_int,
+  variables = "child_arts",
+  by = "genre_id"
+)
+
+# Filter for the LikeOnly state and arrange by effect size
+ame_df <- as.data.frame(ame_genre) %>%
+  filter(group == "LikeOnly") %>%
+  mutate(genre_id = as.character(genre_id)) %>%
+  left_join(genre_labels, by = "genre_id") %>%
+  arrange(estimate) %>%
+  mutate(genre_name = factor(genre_name, levels = genre_name))
+
+p_ame <- ggplot(ame_df, aes(x = estimate, y = genre_name)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#1b9e77", linewidth = 0.8) +
+  geom_point(color = "#1b9e77", size = 3) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) +
+  labs(
+    title = "Strength of Arts Exposure Effect on Overclaiming by Genre",
+    subtitle = "Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure",
+    x = "Percentage Point Change in Prob(Like Only)",
+    y = ""
+  )
+
+# Save to Plots directory
+ggsave("Plots/ChildArts_AME_by_Genre.png", p_ame, width = 9, height = 7, dpi = 300)
+
+p_ame
+```
+
+The forest plot above perfectly illustrates the sociological hierarchy of overclaiming. A 1-unit increase in childhood arts exposure increases the probability of overclaiming Classical music by nearly 8 percentage points, and Jazz by over 6 percentage points. In stark contrast, it increases the probability of overclaiming Country, Rap, and Heavy Metal by barely 1 percentage point (with confidence intervals brushing zero).
+
+### True Engagement Across Different Genres (AME)
+
+We can repeat this exact marginal effect analysis for "True Engagement" (Both liking and listening) to see if early arts exposure drives genuine consumption of these genres, or merely the symbolic claiming of them.
+
+```{r}
+#| label: marginal-effects-genre-ame-both
+#| fig-width: 9
+#| fig-height: 7
+# Filter the AME results for the "Both" state
+ame_df_both <- as.data.frame(ame_genre) %>%
+  filter(group == "Both") %>%
+  mutate(genre_id = as.character(genre_id)) %>%
+  left_join(genre_labels, by = "genre_id") %>%
+  arrange(estimate) %>%
+  mutate(genre_name = factor(genre_name, levels = genre_name))
+
+p_ame_both <- ggplot(ame_df_both, aes(x = estimate, y = genre_name)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#d95f02", linewidth = 0.8) +
+  geom_point(color = "#d95f02", size = 3) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) +
+  labs(
+    title = "Strength of Arts Exposure Effect on True Engagement by Genre",
+    subtitle = "Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure",
+    x = "Percentage Point Change in Prob(Both)",
+    y = ""
+  )
+
+# Save to Plots directory
+ggsave("Plots/ChildArts_AME_by_Genre_Both.png", p_ame_both, width = 9, height = 7, dpi = 300)
+
+p_ame_both
+```
+
+The contrast between the two plots is striking. While arts exposure drives massive *overclaiming* of Classical and Jazz, its effect on *genuine engagement* with those same genres is tiny (around +1 percentage point) and barely distinguishable from zero. Instead, arts exposure actually seems to drive genuine engagement with Rap/Hip Hop and Heavy Metal.
+
+### Underclaiming Across Different Genres (AME)
+
+Finally, we can look at the average marginal effect of childhood arts exposure on underclaiming (listening without reporting liking).
+
+```{r}
+#| label: marginal-effects-genre-ame-under
+#| fig-width: 9
+#| fig-height: 7
+# Filter the AME results for the "ListenOnly" state
+ame_df_under <- as.data.frame(ame_genre) %>%
+  filter(group == "ListenOnly") %>%
+  mutate(genre_id = as.character(genre_id)) %>%
+  left_join(genre_labels, by = "genre_id") %>%
+  arrange(estimate) %>%
+  mutate(genre_name = factor(genre_name, levels = genre_name))
+
+p_ame_under <- ggplot(ame_df_under, aes(x = estimate, y = genre_name)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#7570b3", linewidth = 0.8) +
+  geom_point(color = "#7570b3", size = 3) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) +
+  labs(
+    title = "Strength of Arts Exposure Effect on Underclaiming by Genre",
+    subtitle = "Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure",
+    x = "Percentage Point Change in Prob(Listen Only)",
+    y = ""
+  )
+
+# Save to Plots directory
+ggsave("Plots/ChildArts_AME_by_Genre_Underclaim.png", p_ame_under, width = 9, height = 7, dpi = 300)
+
+p_ame_under
+```
+
+The effect of arts exposure on underclaiming is universally flat or negative across almost all genres. The only genres that show a mild negative effect (meaning arts exposure makes you *less* likely to underclaim them) are Contemporary Rock, Rap/Hip Hop, and Latin. For most of the cultural hierarchy, childhood arts exposure simply has no bearing on whether someone listens to a genre in secret.
+
+### Education and Engagement States
+
+We perform the exact same marginal probability calculation for the highest level of education attained (`educ2`) to see how it affects the competing engagement states.
+
+```{r}
+#| label: marginal-effects-educ
+#| fig-width: 9
+#| fig-height: 7
+# Generate robust predictions for education
+pred_marg_educ <- predictions(
+  model_fixed,
+  newdata = datagrid(educ2 = seq(min(df_long$educ2, na.rm=TRUE), max(df_long$educ2, na.rm=TRUE), by=1)), 
+  vcov = robust_vcov_twoway
+)
+
+pred_df_educ <- as.data.frame(pred_marg_educ) %>%
+  mutate(response.level = case_when(
+    group == "Neither" ~ "Neither (No Like, No Listen)",
+    group == "ListenOnly" ~ "Listen Only (Underclaim)",
+    group == "LikeOnly" ~ "Like Only (Overclaim)",
+    group == "Both" ~ "Both (True Engagement)"
+  )) %>%
+  mutate(response.level = factor(response.level, levels = c(
+    "Neither (No Like, No Listen)", 
+    "Listen Only (Underclaim)", 
+    "Both (True Engagement)", 
+    "Like Only (Overclaim)"
+  )))
+
+educ_labels <- c("Less than HS", "HS Grad", "Some College", "Associates", "BA", "Grad Degree")
+
+p_margins_educ <- ggplot(pred_df_educ, aes(x = educ2, y = estimate, color = response.level)) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, alpha = 0.15, position = position_dodge(width = 0.5)) +
+  geom_point(size = 3, position = position_dodge(width = 0.5)) +
+  coord_flip() +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_continuous(breaks = 1:6, labels = educ_labels) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "vertical"
+  ) +
+  labs(
+    title = "Effect of Education on Genre Engagement",
+    subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
+    x = "Education Level",
+    y = "Predicted Probability",
+    color = "Engagement State"
+  )
+
+# Save to Plots directory
+ggsave("Plots/Education_Effects_RobustCI_Errorbars.png", p_margins_educ, width = 9, height = 7, dpi = 300)
+
+p_margins_educ
+```
+

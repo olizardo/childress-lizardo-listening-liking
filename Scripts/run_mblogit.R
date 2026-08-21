@@ -1,3 +1,7 @@
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+if (!requireNamespace("mclogit", quietly = TRUE)) install.packages("mclogit")
+if (!requireNamespace("haven", quietly = TRUE)) install.packages("haven")
+
 library(mclogit)
 library(haven)
 library(dplyr)
@@ -45,7 +49,7 @@ df_long <- df_raw %>%
 cat("Fitting mblogit model...\n")
 fit_mblogit <- mblogit(
   engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5),
-  random = ~ 1|id + 1|genre_id,
+  random = list(~ 1|id, ~ 1 + child_arts|genre_id),
   data = df_long
 )
 
