@@ -17,9 +17,19 @@ The core goal of this analysis is to study "overclaiming" in musical tastes: ins
 
 To capture this phenomenon, we wrangle survey data to explicitly map abstract genre preferences to concrete listening behavior. We then deploy a multinomial logistic regression framework with two-way clustered standard errors (accounting for both person-level and genre-level variance) to identify which demographic profiles are most prone to overclaiming.
 
-# Data Wrangling and Preparation
+# Data Wrangling, Variables, and Preparation
 
-The foundational step requires taking raw, self-reported recent streams/artists and mapping them to 20 consistent numeric genre codes. We then align these 20 genres with the 20 corresponding survey questions regarding abstract genre liking.
+The foundational step requires taking raw, self-reported recent streams/artists and mapping them to 20 consistent numeric genre codes. We then align these 20 genres with the 20 corresponding survey questions regarding abstract genre liking, while preparing several core demographic predictors.
+
+### Core Variables and Survey Wording
+
+- **Abstract Genre Liking (`like_music_genres_21` to `_40`)**: Respondents were asked to rate their affinity for 20 broad musical genres (e.g., Classical, Jazz, Rap/Hip Hop) on a 1–7 scale (from 1 = "Very Much Dislike" to 7 = "Very Much Like").
+- **Concrete Listening (`genre_final1` to `10`)**: Respondents were asked to generate their top 10 most listened-to musical artists/bands. For many respondents, this was extracted directly by having them sort their iTunes or Spotify accounts by "Plays" (captured in the `stream_source` variable). These specific artists were then manually coded into the corresponding 20 broad genre categories by the researchers.
+- **Childhood Arts Exposure (`child_arts`)**: The survey asked, *"During your childhood how frequently did your parents or guardians engage you with the arts?"* on a scale from 1 (Not At All) to 7 (All The Time).
+- **Education (`educ2`)**: The survey asked, *"What is the highest degree or level of school you have completed?"* (ranging from less than 9th grade to an advanced/graduate degree). 
+- **Parental Education (`parent_educ`)**: We generated a composite variable by taking the maximum educational attainment of the respondent's mother (`mom_educ`) and father (`dad_educ`).
+- **Race (`race5`)**: A 5-category self-identification mapping (White, Black, Hispanic, Asian, Other/Mixed).
+- **Platform**: Extracted from the `stream_source` and `how_listen` variables, classifying whether the respondent drew their top artists directly from Spotify, iTunes, Winamp, or via free recall ("rotation").
 
 ```{r}
 #| label: load-packages
@@ -69,10 +79,20 @@ for (g in 1:20) {
 }
 
 # Pivot data to long format for person-genre analysis
-# We also create a composite parental education variable
+# We also create a composite parental education variable and extract platform source
 df_long <- df_raw %>%
-  mutate(parent_educ = pmax(mom_educ, dad_educ, na.rm = TRUE)) %>%
-  select(id, educ2, parent_educ, child_arts, agecat, income, female, urban_rural2, race5, social,
+  mutate(
+    parent_educ = pmax(mom_educ, dad_educ, na.rm = TRUE),
+    platform = case_when(
+      grepl("spotify", stream_source, ignore.case = TRUE) ~ "Spotify",
+      grepl("itunes", stream_source, ignore.case = TRUE) ~ "iTunes",
+      grepl("winamp", stream_source, ignore.case = TRUE) ~ "Winamp",
+      grepl("rotation", stream_source, ignore.case = TRUE) & !grepl("itunes|spotify|winamp", stream_source, ignore.case = TRUE) ~ "Free Recall",
+      stream_source == "" ~ "Free Recall",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  select(id, educ2, parent_educ, child_arts, agecat, income, female, urban_rural2, race5, social, platform, stream_source,
          starts_with("like_g"), starts_with("listen_g")) %>%
   pivot_longer(
     cols = matches("^(like|listen)_g\\d+"),
@@ -157,7 +177,7 @@ plot_state <- function(state_name, title, color) {
   avg_prop <- mean(df_filtered$prop)
   
   p <- ggplot(df_filtered, aes(x = prop, y = genre_name)) +
-    geom_vline(xintercept = avg_prop, linetype = "dashed", color = "gray40", size = 0.8) +
+    geom_vline(xintercept = avg_prop, linetype = "dashed", color = "gray40", linewidth = 0.8) +
     geom_segment(aes(x = 0, xend = prop, y = genre_name, yend = genre_name), color = "gray60") +
     geom_point(color = color, size = 4) +
     scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
@@ -189,12 +209,13 @@ p_both
 p_underclaim
 ```
 
-The plot above reveals several key findings about genre-level dynamics:
-- **Highly Overclaimed**: Easy Listening, Reggae, Classical, and New Age have massive rates of "Like Only" (overclaiming) but almost no "True Engagement" (Both).
-- **Highly Consistent**: Contemporary Pop and Contemporary Rock boast the highest rates of "True Engagement" (Both). 
-- **Highly Underclaimed**: No genre is dominated by underclaiming, but Contemporary Pop has the highest absolute rate of "Listen Only", meaning many people listen to it without bothering to rate it highly on the survey.
+The plots above vividly map out the baseline landscape of complex musical tastes before any demographic modeling is applied. By evaluating the raw proportions of these states, a stark division in the musical landscape emerges. 
 
-# Defining the Competing Engagement States
+Culturally symbolic genres are completely dominated by symbolic overclaiming. Genres like Easy Listening, Reggae, Classical, Oldies, and Musicals show massive rates of the "Like Only" state—often exceeding 50% or even 60% of all respondents—yet they display almost zero "True Engagement." In other words, people overwhelmingly claim an affinity for these styles when surveyed, but they almost never actually put them on their personal playlists. 
+
+In contrast, the core of true musical engagement is concentrated in just a few massive genres. Contemporary Pop, Contemporary Rock, and Rap/Hip Hop boast the highest rates of "Both." For these styles, abstract liking tightly matches concrete streaming behavior; they are the active pillars of actual daily consumption rather than abstract symbolic markers. 
+
+Finally, the plots highlight the overall rarity of underclaiming (the "guilty pleasure" dynamic). Sociologically, we might expect people to actively hide their consumption of heavily stigmatized or "lowbrow" genres (i.e., listening to a genre while refusing to report liking it). However, the "Listen Only" state is universally rare across the board. The only genre where it is noticeably present is Contemporary Pop, which likely suggests passive, ambient consumption—hearing it constantly in public spaces or on the radio—rather than a deliberate attempt to hide a guilty pleasure.
 
 # Multinomial Model and Robust Inference
 
@@ -206,7 +227,7 @@ Because our data is in a long format where the same respondent appears 20 times 
 #| label: multinomial-model
 #| results: hide
 model_fixed <- multinom(
-  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5),
+  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform),
   data = df_long
 )
 ```
@@ -251,6 +272,10 @@ make_clean_df_twoway <- function(row_idx) {
       Predictor == "as.factor(race5)3" ~ "Race: Hispanic",
       Predictor == "as.factor(race5)4" ~ "Race: Asian",
       Predictor == "as.factor(race5)5" ~ "Race: Other/Mixed",
+      Predictor == "as.factor(platform)iTunes" ~ "Platform: iTunes",
+      Predictor == "as.factor(platform)Other" ~ "Platform: Other",
+      Predictor == "as.factor(platform)Spotify" ~ "Platform: Spotify",
+      Predictor == "as.factor(platform)Winamp" ~ "Platform: Winamp",
       TRUE ~ Predictor
     )) %>%
     mutate(
@@ -285,9 +310,12 @@ format_gt_table <- function(df, title) {
 }
 ```
 
+
 ### Global Variable Importance (Wald Tests)
 
-Before looking at the coefficients for specific engagement states, we can test the overall, joint significance of each predictor across the entire multinomial model using robust Wald tests. The null hypothesis is that a variable's coefficients are simultaneously zero across all three modeled equations (ListenOnly, LikeOnly, and Both, relative to Neither).
+Before looking at the coefficients for specific engagement states, we test the overall, joint significance of each predictor across the entire multinomial model using robust Wald tests. Because our model estimates three separate equations simultaneously (ListenOnly vs. Neither, LikeOnly vs. Neither, and Both vs. Neither), a single categorical variable like Race (with 4 dummy indicators) actually generates 12 separate coefficients. The robust Wald test calculates a single $\chi^2$ statistic with 12 degrees of freedom to determine if Race, as a global construct, significantly improves model fit above zero.
+
+This protects against "p-hacking" individual coefficients and provides a rigorous hierarchy of variable importance.
 
 ```{r}
 #| label: wald-tests
@@ -307,16 +335,18 @@ do_wald <- function(indices, var_name, df_val) {
   )
 }
 
-# The vcov matrix is 33x33 (11 terms * 3 equations)
-# eq1: 1-11, eq2: 12-22, eq3: 23-33
-wald_results[[1]] <- do_wald(c(2, 13, 24), "Education", 3)
-wald_results[[2]] <- do_wald(c(3, 14, 25), "Parental Education", 3)
-wald_results[[3]] <- do_wald(c(4, 15, 26), "Childhood Arts Exposure", 3)
-wald_results[[4]] <- do_wald(c(5, 16, 27), "Age Category", 3)
-wald_results[[5]] <- do_wald(c(6, 17, 28), "Gender ID (Woman)", 3)
-wald_results[[6]] <- do_wald(c(7, 18, 29), "Household Income", 3)
+# The vcov matrix is 42x42 (14 terms * 3 equations)
+# eq1: 1-14, eq2: 15-28, eq3: 29-42
+wald_results[[1]] <- do_wald(c(2, 16, 30), "Education", 3)
+wald_results[[2]] <- do_wald(c(3, 17, 31), "Parental Education", 3)
+wald_results[[3]] <- do_wald(c(4, 18, 32), "Childhood Arts Exposure", 3)
+wald_results[[4]] <- do_wald(c(5, 19, 33), "Age Category", 3)
+wald_results[[5]] <- do_wald(c(6, 20, 34), "Gender ID (Woman)", 3)
+wald_results[[6]] <- do_wald(c(7, 21, 35), "Household Income", 3)
 # Race has 4 dummies spanning the 3 equations (12 total terms)
-wald_results[[7]] <- do_wald(c(8, 9, 10, 11, 19, 20, 21, 22, 30, 31, 32, 33), "Race (Joint)", 12)
+wald_results[[7]] <- do_wald(c(8, 9, 10, 11, 22, 23, 24, 25, 36, 37, 38, 39), "Race (Joint)", 12)
+# Platform has 3 dummies spanning the 3 equations (9 total terms)
+wald_results[[8]] <- do_wald(c(12, 13, 14, 26, 27, 28, 40, 41, 42), "Platform (Joint)", 9)
 
 wald_df <- do.call(rbind, wald_results) %>%
   arrange(desc(Chi_Square)) %>%
@@ -421,6 +451,7 @@ p_margins <- ggplot(pred_df_rob, aes(x = child_arts, y = estimate, color = respo
   coord_flip() +
   scale_color_brewer(palette = "Dark2") +
   scale_x_continuous(breaks = 1:7, labels = arts_labels) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = seq(0, 0.6, by = 0.1), limits = c(0, 0.6)) +
   theme_minimal(base_size = 14) +
   theme(
     panel.grid.major.y = element_blank(),
@@ -445,62 +476,68 @@ p_margins
 
 As childhood arts exposure increases, respondents genuinely engage with more music (the "True Engagement" estimates increase). However, their propensity to overclaim genres ("Like Only") rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
 
-### Overclaiming Across Different Genres (Interaction Effects)
+### Model Fit and Strategy
 
-To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we can fit a fixed-effects model that interacts `child_arts` with `genre_id`.
+Thus far, our multinomial models have pooled all 20 genres together, treating the effect of demographic predictors as uniform across the entire musical landscape. However, we suspect that overclaiming is deeply genre-dependent. 
+
+To formally test this, we evaluate three nested models:
+1. **Base Demographics**: A pooled model assuming demographic effects (and the baseline rate of overclaiming) are identical across all genres.
+2. **Genre Fixed Effects**: Adding independent intercepts for all 20 genres (accounting for the fact that Classical is inherently overclaimed more globally than Country, independent of demographics).
+3. **Genre Interactions**: Adding an interaction between childhood arts exposure and genre (allowing the specific *slope* or effect of arts exposure to vary uniquely for every single genre).
+
+We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance. In all three metrics, lower values indicate a superior balance of model accuracy and parsimony.
 
 ```{r}
-#| label: marginal-effects-genre-interaction
-#| fig-width: 12
-#| fig-height: 8
+#| label: model-fit-comparison
+#| echo: false
+# Fit intermediate genre fixed-effects model
+model_fixed_genre <- multinom(
+  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform) + genre_id,
+  data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
+)
+
 # Fit the interaction model (child_arts * genre_id)
 model_int <- multinom(
-  engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + child_arts * genre_id,
+  engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + as.factor(platform) + child_arts * genre_id,
   data = df_long, 
   MaxNWts = 5000, 
   maxit = 300,
   trace = FALSE
 )
 
-# Calculate marginal predictions across the spectrum for every genre
-pred_int <- predictions(
-  model_int,
-  newdata = datagrid(child_arts = 1:7, genre_id = unique(df_long$genre_id))
+# Extract fit statistics
+fit_table <- data.frame(
+  Model = c(
+    "1. Base Demographics", 
+    "2. Base + Genre Fixed Effects", 
+    "3. Base + Genre FEs + Arts × Genre Interactions"
+  ),
+  AIC = c(AIC(model_fixed), AIC(model_fixed_genre), AIC(model_int)),
+  BIC = c(BIC(model_fixed), BIC(model_fixed_genre), BIC(model_int)),
+  Deviance = c(deviance(model_fixed), deviance(model_fixed_genre), deviance(model_int))
 )
 
-# Filter for just the Overclaiming state and merge in the clean labels
-pred_df_int <- as.data.frame(pred_int) %>%
-  filter(group == "LikeOnly") %>%
-  mutate(genre_id = as.character(genre_id)) %>%
-  left_join(genre_labels, by = "genre_id")
+# Format table
+fit_gt <- fit_table %>%
+  gt() %>%
+  tab_header(
+    title = md("**Multinomial Model Fit Comparison**"),
+    subtitle = "Lower AIC and BIC indicate better model fit"
+  ) %>%
+  fmt_number(columns = c(AIC, BIC, Deviance), decimals = 0) %>%
+  opt_stylize(style = 6, color = "cyan")
 
-p_int <- ggplot(pred_df_int, aes(x = child_arts, y = estimate)) +
-  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), fill = "#1b9e77", alpha = 0.2) +
-  geom_line(color = "#1b9e77", linewidth = 1.2) +
-  facet_wrap(~ genre_name, scales = "free_y", ncol = 5) +
-  scale_x_continuous(breaks = c(1, 4, 7), labels = c("None", "Mod", "Ext")) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  theme_minimal(base_size = 12) +
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold")
-  ) +
-  labs(
-    title = "Effect of Childhood Arts Exposure on Overclaiming by Genre",
-    subtitle = "Marginal predicted probabilities of 'Like Only' (y-axes vary by genre baseline)",
-    x = "Childhood Arts Exposure",
-    y = "Predicted Probability of Overclaiming"
-  )
-
-# Save to Plots directory
-ggsave("Plots/ChildArts_Genre_Interaction.png", p_int, width = 12, height = 8, dpi = 300)
-
-p_int
+dir.create("Tabs", showWarnings = FALSE)
+gtsave(fit_gt, "Tabs/Table_Model_Fit.html")
+fit_gt
 ```
 
-As the faceted plot reveals, the effect of childhood arts exposure on overclaiming is highly heterogeneous. Culturally legitimated genres (Classical, Opera, Jazz, Musicals) show incredibly steep slopes, whereas genres like Country, Easy Listening, and Heavy Metal show much flatter (or non-existent) responses to arts exposure.
+### True Engagement Across Different Genres (AME)
+### Overclaiming Across Different Genres (Interaction Effects)
 
-To quantify and formally compare the strength of this effect across genres, we can calculate the **Average Marginal Effect (AME)** of a 1-unit increase in childhood arts exposure for each genre.
+To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we can fit a fixed-effects model that interacts `child_arts` with `genre_id`.
+
+To quantify and formally compare the strength of this effect across genres, we calculate the **Average Marginal Effect (AME)** of a 1-unit increase in childhood arts exposure for each genre, isolating the "Like Only" state.
 
 ```{r}
 #| label: marginal-effects-genre-ame
@@ -513,23 +550,57 @@ ame_genre <- avg_slopes(
   by = "genre_id"
 )
 
+# Determine demographic preferences for highlighting
+pref_df <- df_long %>%
+  mutate(
+    # College: BA or Grad Degree. Baseline: HS or less (excluding 'some college' & 'associates')
+    college = ifelse(as.numeric(educ2) >= 5, TRUE, ifelse(as.numeric(educ2) <= 2, FALSE, NA)),
+    # Black
+    black = ifelse(as.numeric(race5) == 2, TRUE, ifelse(as.numeric(race5) == 1, FALSE, NA))
+  ) %>%
+  group_by(genre_id) %>%
+  summarize(
+    ratio_col = mean(like[college == TRUE], na.rm = TRUE) / mean(like[college == FALSE], na.rm = TRUE),
+    ratio_black = mean(like[black == TRUE], na.rm = TRUE) / mean(like[black == FALSE], na.rm = TRUE)
+  )
+
 # Filter for the LikeOnly state and arrange by effect size
 ame_df <- as.data.frame(ame_genre) %>%
   filter(group == "LikeOnly") %>%
   mutate(genre_id = as.character(genre_id)) %>%
   left_join(genre_labels, by = "genre_id") %>%
+  left_join(pref_df, by = "genre_id") %>%
+  mutate(
+    pref_group = case_when(
+      ratio_col > 1.0 & ratio_black > 1.0 ~ "Both",
+      ratio_col > 1.0 ~ "College Preferred",
+      ratio_black > 1.0 ~ "Black Preferred",
+      TRUE ~ "Other"
+    ),
+    pref_group = factor(pref_group, levels = c("College Preferred", "Black Preferred", "Both", "Other"))
+  ) %>%
   arrange(estimate) %>%
   mutate(genre_name = factor(genre_name, levels = genre_name))
 
 p_ame <- ggplot(ame_df, aes(x = estimate, y = genre_name)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#1b9e77", linewidth = 0.8) +
-  geom_point(color = "#1b9e77", size = 3) +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high, color = pref_group), width = 0.2, linewidth = 0.8) +
+  geom_point(aes(color = pref_group), size = 3) +
+  scale_color_manual(
+    values = c(
+      "College Preferred" = "#1b9e77", 
+      "Black Preferred" = "#d95f02", 
+      "Both" = "#7570b3", 
+      "Other" = "gray70"
+    ),
+    name = "Demographic Preference\n(Ratio > 1.0)"
+  ) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   theme_minimal(base_size = 14) +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank()
+    panel.grid.minor.y = element_blank(),
+    legend.position = "right"
   ) +
   labs(
     title = "Strength of Arts Exposure Effect on Overclaiming by Genre",
@@ -545,8 +616,6 @@ p_ame
 ```
 
 The forest plot above perfectly illustrates the sociological hierarchy of overclaiming. A 1-unit increase in childhood arts exposure increases the probability of overclaiming Classical music by nearly 8 percentage points, and Jazz by over 6 percentage points. In stark contrast, it increases the probability of overclaiming Country, Rap, and Heavy Metal by barely 1 percentage point (with confidence intervals brushing zero).
-
-### True Engagement Across Different Genres (AME)
 
 We can repeat this exact marginal effect analysis for "True Engagement" (Both liking and listening) to see if early arts exposure drives genuine consumption of these genres, or merely the symbolic claiming of them.
 
@@ -628,61 +697,85 @@ p_ame_under
 
 The effect of arts exposure on underclaiming is universally flat or negative across almost all genres. The only genres that show a mild negative effect (meaning arts exposure makes you *less* likely to underclaim them) are Contemporary Rock, Rap/Hip Hop, and Latin. For most of the cultural hierarchy, childhood arts exposure simply has no bearing on whether someone listens to a genre in secret.
 
-### Education and Complex Tastes
+### Overclaiming and Demographic Prestige
 
-We perform the exact same marginal probability calculation for the highest level of education attained (`educ2`) to see how it affects the competing complex tastes.
+To fully understand the sociological driver of overclaiming, we can test whether the magnitude of the overclaiming effect (the AME) correlates with the demographic prestige of the genre. 
+
+We can create a "Prestige Index" by averaging two distinct demographic preference ratios, computed directly from the survey respondents' actual abstract liking rates:
+1. **Class Prestige (College Ratio):** The ratio of liking among respondents with a BA degree or higher divided by the liking among respondents with a High School diploma or less (excluding the "some college" and "associate's degree" middle categories to sharpen the contrast).
+2. **Racial Prestige (Black Ratio):** The ratio of liking among Black respondents divided by the liking among White respondents.
+
+By plotting this average index against the Average Marginal Effect (AME) on overclaiming, we can see if genres with higher combined demographic prestige are the ones most prone to symbolic overclaiming.
 
 ```{r}
-#| label: marginal-effects-educ
-#| fig-width: 9
-#| fig-height: 7
-# Generate robust predictions for education
-pred_marg_educ <- predictions(
-  model_fixed,
-  newdata = datagrid(educ2 = seq(min(df_long$educ2, na.rm=TRUE), max(df_long$educ2, na.rm=TRUE), by=1)), 
-  vcov = robust_vcov_twoway
-)
+#| label: overclaim-prestige-correlation
+#| fig-width: 8
+#| fig-height: 6
 
-pred_df_educ <- as.data.frame(pred_marg_educ) %>%
-  mutate(response.level = case_when(
-    group == "Neither" ~ "Neither (No Like, No Listen)",
-    group == "ListenOnly" ~ "Listen Only (Underclaim)",
-    group == "LikeOnly" ~ "Like Only (Overclaim)",
-    group == "Both" ~ "Both (True Engagement)"
-  )) %>%
-  mutate(response.level = factor(response.level, levels = c(
-    "Neither (No Like, No Listen)", 
-    "Listen Only (Underclaim)", 
-    "Both (True Engagement)", 
-    "Like Only (Overclaim)"
-  )))
+library(ggrepel)
 
-educ_labels <- c("Less than HS", "HS Grad", "Some College", "Associates", "BA", "Grad Degree")
+# 1. Calculate College Ratio (BA+ vs HS or less)
+pref_col <- df_long %>%
+  mutate(college = ifelse(as.numeric(educ2) >= 5, TRUE, ifelse(as.numeric(educ2) <= 2, FALSE, NA))) %>%
+  group_by(genre_id) %>%
+  summarize(ratio_col = mean(like[college == TRUE], na.rm = TRUE) / mean(like[college == FALSE], na.rm = TRUE))
 
-p_margins_educ <- ggplot(pred_df_educ, aes(x = educ2, y = estimate, color = response.level)) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, linewidth = 0.8, alpha = 0.15, position = position_dodge(width = 0.5)) +
-  geom_point(size = 3, position = position_dodge(width = 0.5)) +
-  coord_flip() +
-  scale_color_brewer(palette = "Dark2") +
-  scale_x_continuous(breaks = 1:6, labels = educ_labels) +
-  theme_minimal(base_size = 14) +
-  theme(
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    legend.position = "bottom",
-    legend.direction = "vertical"
-  ) +
-  labs(
-    title = "Effect of Education on Genre Engagement",
-    subtitle = "95% CIs computed via two-way cluster-robust standard errors (Person & Genre)",
-    x = "Education Level",
-    y = "Predicted Probability",
-    color = "Complex Tastes"
+# 2. Calculate Black Ratio (Black vs White)
+pref_black <- df_long %>%
+  mutate(black = ifelse(as.numeric(race5) == 2, TRUE, ifelse(as.numeric(race5) == 1, FALSE, NA))) %>%
+  group_by(genre_id) %>%
+  summarize(ratio_black = mean(like[black == TRUE], na.rm = TRUE) / mean(like[black == FALSE], na.rm = TRUE))
+
+# 3. Combine and calculate Average Prestige Index
+cor_data <- ame_df %>%
+  select(genre_id, genre_name, estimate, pref_group) %>%
+  left_join(pref_col, by = "genre_id") %>%
+  left_join(pref_black, by = "genre_id") %>%
+  mutate(avg_ratio = (ratio_col + ratio_black) / 2) %>%
+  mutate(
+    pref_group = case_when(
+      ratio_col > 1.0 & ratio_black > 1.0 ~ "Both",
+      ratio_col > 1.0 ~ "College Preferred",
+      ratio_black > 1.0 ~ "Black Preferred",
+      TRUE ~ "Other"
+    ),
+    pref_group = factor(pref_group, levels = c("College Preferred", "Black Preferred", "Both", "Other"))
   )
 
-# Save to Plots directory
-ggsave("Plots/Education_Effects_RobustCI_Errorbars.png", p_margins_educ, width = 9, height = 7, dpi = 300)
+# Calculate Spearman Correlation
+spearman_rho <- cor(cor_data$estimate, cor_data$avg_ratio, method = "spearman")
+cor_label <- sprintf("Spearman \u03c1: %.2f", spearman_rho)
 
-p_margins_educ
+# Plot
+p_cor <- ggplot(cor_data, aes(x = avg_ratio, y = estimate)) +
+  geom_smooth(method = "lm", se = FALSE, color = "gray50", linetype = "dashed") +
+  geom_point(aes(color = pref_group), size = 3) +
+  geom_text_repel(aes(label = genre_name), size = 3.5, box.padding = 0.5) +
+  annotate("text", x = min(cor_data$avg_ratio, na.rm=T), y = max(cor_data$estimate, na.rm=T), 
+           label = cor_label, hjust = 0, vjust = 1, size = 5, fontface = "italic", color = "gray30") +
+  scale_color_manual(
+    values = c(
+      "College Preferred" = "#1b9e77", 
+      "Black Preferred" = "#d95f02", 
+      "Both" = "#7570b3", 
+      "Other" = "gray70"
+    ),
+    name = "Demographic Group"
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Demographic Prestige vs. Overclaiming",
+    subtitle = "How structural preference drives symbolic claiming",
+    x = "Prestige Index (Avg of College Ratio & Black Ratio)",
+    y = "AME on Overclaiming (Percentage Points)"
+  ) +
+  theme(legend.position = "none")
+
+ggsave("Plots/Overclaiming_Prestige_Correlation.png", p_cor, width = 8, height = 6, dpi = 300)
+
+p_cor
 ```
+
+The positive Spearman correlation ($\rho \approx 0.64$) confirms a powerful sociological dynamic: once we control for differences in streaming platform usage (e.g., Spotify vs. iTunes), the more a genre is structurally associated with high-status demographic boundaries (both high education and distinct racial groups), the more strongly childhood arts exposure drives individuals to falsely claim an affinity for it. Genres like Classical and Jazz score high on this combined prestige index and trigger massive overclaiming, while low-prestige genres like Rap, Heavy Metal, and Country sit at the bottom left with almost zero symbolic overclaiming value.
+
 
