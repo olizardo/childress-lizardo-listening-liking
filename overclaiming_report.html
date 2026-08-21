@@ -126,12 +126,16 @@ window.Quarto = {
   <li><a href="#defining-the-competing-engagement-states-1" id="toc-defining-the-competing-engagement-states-1" class="nav-link" data-scroll-target="#defining-the-competing-engagement-states-1">Defining the Competing Engagement States</a></li>
   <li><a href="#multinomial-model-and-robust-inference" id="toc-multinomial-model-and-robust-inference" class="nav-link" data-scroll-target="#multinomial-model-and-robust-inference">Multinomial Model and Robust Inference</a>
   <ul class="collapse">
+  <li><a href="#global-variable-importance-wald-tests" id="toc-global-variable-importance-wald-tests" class="nav-link" data-scroll-target="#global-variable-importance-wald-tests">Global Variable Importance (Wald Tests)</a></li>
   <li><a href="#predictors-of-overclaiming-like-only" id="toc-predictors-of-overclaiming-like-only" class="nav-link" data-scroll-target="#predictors-of-overclaiming-like-only">Predictors of Overclaiming (Like Only)</a></li>
   <li><a href="#predictors-of-underclaiming-listen-only" id="toc-predictors-of-underclaiming-listen-only" class="nav-link" data-scroll-target="#predictors-of-underclaiming-listen-only">Predictors of Underclaiming (Listen Only)</a></li>
   <li><a href="#predictors-of-true-engagement-both" id="toc-predictors-of-true-engagement-both" class="nav-link" data-scroll-target="#predictors-of-true-engagement-both">Predictors of True Engagement (Both)</a></li>
   </ul></li>
   <li><a href="#visualizing-the-effect-of-arts-exposure" id="toc-visualizing-the-effect-of-arts-exposure" class="nav-link" data-scroll-target="#visualizing-the-effect-of-arts-exposure">Visualizing the Effect of Arts Exposure</a>
   <ul class="collapse">
+  <li><a href="#overclaiming-across-different-genres-interaction-effects" id="toc-overclaiming-across-different-genres-interaction-effects" class="nav-link" data-scroll-target="#overclaiming-across-different-genres-interaction-effects">Overclaiming Across Different Genres (Interaction Effects)</a></li>
+  <li><a href="#true-engagement-across-different-genres-ame" id="toc-true-engagement-across-different-genres-ame" class="nav-link" data-scroll-target="#true-engagement-across-different-genres-ame">True Engagement Across Different Genres (AME)</a></li>
+  <li><a href="#underclaiming-across-different-genres-ame" id="toc-underclaiming-across-different-genres-ame" class="nav-link" data-scroll-target="#underclaiming-across-different-genres-ame">Underclaiming Across Different Genres (AME)</a></li>
   <li><a href="#education-and-engagement-states" id="toc-education-and-engagement-states" class="nav-link" data-scroll-target="#education-and-engagement-states">Education and Engagement States</a></li>
   </ul></li>
   </ul>
@@ -413,85 +417,87 @@ Note
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to extract cleanly and build a nice gt table</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>make_clean_df_twoway <span class="ot">&lt;-</span> <span class="cf">function</span>(row_idx) {</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">Predictor =</span> <span class="fu">colnames</span>(est),</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estimate =</span> <span class="fu">round</span>(est[row_idx, ], <span class="dv">3</span>),</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Robust_SE =</span> <span class="fu">round</span>(se_mat_twoway[row_idx, ], <span class="dv">3</span>),</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">round</span>(z_vals_twoway[row_idx, ], <span class="dv">2</span>),</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">P_Value =</span> <span class="fu">round</span>(p_vals_twoway[row_idx, ], <span class="dv">3</span>)</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Clean up predictor names</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Predictor =</span> <span class="fu">case_when</span>(</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">~</span> <span class="st">"Intercept"</span>,</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"educ2"</span> <span class="sc">~</span> <span class="st">"Education"</span>,</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"parent_educ"</span> <span class="sc">~</span> <span class="st">"Parental Education"</span>,</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"child_arts"</span> <span class="sc">~</span> <span class="st">"Childhood Arts Exposure"</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"agecat"</span> <span class="sc">~</span> <span class="st">"Age Category"</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"female"</span> <span class="sc">~</span> <span class="st">"Female"</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"income"</span> <span class="sc">~</span> <span class="st">"Household Income"</span>,</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)2"</span> <span class="sc">~</span> <span class="st">"Race: Black"</span>,</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)3"</span> <span class="sc">~</span> <span class="st">"Race: Hispanic"</span>,</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)4"</span> <span class="sc">~</span> <span class="st">"Race: Asian"</span>,</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)5"</span> <span class="sc">~</span> <span class="st">"Race: Other/Mixed"</span>,</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> Predictor</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    )) <span class="sc">%&gt;%</span></span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="fu">case_when</span>(</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.01</span> <span class="sc">~</span> <span class="st">"**"</span>,</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"*"</span>,</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.1</span> <span class="sc">~</span> <span class="st">"."</span>,</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">""</span></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>format_gt_table <span class="ot">&lt;-</span> <span class="cf">function</span>(df, title) {</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tab_header</span>(</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">md</span>(title)</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cols_label</span>(</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">Robust_SE =</span> <span class="st">"Robust SE"</span>,</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">P_Value =</span> <span class="st">"p-value"</span>,</span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="st">""</span></span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmt_number</span>(</span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(Estimate, Robust_SE, Z),</span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">decimals =</span> <span class="dv">3</span></span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">"cyan"</span>)</span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(aod)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>make_clean_df_twoway <span class="ot">&lt;-</span> <span class="cf">function</span>(row_idx) {</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">Predictor =</span> <span class="fu">colnames</span>(est),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estimate =</span> <span class="fu">round</span>(est[row_idx, ], <span class="dv">3</span>),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Robust_SE =</span> <span class="fu">round</span>(se_mat_twoway[row_idx, ], <span class="dv">3</span>),</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">round</span>(z_vals_twoway[row_idx, ], <span class="dv">2</span>),</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">P_Value =</span> <span class="fu">round</span>(p_vals_twoway[row_idx, ], <span class="dv">3</span>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Clean up predictor names</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Predictor =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">~</span> <span class="st">"Intercept"</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"educ2"</span> <span class="sc">~</span> <span class="st">"Education"</span>,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"parent_educ"</span> <span class="sc">~</span> <span class="st">"Parental Education"</span>,</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"child_arts"</span> <span class="sc">~</span> <span class="st">"Childhood Arts Exposure"</span>,</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"agecat"</span> <span class="sc">~</span> <span class="st">"Age Category"</span>,</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"female"</span> <span class="sc">~</span> <span class="st">"Female"</span>,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"income"</span> <span class="sc">~</span> <span class="st">"Household Income"</span>,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)2"</span> <span class="sc">~</span> <span class="st">"Race: Black"</span>,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)3"</span> <span class="sc">~</span> <span class="st">"Race: Hispanic"</span>,</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)4"</span> <span class="sc">~</span> <span class="st">"Race: Asian"</span>,</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)5"</span> <span class="sc">~</span> <span class="st">"Race: Other/Mixed"</span>,</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> Predictor</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    )) <span class="sc">%&gt;%</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.01</span> <span class="sc">~</span> <span class="st">"**"</span>,</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"*"</span>,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.1</span> <span class="sc">~</span> <span class="st">"."</span>,</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">""</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>format_gt_table <span class="ot">&lt;-</span> <span class="cf">function</span>(df, title) {</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tab_header</span>(</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">md</span>(title)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cols_label</span>(</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">Robust_SE =</span> <span class="st">"Robust SE"</span>,</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">P_Value =</span> <span class="st">"p-value"</span>,</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="st">""</span></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmt_number</span>(</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(Estimate, Robust_SE, Z),</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>      <span class="at">decimals =</span> <span class="dv">3</span></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">"cyan"</span>)</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<section id="predictors-of-overclaiming-like-only" class="level3">
-<h3 class="anchored" data-anchor-id="predictors-of-overclaiming-like-only">Predictors of Overclaiming (Like Only)</h3>
+<section id="global-variable-importance-wald-tests" class="level3">
+<h3 class="anchored" data-anchor-id="global-variable-importance-wald-tests">Global Variable Importance (Wald Tests)</h3>
+<p>Before looking at the coefficients for specific engagement states, we can test the overall, joint significance of each predictor across the entire multinomial model using robust Wald tests. The null hypothesis is that a variable’s coefficients are simultaneously zero across all three modeled equations (ListenOnly, LikeOnly, and Both, relative to Neither).</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="cdtpxmcakr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#cdtpxmcakr table {
+<div id="twbkzaqxte" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#twbkzaqxte table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#cdtpxmcakr thead, #cdtpxmcakr tbody, #cdtpxmcakr tfoot, #cdtpxmcakr tr, #cdtpxmcakr td, #cdtpxmcakr th {
+#twbkzaqxte thead, #twbkzaqxte tbody, #twbkzaqxte tfoot, #twbkzaqxte tr, #twbkzaqxte td, #twbkzaqxte th {
   border-style: none;
 }
 
-#cdtpxmcakr p {
+#twbkzaqxte p {
   margin: 0;
   padding: 0;
 }
 
-#cdtpxmcakr .gt_table {
+#twbkzaqxte .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -517,12 +523,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#cdtpxmcakr .gt_caption {
+#twbkzaqxte .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#cdtpxmcakr .gt_title {
+#twbkzaqxte .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -534,7 +540,7 @@ Note
   border-bottom-width: 0;
 }
 
-#cdtpxmcakr .gt_subtitle {
+#twbkzaqxte .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -546,7 +552,7 @@ Note
   border-top-width: 0;
 }
 
-#cdtpxmcakr .gt_heading {
+#twbkzaqxte .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -558,13 +564,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#cdtpxmcakr .gt_bottom_border {
+#twbkzaqxte .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#cdtpxmcakr .gt_col_headings {
+#twbkzaqxte .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -579,7 +585,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#cdtpxmcakr .gt_col_heading {
+#twbkzaqxte .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -599,7 +605,7 @@ Note
   overflow-x: hidden;
 }
 
-#cdtpxmcakr .gt_column_spanner_outer {
+#twbkzaqxte .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -611,15 +617,15 @@ Note
   padding-right: 4px;
 }
 
-#cdtpxmcakr .gt_column_spanner_outer:first-child {
+#twbkzaqxte .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#cdtpxmcakr .gt_column_spanner_outer:last-child {
+#twbkzaqxte .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#cdtpxmcakr .gt_column_spanner {
+#twbkzaqxte .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -631,11 +637,11 @@ Note
   width: 100%;
 }
 
-#cdtpxmcakr .gt_spanner_row {
+#twbkzaqxte .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#cdtpxmcakr .gt_group_heading {
+#twbkzaqxte .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -661,7 +667,7 @@ Note
   text-align: left;
 }
 
-#cdtpxmcakr .gt_empty_group_heading {
+#twbkzaqxte .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -676,15 +682,15 @@ Note
   vertical-align: middle;
 }
 
-#cdtpxmcakr .gt_from_md > :first-child {
+#twbkzaqxte .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#cdtpxmcakr .gt_from_md > :last-child {
+#twbkzaqxte .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#cdtpxmcakr .gt_row {
+#twbkzaqxte .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -703,7 +709,7 @@ Note
   overflow-x: hidden;
 }
 
-#cdtpxmcakr .gt_stub {
+#twbkzaqxte .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -716,7 +722,7 @@ Note
   padding-right: 5px;
 }
 
-#cdtpxmcakr .gt_stub_row_group {
+#twbkzaqxte .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -730,15 +736,15 @@ Note
   vertical-align: top;
 }
 
-#cdtpxmcakr .gt_row_group_first td {
+#twbkzaqxte .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#cdtpxmcakr .gt_row_group_first th {
+#twbkzaqxte .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#cdtpxmcakr .gt_summary_row {
+#twbkzaqxte .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -748,16 +754,16 @@ Note
   padding-right: 5px;
 }
 
-#cdtpxmcakr .gt_first_summary_row {
+#twbkzaqxte .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#cdtpxmcakr .gt_first_summary_row.thick {
+#twbkzaqxte .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#cdtpxmcakr .gt_last_summary_row {
+#twbkzaqxte .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -767,7 +773,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#cdtpxmcakr .gt_grand_summary_row {
+#twbkzaqxte .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -777,7 +783,7 @@ Note
   padding-right: 5px;
 }
 
-#cdtpxmcakr .gt_first_grand_summary_row {
+#twbkzaqxte .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -787,7 +793,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#cdtpxmcakr .gt_last_grand_summary_row_top {
+#twbkzaqxte .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -797,11 +803,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#cdtpxmcakr .gt_striped {
+#twbkzaqxte .gt_striped {
   background-color: #EBFBF9;
 }
 
-#cdtpxmcakr .gt_table_body {
+#twbkzaqxte .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -810,7 +816,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#cdtpxmcakr .gt_footnotes {
+#twbkzaqxte .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -824,7 +830,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#cdtpxmcakr .gt_footnote {
+#twbkzaqxte .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -833,7 +839,7 @@ Note
   padding-right: 5px;
 }
 
-#cdtpxmcakr .gt_sourcenotes {
+#twbkzaqxte .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -847,7 +853,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#cdtpxmcakr .gt_sourcenote {
+#twbkzaqxte .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -855,72 +861,599 @@ Note
   padding-right: 5px;
 }
 
-#cdtpxmcakr .gt_left {
+#twbkzaqxte .gt_left {
   text-align: left;
 }
 
-#cdtpxmcakr .gt_center {
+#twbkzaqxte .gt_center {
   text-align: center;
 }
 
-#cdtpxmcakr .gt_right {
+#twbkzaqxte .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#cdtpxmcakr .gt_font_normal {
+#twbkzaqxte .gt_font_normal {
   font-weight: normal;
 }
 
-#cdtpxmcakr .gt_font_bold {
+#twbkzaqxte .gt_font_bold {
   font-weight: bold;
 }
 
-#cdtpxmcakr .gt_font_italic {
+#twbkzaqxte .gt_font_italic {
   font-style: italic;
 }
 
-#cdtpxmcakr .gt_super {
+#twbkzaqxte .gt_super {
   font-size: 65%;
 }
 
-#cdtpxmcakr .gt_footnote_marks {
+#twbkzaqxte .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#cdtpxmcakr .gt_asterisk {
+#twbkzaqxte .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#cdtpxmcakr .gt_indent_1 {
+#twbkzaqxte .gt_indent_1 {
   text-indent: 5px;
 }
 
-#cdtpxmcakr .gt_indent_2 {
+#twbkzaqxte .gt_indent_2 {
   text-indent: 10px;
 }
 
-#cdtpxmcakr .gt_indent_3 {
+#twbkzaqxte .gt_indent_3 {
   text-indent: 15px;
 }
 
-#cdtpxmcakr .gt_indent_4 {
+#twbkzaqxte .gt_indent_4 {
   text-indent: 20px;
 }
 
-#cdtpxmcakr .gt_indent_5 {
+#twbkzaqxte .gt_indent_5 {
   text-indent: 25px;
 }
 
-#cdtpxmcakr .katex-display {
+#twbkzaqxte .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#cdtpxmcakr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#twbkzaqxte div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="5" class="gt_heading gt_title gt_font_normal"><strong>Joint Significance of Predictors (Robust Wald Tests)</strong></td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Null Hypothesis: Coefficients are zero across all states</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="Predictor" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Predictor</th>
+<th id="Chi_Square" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">χ<sup>2</sup></th>
+<th id="DF" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">DF</th>
+<th id="P_Value" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">p-value</th>
+<th id="Sig" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col"></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Predictor">Age Category</td>
+<td class="gt_row gt_right" headers="Chi_Square">63.14</td>
+<td class="gt_row gt_right" headers="DF">3</td>
+<td class="gt_row gt_right" headers="P_Value">1.25&nbsp;×&nbsp;10<sup>−13</sup></td>
+<td class="gt_row gt_right" headers="Sig">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Predictor">Education</td>
+<td class="gt_row gt_right gt_striped" headers="Chi_Square">19.22</td>
+<td class="gt_row gt_right gt_striped" headers="DF">3</td>
+<td class="gt_row gt_right gt_striped" headers="P_Value">2.46&nbsp;×&nbsp;10<sup>−4</sup></td>
+<td class="gt_row gt_right gt_striped" headers="Sig">***</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Predictor">Female</td>
+<td class="gt_row gt_right" headers="Chi_Square">18.37</td>
+<td class="gt_row gt_right" headers="DF">3</td>
+<td class="gt_row gt_right" headers="P_Value">3.70&nbsp;×&nbsp;10<sup>−4</sup></td>
+<td class="gt_row gt_right" headers="Sig">***</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Predictor">Race (Joint)</td>
+<td class="gt_row gt_right gt_striped" headers="Chi_Square">14.40</td>
+<td class="gt_row gt_right gt_striped" headers="DF">12</td>
+<td class="gt_row gt_right gt_striped" headers="P_Value">2.76&nbsp;×&nbsp;10<sup>−1</sup></td>
+<td class="gt_row gt_right gt_striped" headers="Sig"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Predictor">Parental Education</td>
+<td class="gt_row gt_right" headers="Chi_Square">12.98</td>
+<td class="gt_row gt_right" headers="DF">3</td>
+<td class="gt_row gt_right" headers="P_Value">4.68&nbsp;×&nbsp;10<sup>−3</sup></td>
+<td class="gt_row gt_right" headers="Sig">**</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Predictor">Childhood Arts Exposure</td>
+<td class="gt_row gt_right gt_striped" headers="Chi_Square">11.04</td>
+<td class="gt_row gt_right gt_striped" headers="DF">3</td>
+<td class="gt_row gt_right gt_striped" headers="P_Value">1.15&nbsp;×&nbsp;10<sup>−2</sup></td>
+<td class="gt_row gt_right gt_striped" headers="Sig">*</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Predictor">Household Income</td>
+<td class="gt_row gt_right" headers="Chi_Square">4.22</td>
+<td class="gt_row gt_right" headers="DF">3</td>
+<td class="gt_row gt_right" headers="P_Value">2.39&nbsp;×&nbsp;10<sup>−1</sup></td>
+<td class="gt_row gt_right" headers="Sig"></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="predictors-of-overclaiming-like-only" class="level3">
+<h3 class="anchored" data-anchor-id="predictors-of-overclaiming-like-only">Predictors of Overclaiming (Like Only)</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div id="ocimszdkem" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ocimszdkem table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ocimszdkem thead, #ocimszdkem tbody, #ocimszdkem tfoot, #ocimszdkem tr, #ocimszdkem td, #ocimszdkem th {
+  border-style: none;
+}
+
+#ocimszdkem p {
+  margin: 0;
+  padding: 0;
+}
+
+#ocimszdkem .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ocimszdkem .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ocimszdkem .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ocimszdkem .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ocimszdkem .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ocimszdkem .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ocimszdkem .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ocimszdkem .gt_col_heading {
+  color: #FFFFFF;
+  background-color: #01837B;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ocimszdkem .gt_column_spanner_outer {
+  color: #FFFFFF;
+  background-color: #01837B;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ocimszdkem .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ocimszdkem .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ocimszdkem .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ocimszdkem .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ocimszdkem .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ocimszdkem .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: middle;
+}
+
+#ocimszdkem .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ocimszdkem .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ocimszdkem .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D5D5D5;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D5D5D5;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D5D5D5;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ocimszdkem .gt_stub {
+  color: #333333;
+  background-color: #A5FEF2;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D5D5D5;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ocimszdkem .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ocimszdkem .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ocimszdkem .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ocimszdkem .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ocimszdkem .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #5F5F5F;
+}
+
+#ocimszdkem .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ocimszdkem .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ocimszdkem .gt_grand_summary_row {
+  color: #333333;
+  background-color: #D5D5D5;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ocimszdkem .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #5F5F5F;
+}
+
+#ocimszdkem .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ocimszdkem .gt_striped {
+  background-color: #EBFBF9;
+}
+
+#ocimszdkem .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#ocimszdkem .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ocimszdkem .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ocimszdkem .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ocimszdkem .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ocimszdkem .gt_left {
+  text-align: left;
+}
+
+#ocimszdkem .gt_center {
+  text-align: center;
+}
+
+#ocimszdkem .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ocimszdkem .gt_font_normal {
+  font-weight: normal;
+}
+
+#ocimszdkem .gt_font_bold {
+  font-weight: bold;
+}
+
+#ocimszdkem .gt_font_italic {
+  font-style: italic;
+}
+
+#ocimszdkem .gt_super {
+  font-size: 65%;
+}
+
+#ocimszdkem .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ocimszdkem .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ocimszdkem .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ocimszdkem .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ocimszdkem .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ocimszdkem .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ocimszdkem .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ocimszdkem .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ocimszdkem div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1039,23 +1572,23 @@ Note
 <h3 class="anchored" data-anchor-id="predictors-of-underclaiming-listen-only">Predictors of Underclaiming (Listen Only)</h3>
 <div class="cell">
 <div class="cell-output-display">
-<div id="bmipqbpryd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#bmipqbpryd table {
+<div id="tiisosjewd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tiisosjewd table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#bmipqbpryd thead, #bmipqbpryd tbody, #bmipqbpryd tfoot, #bmipqbpryd tr, #bmipqbpryd td, #bmipqbpryd th {
+#tiisosjewd thead, #tiisosjewd tbody, #tiisosjewd tfoot, #tiisosjewd tr, #tiisosjewd td, #tiisosjewd th {
   border-style: none;
 }
 
-#bmipqbpryd p {
+#tiisosjewd p {
   margin: 0;
   padding: 0;
 }
 
-#bmipqbpryd .gt_table {
+#tiisosjewd .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1081,12 +1614,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#bmipqbpryd .gt_caption {
+#tiisosjewd .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#bmipqbpryd .gt_title {
+#tiisosjewd .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1098,7 +1631,7 @@ Note
   border-bottom-width: 0;
 }
 
-#bmipqbpryd .gt_subtitle {
+#tiisosjewd .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1110,7 +1643,7 @@ Note
   border-top-width: 0;
 }
 
-#bmipqbpryd .gt_heading {
+#tiisosjewd .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1122,13 +1655,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bmipqbpryd .gt_bottom_border {
+#tiisosjewd .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#bmipqbpryd .gt_col_headings {
+#tiisosjewd .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1143,7 +1676,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bmipqbpryd .gt_col_heading {
+#tiisosjewd .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1163,7 +1696,7 @@ Note
   overflow-x: hidden;
 }
 
-#bmipqbpryd .gt_column_spanner_outer {
+#tiisosjewd .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1175,15 +1708,15 @@ Note
   padding-right: 4px;
 }
 
-#bmipqbpryd .gt_column_spanner_outer:first-child {
+#tiisosjewd .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#bmipqbpryd .gt_column_spanner_outer:last-child {
+#tiisosjewd .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#bmipqbpryd .gt_column_spanner {
+#tiisosjewd .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -1195,11 +1728,11 @@ Note
   width: 100%;
 }
 
-#bmipqbpryd .gt_spanner_row {
+#tiisosjewd .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#bmipqbpryd .gt_group_heading {
+#tiisosjewd .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1225,7 +1758,7 @@ Note
   text-align: left;
 }
 
-#bmipqbpryd .gt_empty_group_heading {
+#tiisosjewd .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1240,15 +1773,15 @@ Note
   vertical-align: middle;
 }
 
-#bmipqbpryd .gt_from_md > :first-child {
+#tiisosjewd .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#bmipqbpryd .gt_from_md > :last-child {
+#tiisosjewd .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#bmipqbpryd .gt_row {
+#tiisosjewd .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1267,7 +1800,7 @@ Note
   overflow-x: hidden;
 }
 
-#bmipqbpryd .gt_stub {
+#tiisosjewd .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -1280,7 +1813,7 @@ Note
   padding-right: 5px;
 }
 
-#bmipqbpryd .gt_stub_row_group {
+#tiisosjewd .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1294,15 +1827,15 @@ Note
   vertical-align: top;
 }
 
-#bmipqbpryd .gt_row_group_first td {
+#tiisosjewd .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#bmipqbpryd .gt_row_group_first th {
+#tiisosjewd .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#bmipqbpryd .gt_summary_row {
+#tiisosjewd .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1312,16 +1845,16 @@ Note
   padding-right: 5px;
 }
 
-#bmipqbpryd .gt_first_summary_row {
+#tiisosjewd .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#bmipqbpryd .gt_first_summary_row.thick {
+#tiisosjewd .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#bmipqbpryd .gt_last_summary_row {
+#tiisosjewd .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1331,7 +1864,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#bmipqbpryd .gt_grand_summary_row {
+#tiisosjewd .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -1341,7 +1874,7 @@ Note
   padding-right: 5px;
 }
 
-#bmipqbpryd .gt_first_grand_summary_row {
+#tiisosjewd .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1351,7 +1884,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#bmipqbpryd .gt_last_grand_summary_row_top {
+#tiisosjewd .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1361,11 +1894,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#bmipqbpryd .gt_striped {
+#tiisosjewd .gt_striped {
   background-color: #EBFBF9;
 }
 
-#bmipqbpryd .gt_table_body {
+#tiisosjewd .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1374,7 +1907,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#bmipqbpryd .gt_footnotes {
+#tiisosjewd .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1388,7 +1921,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bmipqbpryd .gt_footnote {
+#tiisosjewd .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1397,7 +1930,7 @@ Note
   padding-right: 5px;
 }
 
-#bmipqbpryd .gt_sourcenotes {
+#tiisosjewd .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1411,7 +1944,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bmipqbpryd .gt_sourcenote {
+#tiisosjewd .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1419,72 +1952,72 @@ Note
   padding-right: 5px;
 }
 
-#bmipqbpryd .gt_left {
+#tiisosjewd .gt_left {
   text-align: left;
 }
 
-#bmipqbpryd .gt_center {
+#tiisosjewd .gt_center {
   text-align: center;
 }
 
-#bmipqbpryd .gt_right {
+#tiisosjewd .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#bmipqbpryd .gt_font_normal {
+#tiisosjewd .gt_font_normal {
   font-weight: normal;
 }
 
-#bmipqbpryd .gt_font_bold {
+#tiisosjewd .gt_font_bold {
   font-weight: bold;
 }
 
-#bmipqbpryd .gt_font_italic {
+#tiisosjewd .gt_font_italic {
   font-style: italic;
 }
 
-#bmipqbpryd .gt_super {
+#tiisosjewd .gt_super {
   font-size: 65%;
 }
 
-#bmipqbpryd .gt_footnote_marks {
+#tiisosjewd .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#bmipqbpryd .gt_asterisk {
+#tiisosjewd .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#bmipqbpryd .gt_indent_1 {
+#tiisosjewd .gt_indent_1 {
   text-indent: 5px;
 }
 
-#bmipqbpryd .gt_indent_2 {
+#tiisosjewd .gt_indent_2 {
   text-indent: 10px;
 }
 
-#bmipqbpryd .gt_indent_3 {
+#tiisosjewd .gt_indent_3 {
   text-indent: 15px;
 }
 
-#bmipqbpryd .gt_indent_4 {
+#tiisosjewd .gt_indent_4 {
   text-indent: 20px;
 }
 
-#bmipqbpryd .gt_indent_5 {
+#tiisosjewd .gt_indent_5 {
   text-indent: 25px;
 }
 
-#bmipqbpryd .katex-display {
+#tiisosjewd .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#bmipqbpryd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#tiisosjewd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1603,23 +2136,23 @@ Note
 <h3 class="anchored" data-anchor-id="predictors-of-true-engagement-both">Predictors of True Engagement (Both)</h3>
 <div class="cell">
 <div class="cell-output-display">
-<div id="lmtbfpfnyx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#lmtbfpfnyx table {
+<div id="qcyovmknen" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qcyovmknen table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lmtbfpfnyx thead, #lmtbfpfnyx tbody, #lmtbfpfnyx tfoot, #lmtbfpfnyx tr, #lmtbfpfnyx td, #lmtbfpfnyx th {
+#qcyovmknen thead, #qcyovmknen tbody, #qcyovmknen tfoot, #qcyovmknen tr, #qcyovmknen td, #qcyovmknen th {
   border-style: none;
 }
 
-#lmtbfpfnyx p {
+#qcyovmknen p {
   margin: 0;
   padding: 0;
 }
 
-#lmtbfpfnyx .gt_table {
+#qcyovmknen .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1645,12 +2178,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#lmtbfpfnyx .gt_caption {
+#qcyovmknen .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lmtbfpfnyx .gt_title {
+#qcyovmknen .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1662,7 +2195,7 @@ Note
   border-bottom-width: 0;
 }
 
-#lmtbfpfnyx .gt_subtitle {
+#qcyovmknen .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1674,7 +2207,7 @@ Note
   border-top-width: 0;
 }
 
-#lmtbfpfnyx .gt_heading {
+#qcyovmknen .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1686,13 +2219,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#lmtbfpfnyx .gt_bottom_border {
+#qcyovmknen .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#lmtbfpfnyx .gt_col_headings {
+#qcyovmknen .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1707,7 +2240,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#lmtbfpfnyx .gt_col_heading {
+#qcyovmknen .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1727,7 +2260,7 @@ Note
   overflow-x: hidden;
 }
 
-#lmtbfpfnyx .gt_column_spanner_outer {
+#qcyovmknen .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1739,15 +2272,15 @@ Note
   padding-right: 4px;
 }
 
-#lmtbfpfnyx .gt_column_spanner_outer:first-child {
+#qcyovmknen .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lmtbfpfnyx .gt_column_spanner_outer:last-child {
+#qcyovmknen .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lmtbfpfnyx .gt_column_spanner {
+#qcyovmknen .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -1759,11 +2292,11 @@ Note
   width: 100%;
 }
 
-#lmtbfpfnyx .gt_spanner_row {
+#qcyovmknen .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lmtbfpfnyx .gt_group_heading {
+#qcyovmknen .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1789,7 +2322,7 @@ Note
   text-align: left;
 }
 
-#lmtbfpfnyx .gt_empty_group_heading {
+#qcyovmknen .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1804,15 +2337,15 @@ Note
   vertical-align: middle;
 }
 
-#lmtbfpfnyx .gt_from_md > :first-child {
+#qcyovmknen .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lmtbfpfnyx .gt_from_md > :last-child {
+#qcyovmknen .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lmtbfpfnyx .gt_row {
+#qcyovmknen .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1831,7 +2364,7 @@ Note
   overflow-x: hidden;
 }
 
-#lmtbfpfnyx .gt_stub {
+#qcyovmknen .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -1844,7 +2377,7 @@ Note
   padding-right: 5px;
 }
 
-#lmtbfpfnyx .gt_stub_row_group {
+#qcyovmknen .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1858,15 +2391,15 @@ Note
   vertical-align: top;
 }
 
-#lmtbfpfnyx .gt_row_group_first td {
+#qcyovmknen .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lmtbfpfnyx .gt_row_group_first th {
+#qcyovmknen .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lmtbfpfnyx .gt_summary_row {
+#qcyovmknen .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1876,16 +2409,16 @@ Note
   padding-right: 5px;
 }
 
-#lmtbfpfnyx .gt_first_summary_row {
+#qcyovmknen .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#lmtbfpfnyx .gt_first_summary_row.thick {
+#qcyovmknen .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lmtbfpfnyx .gt_last_summary_row {
+#qcyovmknen .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1895,7 +2428,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#lmtbfpfnyx .gt_grand_summary_row {
+#qcyovmknen .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -1905,7 +2438,7 @@ Note
   padding-right: 5px;
 }
 
-#lmtbfpfnyx .gt_first_grand_summary_row {
+#qcyovmknen .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1915,7 +2448,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#lmtbfpfnyx .gt_last_grand_summary_row_top {
+#qcyovmknen .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1925,11 +2458,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#lmtbfpfnyx .gt_striped {
+#qcyovmknen .gt_striped {
   background-color: #EBFBF9;
 }
 
-#lmtbfpfnyx .gt_table_body {
+#qcyovmknen .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1938,7 +2471,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#lmtbfpfnyx .gt_footnotes {
+#qcyovmknen .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1952,7 +2485,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#lmtbfpfnyx .gt_footnote {
+#qcyovmknen .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1961,7 +2494,7 @@ Note
   padding-right: 5px;
 }
 
-#lmtbfpfnyx .gt_sourcenotes {
+#qcyovmknen .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1975,7 +2508,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#lmtbfpfnyx .gt_sourcenote {
+#qcyovmknen .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1983,72 +2516,72 @@ Note
   padding-right: 5px;
 }
 
-#lmtbfpfnyx .gt_left {
+#qcyovmknen .gt_left {
   text-align: left;
 }
 
-#lmtbfpfnyx .gt_center {
+#qcyovmknen .gt_center {
   text-align: center;
 }
 
-#lmtbfpfnyx .gt_right {
+#qcyovmknen .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lmtbfpfnyx .gt_font_normal {
+#qcyovmknen .gt_font_normal {
   font-weight: normal;
 }
 
-#lmtbfpfnyx .gt_font_bold {
+#qcyovmknen .gt_font_bold {
   font-weight: bold;
 }
 
-#lmtbfpfnyx .gt_font_italic {
+#qcyovmknen .gt_font_italic {
   font-style: italic;
 }
 
-#lmtbfpfnyx .gt_super {
+#qcyovmknen .gt_super {
   font-size: 65%;
 }
 
-#lmtbfpfnyx .gt_footnote_marks {
+#qcyovmknen .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lmtbfpfnyx .gt_asterisk {
+#qcyovmknen .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lmtbfpfnyx .gt_indent_1 {
+#qcyovmknen .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lmtbfpfnyx .gt_indent_2 {
+#qcyovmknen .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lmtbfpfnyx .gt_indent_3 {
+#qcyovmknen .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lmtbfpfnyx .gt_indent_4 {
+#qcyovmknen .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lmtbfpfnyx .gt_indent_5 {
+#qcyovmknen .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lmtbfpfnyx .katex-display {
+#qcyovmknen .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lmtbfpfnyx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#qcyovmknen div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2230,60 +2763,262 @@ Note
 </div>
 </div>
 <p>As childhood arts exposure increases, respondents genuinely engage with more music (the “True Engagement” estimates increase). However, their propensity to overclaim genres (“Like Only”) rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader <em>claimed</em> listening habits.</p>
+<section id="overclaiming-across-different-genres-interaction-effects" class="level3">
+<h3 class="anchored" data-anchor-id="overclaiming-across-different-genres-interaction-effects">Overclaiming Across Different Genres (Interaction Effects)</h3>
+<p>To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we can fit a fixed-effects model that interacts <code>child_arts</code> with <code>genre_id</code>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the interaction model (child_arts * genre_id)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>model_int <span class="ot">&lt;-</span> <span class="fu">multinom</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  engagement_state <span class="sc">~</span> educ2 <span class="sc">+</span> parent_educ <span class="sc">+</span> agecat <span class="sc">+</span> female <span class="sc">+</span> income <span class="sc">+</span> <span class="fu">as.factor</span>(race5) <span class="sc">+</span> child_arts <span class="sc">*</span> genre_id,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> df_long, </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">MaxNWts =</span> <span class="dv">5000</span>, </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxit =</span> <span class="dv">300</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">trace =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate marginal predictions across the spectrum for every genre</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>pred_int <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  model_int,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">child_arts =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>, <span class="at">genre_id =</span> <span class="fu">unique</span>(df_long<span class="sc">$</span>genre_id))</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for just the Overclaiming state and merge in the clean labels</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>pred_df_int <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_int) <span class="sc">%&gt;%</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"LikeOnly"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>p_int <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df_int, <span class="fu">aes</span>(<span class="at">x =</span> child_arts, <span class="at">y =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">fill =</span> <span class="st">"#1b9e77"</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#1b9e77"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> genre_name, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">7</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"Mod"</span>, <span class="st">"Ext"</span>)) <span class="sc">+</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Effect of Childhood Arts Exposure on Overclaiming by Genre"</span>,</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Marginal predicted probabilities of 'Like Only' (y-axes vary by genre baseline)"</span>,</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Childhood Arts Exposure"</span>,</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Probability of Overclaiming"</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_Genre_Interaction.png"</span>, p_int, <span class="at">width =</span> <span class="dv">12</span>, <span class="at">height =</span> <span class="dv">8</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>p_int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-interaction-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As the faceted plot reveals, the effect of childhood arts exposure on overclaiming is highly heterogeneous. Culturally legitimated genres (Classical, Opera, Jazz, Musicals) show incredibly steep slopes, whereas genres like Country, Easy Listening, and Heavy Metal show much flatter (or non-existent) responses to arts exposure.</p>
+<p>To quantify and formally compare the strength of this effect across genres, we can calculate the <strong>Average Marginal Effect (AME)</strong> of a 1-unit increase in childhood arts exposure for each genre.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the Average Marginal Effect (slope) of child_arts for each genre</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ame_genre <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  model_int,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"child_arts"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"genre_id"</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for the LikeOnly state and arrange by effect size</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>ame_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"LikeOnly"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_name =</span> <span class="fu">factor</span>(genre_name, <span class="at">levels =</span> genre_name))</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>p_ame <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_df, <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#1b9e77"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#1b9e77"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Strength of Arts Exposure Effect on Overclaiming by Genre"</span>,</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure"</span>,</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Percentage Point Change in Prob(Like Only)"</span>,</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_AME_by_Genre.png"</span>, p_ame, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>p_ame</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The forest plot above perfectly illustrates the sociological hierarchy of overclaiming. A 1-unit increase in childhood arts exposure increases the probability of overclaiming Classical music by nearly 8 percentage points, and Jazz by over 6 percentage points. In stark contrast, it increases the probability of overclaiming Country, Rap, and Heavy Metal by barely 1 percentage point (with confidence intervals brushing zero).</p>
+</section>
+<section id="true-engagement-across-different-genres-ame" class="level3">
+<h3 class="anchored" data-anchor-id="true-engagement-across-different-genres-ame">True Engagement Across Different Genres (AME)</h3>
+<p>We can repeat this exact marginal effect analysis for “True Engagement” (Both liking and listening) to see if early arts exposure drives genuine consumption of these genres, or merely the symbolic claiming of them.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the AME results for the "Both" state</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>ame_df_both <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"Both"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_name =</span> <span class="fu">factor</span>(genre_name, <span class="at">levels =</span> genre_name))</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>p_ame_both <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_df_both, <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#d95f02"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#d95f02"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Strength of Arts Exposure Effect on True Engagement by Genre"</span>,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure"</span>,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Percentage Point Change in Prob(Both)"</span>,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_AME_by_Genre_Both.png"</span>, p_ame_both, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>p_ame_both</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-both-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The contrast between the two plots is striking. While arts exposure drives massive <em>overclaiming</em> of Classical and Jazz, its effect on <em>genuine engagement</em> with those same genres is tiny (around +1 percentage point) and barely distinguishable from zero. Instead, arts exposure actually seems to drive genuine engagement with Rap/Hip Hop and Heavy Metal.</p>
+</section>
+<section id="underclaiming-across-different-genres-ame" class="level3">
+<h3 class="anchored" data-anchor-id="underclaiming-across-different-genres-ame">Underclaiming Across Different Genres (AME)</h3>
+<p>Finally, we can look at the average marginal effect of childhood arts exposure on underclaiming (listening without reporting liking).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the AME results for the "ListenOnly" state</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ame_df_under <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"ListenOnly"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_name =</span> <span class="fu">factor</span>(genre_name, <span class="at">levels =</span> genre_name))</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>p_ame_under <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_df_under, <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#7570b3"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#7570b3"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Strength of Arts Exposure Effect on Underclaiming by Genre"</span>,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure"</span>,</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Percentage Point Change in Prob(Listen Only)"</span>,</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_AME_by_Genre_Underclaim.png"</span>, p_ame_under, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>p_ame_under</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-under-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The effect of arts exposure on underclaiming is universally flat or negative across almost all genres. The only genres that show a mild negative effect (meaning arts exposure makes you <em>less</em> likely to underclaim them) are Contemporary Rock, Rap/Hip Hop, and Latin. For most of the cultural hierarchy, childhood arts exposure simply has no bearing on whether someone listens to a genre in secret.</p>
+</section>
 <section id="education-and-engagement-states" class="level3">
 <h3 class="anchored" data-anchor-id="education-and-engagement-states">Education and Engagement States</h3>
 <p>We perform the exact same marginal probability calculation for the highest level of education attained (<code>educ2</code>) to see how it affects the competing engagement states.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate robust predictions for education</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pred_marg_educ <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  model_fixed,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">educ2 =</span> <span class="fu">seq</span>(<span class="fu">min</span>(df_long<span class="sc">$</span>educ2, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="fu">max</span>(df_long<span class="sc">$</span>educ2, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">by=</span><span class="dv">1</span>)), </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov =</span> robust_vcov_twoway</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>pred_df_educ <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_marg_educ) <span class="sc">%&gt;%</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">case_when</span>(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Neither"</span> <span class="sc">~</span> <span class="st">"Neither (No Like, No Listen)"</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"ListenOnly"</span> <span class="sc">~</span> <span class="st">"Listen Only (Underclaim)"</span>,</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"LikeOnly"</span> <span class="sc">~</span> <span class="st">"Like Only (Overclaim)"</span>,</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Both"</span> <span class="sc">~</span> <span class="st">"Both (True Engagement)"</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">factor</span>(response.level, <span class="at">levels =</span> <span class="fu">c</span>(</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Neither (No Like, No Listen)"</span>, </span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Listen Only (Underclaim)"</span>, </span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Both (True Engagement)"</span>, </span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Like Only (Overclaim)"</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  )))</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>educ_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Less than HS"</span>, <span class="st">"HS Grad"</span>, <span class="st">"Some College"</span>, <span class="st">"Associates"</span>, <span class="st">"BA"</span>, <span class="st">"Grad Degree"</span>)</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>p_margins_educ <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df_educ, <span class="fu">aes</span>(<span class="at">x =</span> educ2, <span class="at">y =</span> estimate, <span class="at">color =</span> response.level)) <span class="sc">+</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.15</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>) <span class="sc">+</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">labels =</span> educ_labels) <span class="sc">+</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">"vertical"</span></span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Effect of Education on Genre Engagement"</span>,</span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"95% CIs computed via two-way cluster-robust standard errors (Person &amp; Genre)"</span>,</span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Education Level"</span>,</span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Probability"</span>,</span>
-<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Engagement State"</span></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
-<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/Education_Effects_RobustCI_Errorbars.png"</span>, p_margins_educ, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
-<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>p_margins_educ</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate robust predictions for education</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>pred_marg_educ <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  model_fixed,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">educ2 =</span> <span class="fu">seq</span>(<span class="fu">min</span>(df_long<span class="sc">$</span>educ2, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="fu">max</span>(df_long<span class="sc">$</span>educ2, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">by=</span><span class="dv">1</span>)), </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov =</span> robust_vcov_twoway</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>pred_df_educ <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_marg_educ) <span class="sc">%&gt;%</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">case_when</span>(</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Neither"</span> <span class="sc">~</span> <span class="st">"Neither (No Like, No Listen)"</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"ListenOnly"</span> <span class="sc">~</span> <span class="st">"Listen Only (Underclaim)"</span>,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"LikeOnly"</span> <span class="sc">~</span> <span class="st">"Like Only (Overclaim)"</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Both"</span> <span class="sc">~</span> <span class="st">"Both (True Engagement)"</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">factor</span>(response.level, <span class="at">levels =</span> <span class="fu">c</span>(</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Neither (No Like, No Listen)"</span>, </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Listen Only (Underclaim)"</span>, </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Both (True Engagement)"</span>, </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Like Only (Overclaim)"</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  )))</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>educ_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Less than HS"</span>, <span class="st">"HS Grad"</span>, <span class="st">"Some College"</span>, <span class="st">"Associates"</span>, <span class="st">"BA"</span>, <span class="st">"Grad Degree"</span>)</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>p_margins_educ <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df_educ, <span class="fu">aes</span>(<span class="at">x =</span> educ2, <span class="at">y =</span> estimate, <span class="at">color =</span> response.level)) <span class="sc">+</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.15</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>) <span class="sc">+</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">labels =</span> educ_labels) <span class="sc">+</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">"vertical"</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Effect of Education on Genre Engagement"</span>,</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"95% CIs computed via two-way cluster-robust standard errors (Person &amp; Genre)"</span>,</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Education Level"</span>,</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Probability"</span>,</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Engagement State"</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/Education_Effects_RobustCI_Errorbars.png"</span>, p_margins_educ, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>p_margins_educ</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>

@@ -6,6 +6,7 @@
 #$ -l h_data=16G
 #$ -pe shared 4
 
+source /u/local/Modules/default/init/bash
 module load gcc/10.2.0
 module load R
 
