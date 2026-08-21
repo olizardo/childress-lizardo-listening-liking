@@ -116,7 +116,17 @@ df$total_overclaim <- rowSums(df[, overclaim_cols], na.rm = TRUE)
 
 # Pivot data to long format for mixed effects analysis
 df_long_overclaim <- df %>%
-  select(id, educ2, child_arts, agecat, income, female, urban_rural2, race5, social,
+  mutate(
+    platform = case_when(
+      grepl("spotify", stream_source, ignore.case = TRUE) ~ "Spotify",
+      grepl("itunes", stream_source, ignore.case = TRUE) ~ "iTunes",
+      grepl("winamp", stream_source, ignore.case = TRUE) ~ "Winamp",
+      grepl("rotation", stream_source, ignore.case = TRUE) & !grepl("itunes|spotify|winamp", stream_source, ignore.case = TRUE) ~ "Free Recall",
+      stream_source == "" ~ "Free Recall",
+      TRUE ~ "Other"
+    )
+  ) %>%
+  select(id, educ2, child_arts, agecat, income, female, urban_rural2, race5, social, stream_source, platform,
          starts_with("like_g"), starts_with("listen_g"), starts_with("overclaim_g")) %>%
   pivot_longer(
     cols = matches("^(like|listen|overclaim)_g\\d+"),
