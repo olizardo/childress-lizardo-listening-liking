@@ -133,11 +133,15 @@ window.Quarto = {
   </ul></li>
   <li><a href="#visualizing-the-effect-of-arts-exposure" id="toc-visualizing-the-effect-of-arts-exposure" class="nav-link" data-scroll-target="#visualizing-the-effect-of-arts-exposure">Visualizing the Effect of Arts Exposure</a>
   <ul class="collapse">
-  <li><a href="#model-fit-and-strategy" id="toc-model-fit-and-strategy" class="nav-link" data-scroll-target="#model-fit-and-strategy">Model Fit and Strategy</a></li>
-  <li><a href="#true-engagement-across-different-genres-ame" id="toc-true-engagement-across-different-genres-ame" class="nav-link" data-scroll-target="#true-engagement-across-different-genres-ame">True Engagement Across Different Genres (AME)</a></li>
-  <li><a href="#overclaiming-across-different-genres-interaction-effects" id="toc-overclaiming-across-different-genres-interaction-effects" class="nav-link" data-scroll-target="#overclaiming-across-different-genres-interaction-effects">Overclaiming Across Different Genres (Interaction Effects)</a></li>
-  <li><a href="#underclaiming-across-different-genres-ame" id="toc-underclaiming-across-different-genres-ame" class="nav-link" data-scroll-target="#underclaiming-across-different-genres-ame">Underclaiming Across Different Genres (AME)</a></li>
-  <li><a href="#overclaiming-and-demographic-prestige" id="toc-overclaiming-and-demographic-prestige" class="nav-link" data-scroll-target="#overclaiming-and-demographic-prestige">Overclaiming and Demographic Prestige</a></li>
+  <li><a href="#model-fit-random-effects-and-model-selection" id="toc-model-fit-random-effects-and-model-selection" class="nav-link" data-scroll-target="#model-fit-random-effects-and-model-selection">Model Fit, Random Effects, and Model Selection</a></li>
+  </ul></li>
+  <li><a href="#genre-specific-effects-of-childhood-arts-exposure" id="toc-genre-specific-effects-of-childhood-arts-exposure" class="nav-link" data-scroll-target="#genre-specific-effects-of-childhood-arts-exposure">Genre-Specific Effects of Childhood Arts Exposure</a>
+  <ul class="collapse">
+  <li><a href="#overclaiming-across-genres-fixed-effects-interaction-model" id="toc-overclaiming-across-genres-fixed-effects-interaction-model" class="nav-link" data-scroll-target="#overclaiming-across-genres-fixed-effects-interaction-model">1. Overclaiming Across Genres (Fixed-Effects Interaction Model)</a></li>
+  <li><a href="#true-engagement-across-genres-fixed-effects-interaction-model" id="toc-true-engagement-across-genres-fixed-effects-interaction-model" class="nav-link" data-scroll-target="#true-engagement-across-genres-fixed-effects-interaction-model">2. True Engagement Across Genres (Fixed-Effects Interaction Model)</a></li>
+  <li><a href="#underclaiming-across-genres-fixed-effects-interaction-model" id="toc-underclaiming-across-genres-fixed-effects-interaction-model" class="nav-link" data-scroll-target="#underclaiming-across-genres-fixed-effects-interaction-model">3. Underclaiming Across Genres (Fixed-Effects Interaction Model)</a></li>
+  <li><a href="#overclaiming-and-demographic-prestige" id="toc-overclaiming-and-demographic-prestige" class="nav-link" data-scroll-target="#overclaiming-and-demographic-prestige">4. Overclaiming and Demographic Prestige</a></li>
+  <li><a href="#robustness-check-random-coefficients-model-mblogit" id="toc-robustness-check-random-coefficients-model-mblogit" class="nav-link" data-scroll-target="#robustness-check-random-coefficients-model-mblogit">Robustness Check: Random Coefficients Model (mblogit)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -205,7 +209,10 @@ Note
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nnet)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mclogit)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(aod)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -411,89 +418,99 @@ Note
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_fixed <span class="ot">&lt;-</span> <span class="fu">multinom</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  engagement_state <span class="sc">~</span> educ2 <span class="sc">+</span> parent_educ <span class="sc">+</span> child_arts <span class="sc">+</span> agecat <span class="sc">+</span> female <span class="sc">+</span> income <span class="sc">+</span> <span class="fu">as.factor</span>(race5) <span class="sc">+</span> <span class="fu">as.factor</span>(platform),</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> df_long</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"model_fixed.rds"</span>)) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  model_fixed <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"model_fixed.rds"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  model_fixed <span class="ot">&lt;-</span> <span class="fu">multinom</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    engagement_state <span class="sc">~</span> educ2 <span class="sc">+</span> parent_educ <span class="sc">+</span> child_arts <span class="sc">+</span> agecat <span class="sc">+</span> female <span class="sc">+</span> income <span class="sc">+</span> <span class="fu">as.factor</span>(race5) <span class="sc">+</span> <span class="fu">as.factor</span>(platform),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df_long</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(model_fixed, <span class="st">"model_fixed.rds"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate two-way clustered standard errors (Person + Genre)</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>robust_vcov_twoway <span class="ot">&lt;-</span> <span class="fu">vcovCL</span>(model_fixed, <span class="at">cluster =</span> df_long[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"genre_id"</span>)])</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>robust_se_twoway <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(robust_vcov_twoway))</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Manually compute z-scores and p-values</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">summary</span>(model_fixed)<span class="sc">$</span>coefficients</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>se_mat_twoway <span class="ot">&lt;-</span> <span class="fu">matrix</span>(robust_se_twoway, <span class="at">nrow =</span> <span class="fu">nrow</span>(est), <span class="at">ncol =</span> <span class="fu">ncol</span>(est), <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>z_vals_twoway <span class="ot">&lt;-</span> est <span class="sc">/</span> se_mat_twoway</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>p_vals_twoway <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(z_vals_twoway), <span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to extract cleanly and build a nice gt table</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(aod)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"robust_vcov_twoway.rds"</span>)) {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  robust_vcov_twoway <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"robust_vcov_twoway.rds"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  robust_vcov_twoway <span class="ot">&lt;-</span> <span class="fu">vcovCL</span>(model_fixed, <span class="at">cluster =</span> df_long[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"genre_id"</span>)])</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(robust_vcov_twoway, <span class="st">"robust_vcov_twoway.rds"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>robust_se_twoway <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(robust_vcov_twoway))</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Manually compute z-scores and p-values</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>est <span class="ot">&lt;-</span> <span class="fu">summary</span>(model_fixed)<span class="sc">$</span>coefficients</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>se_mat_twoway <span class="ot">&lt;-</span> <span class="fu">matrix</span>(robust_se_twoway, <span class="at">nrow =</span> <span class="fu">nrow</span>(est), <span class="at">ncol =</span> <span class="fu">ncol</span>(est), <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>z_vals_twoway <span class="ot">&lt;-</span> est <span class="sc">/</span> se_mat_twoway</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>p_vals_twoway <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="fu">abs</span>(z_vals_twoway), <span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">*</span> <span class="dv">2</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>make_clean_df_twoway <span class="ot">&lt;-</span> <span class="cf">function</span>(row_idx) {</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">Predictor =</span> <span class="fu">colnames</span>(est),</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estimate =</span> <span class="fu">round</span>(est[row_idx, ], <span class="dv">3</span>),</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Robust_SE =</span> <span class="fu">round</span>(se_mat_twoway[row_idx, ], <span class="dv">3</span>),</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">round</span>(z_vals_twoway[row_idx, ], <span class="dv">2</span>),</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">P_Value =</span> <span class="fu">round</span>(p_vals_twoway[row_idx, ], <span class="dv">3</span>)</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Clean up predictor names</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Predictor =</span> <span class="fu">case_when</span>(</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">~</span> <span class="st">"Intercept"</span>,</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"educ2"</span> <span class="sc">~</span> <span class="st">"Education"</span>,</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"parent_educ"</span> <span class="sc">~</span> <span class="st">"Parental Education"</span>,</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"child_arts"</span> <span class="sc">~</span> <span class="st">"Childhood Arts Exposure"</span>,</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"agecat"</span> <span class="sc">~</span> <span class="st">"Age Category"</span>,</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"female"</span> <span class="sc">~</span> <span class="st">"Gender ID (Woman)"</span>,</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"income"</span> <span class="sc">~</span> <span class="st">"Household Income"</span>,</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)2"</span> <span class="sc">~</span> <span class="st">"Race: Black"</span>,</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)3"</span> <span class="sc">~</span> <span class="st">"Race: Hispanic"</span>,</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)4"</span> <span class="sc">~</span> <span class="st">"Race: Asian"</span>,</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)5"</span> <span class="sc">~</span> <span class="st">"Race: Other/Mixed"</span>,</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)iTunes"</span> <span class="sc">~</span> <span class="st">"Platform: iTunes"</span>,</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)Other"</span> <span class="sc">~</span> <span class="st">"Platform: Other"</span>,</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)Spotify"</span> <span class="sc">~</span> <span class="st">"Platform: Spotify"</span>,</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)Winamp"</span> <span class="sc">~</span> <span class="st">"Platform: Winamp"</span>,</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> Predictor</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    )) <span class="sc">%&gt;%</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="fu">case_when</span>(</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.01</span> <span class="sc">~</span> <span class="st">"**"</span>,</span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"*"</span>,</span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.1</span> <span class="sc">~</span> <span class="st">"."</span>,</span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">""</span></span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>format_gt_table <span class="ot">&lt;-</span> <span class="cf">function</span>(df, title) {</span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tab_header</span>(</span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">md</span>(title)</span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cols_label</span>(</span>
-<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">Robust_SE =</span> <span class="st">"Robust SE"</span>,</span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>      <span class="at">P_Value =</span> <span class="st">"p-value"</span>,</span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="st">""</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to extract cleanly and build a nice gt table</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(aod)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>make_clean_df_twoway <span class="ot">&lt;-</span> <span class="cf">function</span>(row_idx) {</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">Predictor =</span> <span class="fu">colnames</span>(est),</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estimate =</span> <span class="fu">round</span>(est[row_idx, ], <span class="dv">3</span>),</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">Robust_SE =</span> <span class="fu">round</span>(se_mat_twoway[row_idx, ], <span class="dv">3</span>),</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">Z =</span> <span class="fu">round</span>(z_vals_twoway[row_idx, ], <span class="dv">2</span>),</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">P_Value =</span> <span class="fu">round</span>(p_vals_twoway[row_idx, ], <span class="dv">3</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Clean up predictor names</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Predictor =</span> <span class="fu">case_when</span>(</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">~</span> <span class="st">"Intercept"</span>,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"educ2"</span> <span class="sc">~</span> <span class="st">"Education"</span>,</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"parent_educ"</span> <span class="sc">~</span> <span class="st">"Parental Education"</span>,</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"child_arts"</span> <span class="sc">~</span> <span class="st">"Childhood Arts Exposure"</span>,</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"agecat"</span> <span class="sc">~</span> <span class="st">"Age Category"</span>,</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"female"</span> <span class="sc">~</span> <span class="st">"Gender ID (Woman)"</span>,</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"income"</span> <span class="sc">~</span> <span class="st">"Household Income"</span>,</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)2"</span> <span class="sc">~</span> <span class="st">"Race: Black"</span>,</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)3"</span> <span class="sc">~</span> <span class="st">"Race: Hispanic"</span>,</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)4"</span> <span class="sc">~</span> <span class="st">"Race: Asian"</span>,</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(race5)5"</span> <span class="sc">~</span> <span class="st">"Race: Other/Mixed"</span>,</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)iTunes"</span> <span class="sc">~</span> <span class="st">"Platform: iTunes"</span>,</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)Other"</span> <span class="sc">~</span> <span class="st">"Platform: Other"</span>,</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)Spotify"</span> <span class="sc">~</span> <span class="st">"Platform: Spotify"</span>,</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>      Predictor <span class="sc">==</span> <span class="st">"as.factor(platform)Winamp"</span> <span class="sc">~</span> <span class="st">"Platform: Winamp"</span>,</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> Predictor</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    )) <span class="sc">%&gt;%</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="fu">case_when</span>(</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.001</span> <span class="sc">~</span> <span class="st">"***"</span>,</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.01</span> <span class="sc">~</span> <span class="st">"**"</span>,</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">~</span> <span class="st">"*"</span>,</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>        P_Value <span class="sc">&lt;</span> <span class="fl">0.1</span> <span class="sc">~</span> <span class="st">"."</span>,</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">""</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>format_gt_table <span class="ot">&lt;-</span> <span class="cf">function</span>(df, title) {</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">%&gt;%</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tab_header</span>(</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="fu">md</span>(title)</span>
 <span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmt_number</span>(</span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(Estimate, Robust_SE, Z),</span>
-<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>      <span class="at">decimals =</span> <span class="dv">3</span></span>
-<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>    <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">"cyan"</span>)</span>
-<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cols_label</span>(</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>      <span class="at">Robust_SE =</span> <span class="st">"Robust SE"</span>,</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>      <span class="at">P_Value =</span> <span class="st">"p-value"</span>,</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sig =</span> <span class="st">""</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmt_number</span>(</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">columns =</span> <span class="fu">c</span>(Estimate, Robust_SE, Z),</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">decimals =</span> <span class="dv">3</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>    <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">"cyan"</span>)</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <section id="global-variable-importance-wald-tests" class="level3">
@@ -502,23 +519,23 @@ Note
 <p>This protects against “p-hacking” individual coefficients and provides a rigorous hierarchy of variable importance.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="pgktrfgvnu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#pgktrfgvnu table {
+<div id="nbegqwazfn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#nbegqwazfn table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#pgktrfgvnu thead, #pgktrfgvnu tbody, #pgktrfgvnu tfoot, #pgktrfgvnu tr, #pgktrfgvnu td, #pgktrfgvnu th {
+#nbegqwazfn thead, #nbegqwazfn tbody, #nbegqwazfn tfoot, #nbegqwazfn tr, #nbegqwazfn td, #nbegqwazfn th {
   border-style: none;
 }
 
-#pgktrfgvnu p {
+#nbegqwazfn p {
   margin: 0;
   padding: 0;
 }
 
-#pgktrfgvnu .gt_table {
+#nbegqwazfn .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -544,12 +561,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#pgktrfgvnu .gt_caption {
+#nbegqwazfn .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#pgktrfgvnu .gt_title {
+#nbegqwazfn .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -561,7 +578,7 @@ Note
   border-bottom-width: 0;
 }
 
-#pgktrfgvnu .gt_subtitle {
+#nbegqwazfn .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -573,7 +590,7 @@ Note
   border-top-width: 0;
 }
 
-#pgktrfgvnu .gt_heading {
+#nbegqwazfn .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -585,13 +602,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#pgktrfgvnu .gt_bottom_border {
+#nbegqwazfn .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#pgktrfgvnu .gt_col_headings {
+#nbegqwazfn .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -606,7 +623,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#pgktrfgvnu .gt_col_heading {
+#nbegqwazfn .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -626,7 +643,7 @@ Note
   overflow-x: hidden;
 }
 
-#pgktrfgvnu .gt_column_spanner_outer {
+#nbegqwazfn .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -638,15 +655,15 @@ Note
   padding-right: 4px;
 }
 
-#pgktrfgvnu .gt_column_spanner_outer:first-child {
+#nbegqwazfn .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pgktrfgvnu .gt_column_spanner_outer:last-child {
+#nbegqwazfn .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pgktrfgvnu .gt_column_spanner {
+#nbegqwazfn .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -658,11 +675,11 @@ Note
   width: 100%;
 }
 
-#pgktrfgvnu .gt_spanner_row {
+#nbegqwazfn .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#pgktrfgvnu .gt_group_heading {
+#nbegqwazfn .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -688,7 +705,7 @@ Note
   text-align: left;
 }
 
-#pgktrfgvnu .gt_empty_group_heading {
+#nbegqwazfn .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -703,15 +720,15 @@ Note
   vertical-align: middle;
 }
 
-#pgktrfgvnu .gt_from_md > :first-child {
+#nbegqwazfn .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pgktrfgvnu .gt_from_md > :last-child {
+#nbegqwazfn .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pgktrfgvnu .gt_row {
+#nbegqwazfn .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -730,7 +747,7 @@ Note
   overflow-x: hidden;
 }
 
-#pgktrfgvnu .gt_stub {
+#nbegqwazfn .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -743,7 +760,7 @@ Note
   padding-right: 5px;
 }
 
-#pgktrfgvnu .gt_stub_row_group {
+#nbegqwazfn .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -757,15 +774,15 @@ Note
   vertical-align: top;
 }
 
-#pgktrfgvnu .gt_row_group_first td {
+#nbegqwazfn .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pgktrfgvnu .gt_row_group_first th {
+#nbegqwazfn .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#pgktrfgvnu .gt_summary_row {
+#nbegqwazfn .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -775,16 +792,16 @@ Note
   padding-right: 5px;
 }
 
-#pgktrfgvnu .gt_first_summary_row {
+#nbegqwazfn .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#pgktrfgvnu .gt_first_summary_row.thick {
+#nbegqwazfn .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pgktrfgvnu .gt_last_summary_row {
+#nbegqwazfn .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -794,7 +811,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#pgktrfgvnu .gt_grand_summary_row {
+#nbegqwazfn .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -804,7 +821,7 @@ Note
   padding-right: 5px;
 }
 
-#pgktrfgvnu .gt_first_grand_summary_row {
+#nbegqwazfn .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -814,7 +831,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#pgktrfgvnu .gt_last_grand_summary_row_top {
+#nbegqwazfn .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -824,11 +841,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#pgktrfgvnu .gt_striped {
+#nbegqwazfn .gt_striped {
   background-color: #EBFBF9;
 }
 
-#pgktrfgvnu .gt_table_body {
+#nbegqwazfn .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -837,7 +854,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#pgktrfgvnu .gt_footnotes {
+#nbegqwazfn .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -851,7 +868,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#pgktrfgvnu .gt_footnote {
+#nbegqwazfn .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -860,7 +877,7 @@ Note
   padding-right: 5px;
 }
 
-#pgktrfgvnu .gt_sourcenotes {
+#nbegqwazfn .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -874,7 +891,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#pgktrfgvnu .gt_sourcenote {
+#nbegqwazfn .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -882,72 +899,72 @@ Note
   padding-right: 5px;
 }
 
-#pgktrfgvnu .gt_left {
+#nbegqwazfn .gt_left {
   text-align: left;
 }
 
-#pgktrfgvnu .gt_center {
+#nbegqwazfn .gt_center {
   text-align: center;
 }
 
-#pgktrfgvnu .gt_right {
+#nbegqwazfn .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pgktrfgvnu .gt_font_normal {
+#nbegqwazfn .gt_font_normal {
   font-weight: normal;
 }
 
-#pgktrfgvnu .gt_font_bold {
+#nbegqwazfn .gt_font_bold {
   font-weight: bold;
 }
 
-#pgktrfgvnu .gt_font_italic {
+#nbegqwazfn .gt_font_italic {
   font-style: italic;
 }
 
-#pgktrfgvnu .gt_super {
+#nbegqwazfn .gt_super {
   font-size: 65%;
 }
 
-#pgktrfgvnu .gt_footnote_marks {
+#nbegqwazfn .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#pgktrfgvnu .gt_asterisk {
+#nbegqwazfn .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pgktrfgvnu .gt_indent_1 {
+#nbegqwazfn .gt_indent_1 {
   text-indent: 5px;
 }
 
-#pgktrfgvnu .gt_indent_2 {
+#nbegqwazfn .gt_indent_2 {
   text-indent: 10px;
 }
 
-#pgktrfgvnu .gt_indent_3 {
+#nbegqwazfn .gt_indent_3 {
   text-indent: 15px;
 }
 
-#pgktrfgvnu .gt_indent_4 {
+#nbegqwazfn .gt_indent_4 {
   text-indent: 20px;
 }
 
-#pgktrfgvnu .gt_indent_5 {
+#nbegqwazfn .gt_indent_5 {
   text-indent: 25px;
 }
 
-#pgktrfgvnu .katex-display {
+#nbegqwazfn .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#pgktrfgvnu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#nbegqwazfn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1036,23 +1053,23 @@ Note
 <h3 class="anchored" data-anchor-id="predictors-of-overclaiming-like-only">Predictors of Overclaiming (Like Only)</h3>
 <div class="cell">
 <div class="cell-output-display">
-<div id="bdlxflrttm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#bdlxflrttm table {
+<div id="hjoddzrsht" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hjoddzrsht table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#bdlxflrttm thead, #bdlxflrttm tbody, #bdlxflrttm tfoot, #bdlxflrttm tr, #bdlxflrttm td, #bdlxflrttm th {
+#hjoddzrsht thead, #hjoddzrsht tbody, #hjoddzrsht tfoot, #hjoddzrsht tr, #hjoddzrsht td, #hjoddzrsht th {
   border-style: none;
 }
 
-#bdlxflrttm p {
+#hjoddzrsht p {
   margin: 0;
   padding: 0;
 }
 
-#bdlxflrttm .gt_table {
+#hjoddzrsht .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1078,12 +1095,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#bdlxflrttm .gt_caption {
+#hjoddzrsht .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#bdlxflrttm .gt_title {
+#hjoddzrsht .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1095,7 +1112,7 @@ Note
   border-bottom-width: 0;
 }
 
-#bdlxflrttm .gt_subtitle {
+#hjoddzrsht .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1107,7 +1124,7 @@ Note
   border-top-width: 0;
 }
 
-#bdlxflrttm .gt_heading {
+#hjoddzrsht .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1119,13 +1136,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bdlxflrttm .gt_bottom_border {
+#hjoddzrsht .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#bdlxflrttm .gt_col_headings {
+#hjoddzrsht .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1140,7 +1157,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bdlxflrttm .gt_col_heading {
+#hjoddzrsht .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1160,7 +1177,7 @@ Note
   overflow-x: hidden;
 }
 
-#bdlxflrttm .gt_column_spanner_outer {
+#hjoddzrsht .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1172,15 +1189,15 @@ Note
   padding-right: 4px;
 }
 
-#bdlxflrttm .gt_column_spanner_outer:first-child {
+#hjoddzrsht .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#bdlxflrttm .gt_column_spanner_outer:last-child {
+#hjoddzrsht .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#bdlxflrttm .gt_column_spanner {
+#hjoddzrsht .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -1192,11 +1209,11 @@ Note
   width: 100%;
 }
 
-#bdlxflrttm .gt_spanner_row {
+#hjoddzrsht .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#bdlxflrttm .gt_group_heading {
+#hjoddzrsht .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1222,7 +1239,7 @@ Note
   text-align: left;
 }
 
-#bdlxflrttm .gt_empty_group_heading {
+#hjoddzrsht .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1237,15 +1254,15 @@ Note
   vertical-align: middle;
 }
 
-#bdlxflrttm .gt_from_md > :first-child {
+#hjoddzrsht .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#bdlxflrttm .gt_from_md > :last-child {
+#hjoddzrsht .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#bdlxflrttm .gt_row {
+#hjoddzrsht .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1264,7 +1281,7 @@ Note
   overflow-x: hidden;
 }
 
-#bdlxflrttm .gt_stub {
+#hjoddzrsht .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -1277,7 +1294,7 @@ Note
   padding-right: 5px;
 }
 
-#bdlxflrttm .gt_stub_row_group {
+#hjoddzrsht .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1291,15 +1308,15 @@ Note
   vertical-align: top;
 }
 
-#bdlxflrttm .gt_row_group_first td {
+#hjoddzrsht .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#bdlxflrttm .gt_row_group_first th {
+#hjoddzrsht .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#bdlxflrttm .gt_summary_row {
+#hjoddzrsht .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1309,16 +1326,16 @@ Note
   padding-right: 5px;
 }
 
-#bdlxflrttm .gt_first_summary_row {
+#hjoddzrsht .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#bdlxflrttm .gt_first_summary_row.thick {
+#hjoddzrsht .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#bdlxflrttm .gt_last_summary_row {
+#hjoddzrsht .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1328,7 +1345,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#bdlxflrttm .gt_grand_summary_row {
+#hjoddzrsht .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -1338,7 +1355,7 @@ Note
   padding-right: 5px;
 }
 
-#bdlxflrttm .gt_first_grand_summary_row {
+#hjoddzrsht .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1348,7 +1365,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#bdlxflrttm .gt_last_grand_summary_row_top {
+#hjoddzrsht .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1358,11 +1375,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#bdlxflrttm .gt_striped {
+#hjoddzrsht .gt_striped {
   background-color: #EBFBF9;
 }
 
-#bdlxflrttm .gt_table_body {
+#hjoddzrsht .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1371,7 +1388,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#bdlxflrttm .gt_footnotes {
+#hjoddzrsht .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1385,7 +1402,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bdlxflrttm .gt_footnote {
+#hjoddzrsht .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1394,7 +1411,7 @@ Note
   padding-right: 5px;
 }
 
-#bdlxflrttm .gt_sourcenotes {
+#hjoddzrsht .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1408,7 +1425,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#bdlxflrttm .gt_sourcenote {
+#hjoddzrsht .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1416,72 +1433,72 @@ Note
   padding-right: 5px;
 }
 
-#bdlxflrttm .gt_left {
+#hjoddzrsht .gt_left {
   text-align: left;
 }
 
-#bdlxflrttm .gt_center {
+#hjoddzrsht .gt_center {
   text-align: center;
 }
 
-#bdlxflrttm .gt_right {
+#hjoddzrsht .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#bdlxflrttm .gt_font_normal {
+#hjoddzrsht .gt_font_normal {
   font-weight: normal;
 }
 
-#bdlxflrttm .gt_font_bold {
+#hjoddzrsht .gt_font_bold {
   font-weight: bold;
 }
 
-#bdlxflrttm .gt_font_italic {
+#hjoddzrsht .gt_font_italic {
   font-style: italic;
 }
 
-#bdlxflrttm .gt_super {
+#hjoddzrsht .gt_super {
   font-size: 65%;
 }
 
-#bdlxflrttm .gt_footnote_marks {
+#hjoddzrsht .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#bdlxflrttm .gt_asterisk {
+#hjoddzrsht .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#bdlxflrttm .gt_indent_1 {
+#hjoddzrsht .gt_indent_1 {
   text-indent: 5px;
 }
 
-#bdlxflrttm .gt_indent_2 {
+#hjoddzrsht .gt_indent_2 {
   text-indent: 10px;
 }
 
-#bdlxflrttm .gt_indent_3 {
+#hjoddzrsht .gt_indent_3 {
   text-indent: 15px;
 }
 
-#bdlxflrttm .gt_indent_4 {
+#hjoddzrsht .gt_indent_4 {
   text-indent: 20px;
 }
 
-#bdlxflrttm .gt_indent_5 {
+#hjoddzrsht .gt_indent_5 {
   text-indent: 25px;
 }
 
-#bdlxflrttm .katex-display {
+#hjoddzrsht .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#bdlxflrttm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hjoddzrsht div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1624,23 +1641,23 @@ Note
 <h3 class="anchored" data-anchor-id="predictors-of-underclaiming-listen-only">Predictors of Underclaiming (Listen Only)</h3>
 <div class="cell">
 <div class="cell-output-display">
-<div id="ziqnzagkkb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ziqnzagkkb table {
+<div id="albvqstptd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#albvqstptd table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ziqnzagkkb thead, #ziqnzagkkb tbody, #ziqnzagkkb tfoot, #ziqnzagkkb tr, #ziqnzagkkb td, #ziqnzagkkb th {
+#albvqstptd thead, #albvqstptd tbody, #albvqstptd tfoot, #albvqstptd tr, #albvqstptd td, #albvqstptd th {
   border-style: none;
 }
 
-#ziqnzagkkb p {
+#albvqstptd p {
   margin: 0;
   padding: 0;
 }
 
-#ziqnzagkkb .gt_table {
+#albvqstptd .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1666,12 +1683,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#ziqnzagkkb .gt_caption {
+#albvqstptd .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ziqnzagkkb .gt_title {
+#albvqstptd .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1683,7 +1700,7 @@ Note
   border-bottom-width: 0;
 }
 
-#ziqnzagkkb .gt_subtitle {
+#albvqstptd .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1695,7 +1712,7 @@ Note
   border-top-width: 0;
 }
 
-#ziqnzagkkb .gt_heading {
+#albvqstptd .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1707,13 +1724,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ziqnzagkkb .gt_bottom_border {
+#albvqstptd .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#ziqnzagkkb .gt_col_headings {
+#albvqstptd .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1728,7 +1745,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ziqnzagkkb .gt_col_heading {
+#albvqstptd .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1748,7 +1765,7 @@ Note
   overflow-x: hidden;
 }
 
-#ziqnzagkkb .gt_column_spanner_outer {
+#albvqstptd .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -1760,15 +1777,15 @@ Note
   padding-right: 4px;
 }
 
-#ziqnzagkkb .gt_column_spanner_outer:first-child {
+#albvqstptd .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ziqnzagkkb .gt_column_spanner_outer:last-child {
+#albvqstptd .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ziqnzagkkb .gt_column_spanner {
+#albvqstptd .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -1780,11 +1797,11 @@ Note
   width: 100%;
 }
 
-#ziqnzagkkb .gt_spanner_row {
+#albvqstptd .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ziqnzagkkb .gt_group_heading {
+#albvqstptd .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1810,7 +1827,7 @@ Note
   text-align: left;
 }
 
-#ziqnzagkkb .gt_empty_group_heading {
+#albvqstptd .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1825,15 +1842,15 @@ Note
   vertical-align: middle;
 }
 
-#ziqnzagkkb .gt_from_md > :first-child {
+#albvqstptd .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ziqnzagkkb .gt_from_md > :last-child {
+#albvqstptd .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ziqnzagkkb .gt_row {
+#albvqstptd .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1852,7 +1869,7 @@ Note
   overflow-x: hidden;
 }
 
-#ziqnzagkkb .gt_stub {
+#albvqstptd .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -1865,7 +1882,7 @@ Note
   padding-right: 5px;
 }
 
-#ziqnzagkkb .gt_stub_row_group {
+#albvqstptd .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1879,15 +1896,15 @@ Note
   vertical-align: top;
 }
 
-#ziqnzagkkb .gt_row_group_first td {
+#albvqstptd .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ziqnzagkkb .gt_row_group_first th {
+#albvqstptd .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ziqnzagkkb .gt_summary_row {
+#albvqstptd .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1897,16 +1914,16 @@ Note
   padding-right: 5px;
 }
 
-#ziqnzagkkb .gt_first_summary_row {
+#albvqstptd .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#ziqnzagkkb .gt_first_summary_row.thick {
+#albvqstptd .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ziqnzagkkb .gt_last_summary_row {
+#albvqstptd .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1916,7 +1933,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#ziqnzagkkb .gt_grand_summary_row {
+#albvqstptd .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -1926,7 +1943,7 @@ Note
   padding-right: 5px;
 }
 
-#ziqnzagkkb .gt_first_grand_summary_row {
+#albvqstptd .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1936,7 +1953,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#ziqnzagkkb .gt_last_grand_summary_row_top {
+#albvqstptd .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1946,11 +1963,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#ziqnzagkkb .gt_striped {
+#albvqstptd .gt_striped {
   background-color: #EBFBF9;
 }
 
-#ziqnzagkkb .gt_table_body {
+#albvqstptd .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -1959,7 +1976,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#ziqnzagkkb .gt_footnotes {
+#albvqstptd .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1973,7 +1990,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ziqnzagkkb .gt_footnote {
+#albvqstptd .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1982,7 +1999,7 @@ Note
   padding-right: 5px;
 }
 
-#ziqnzagkkb .gt_sourcenotes {
+#albvqstptd .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1996,7 +2013,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ziqnzagkkb .gt_sourcenote {
+#albvqstptd .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2004,72 +2021,72 @@ Note
   padding-right: 5px;
 }
 
-#ziqnzagkkb .gt_left {
+#albvqstptd .gt_left {
   text-align: left;
 }
 
-#ziqnzagkkb .gt_center {
+#albvqstptd .gt_center {
   text-align: center;
 }
 
-#ziqnzagkkb .gt_right {
+#albvqstptd .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ziqnzagkkb .gt_font_normal {
+#albvqstptd .gt_font_normal {
   font-weight: normal;
 }
 
-#ziqnzagkkb .gt_font_bold {
+#albvqstptd .gt_font_bold {
   font-weight: bold;
 }
 
-#ziqnzagkkb .gt_font_italic {
+#albvqstptd .gt_font_italic {
   font-style: italic;
 }
 
-#ziqnzagkkb .gt_super {
+#albvqstptd .gt_super {
   font-size: 65%;
 }
 
-#ziqnzagkkb .gt_footnote_marks {
+#albvqstptd .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ziqnzagkkb .gt_asterisk {
+#albvqstptd .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ziqnzagkkb .gt_indent_1 {
+#albvqstptd .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ziqnzagkkb .gt_indent_2 {
+#albvqstptd .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ziqnzagkkb .gt_indent_3 {
+#albvqstptd .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ziqnzagkkb .gt_indent_4 {
+#albvqstptd .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ziqnzagkkb .gt_indent_5 {
+#albvqstptd .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ziqnzagkkb .katex-display {
+#albvqstptd .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ziqnzagkkb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#albvqstptd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2212,23 +2229,23 @@ Note
 <h3 class="anchored" data-anchor-id="predictors-of-true-engagement-both">Predictors of True Engagement (Both)</h3>
 <div class="cell">
 <div class="cell-output-display">
-<div id="uazqlmreew" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#uazqlmreew table {
+<div id="rijmymiypv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rijmymiypv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#uazqlmreew thead, #uazqlmreew tbody, #uazqlmreew tfoot, #uazqlmreew tr, #uazqlmreew td, #uazqlmreew th {
+#rijmymiypv thead, #rijmymiypv tbody, #rijmymiypv tfoot, #rijmymiypv tr, #rijmymiypv td, #rijmymiypv th {
   border-style: none;
 }
 
-#uazqlmreew p {
+#rijmymiypv p {
   margin: 0;
   padding: 0;
 }
 
-#uazqlmreew .gt_table {
+#rijmymiypv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2254,12 +2271,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#uazqlmreew .gt_caption {
+#rijmymiypv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#uazqlmreew .gt_title {
+#rijmymiypv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2271,7 +2288,7 @@ Note
   border-bottom-width: 0;
 }
 
-#uazqlmreew .gt_subtitle {
+#rijmymiypv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2283,7 +2300,7 @@ Note
   border-top-width: 0;
 }
 
-#uazqlmreew .gt_heading {
+#rijmymiypv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2295,13 +2312,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#uazqlmreew .gt_bottom_border {
+#rijmymiypv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#uazqlmreew .gt_col_headings {
+#rijmymiypv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -2316,7 +2333,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#uazqlmreew .gt_col_heading {
+#rijmymiypv .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -2336,7 +2353,7 @@ Note
   overflow-x: hidden;
 }
 
-#uazqlmreew .gt_column_spanner_outer {
+#rijmymiypv .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -2348,15 +2365,15 @@ Note
   padding-right: 4px;
 }
 
-#uazqlmreew .gt_column_spanner_outer:first-child {
+#rijmymiypv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uazqlmreew .gt_column_spanner_outer:last-child {
+#rijmymiypv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uazqlmreew .gt_column_spanner {
+#rijmymiypv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -2368,11 +2385,11 @@ Note
   width: 100%;
 }
 
-#uazqlmreew .gt_spanner_row {
+#rijmymiypv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#uazqlmreew .gt_group_heading {
+#rijmymiypv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2398,7 +2415,7 @@ Note
   text-align: left;
 }
 
-#uazqlmreew .gt_empty_group_heading {
+#rijmymiypv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2413,15 +2430,15 @@ Note
   vertical-align: middle;
 }
 
-#uazqlmreew .gt_from_md > :first-child {
+#rijmymiypv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uazqlmreew .gt_from_md > :last-child {
+#rijmymiypv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uazqlmreew .gt_row {
+#rijmymiypv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2440,7 +2457,7 @@ Note
   overflow-x: hidden;
 }
 
-#uazqlmreew .gt_stub {
+#rijmymiypv .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -2453,7 +2470,7 @@ Note
   padding-right: 5px;
 }
 
-#uazqlmreew .gt_stub_row_group {
+#rijmymiypv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2467,15 +2484,15 @@ Note
   vertical-align: top;
 }
 
-#uazqlmreew .gt_row_group_first td {
+#rijmymiypv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#uazqlmreew .gt_row_group_first th {
+#rijmymiypv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#uazqlmreew .gt_summary_row {
+#rijmymiypv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2485,16 +2502,16 @@ Note
   padding-right: 5px;
 }
 
-#uazqlmreew .gt_first_summary_row {
+#rijmymiypv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#uazqlmreew .gt_first_summary_row.thick {
+#rijmymiypv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#uazqlmreew .gt_last_summary_row {
+#rijmymiypv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2504,7 +2521,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#uazqlmreew .gt_grand_summary_row {
+#rijmymiypv .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -2514,7 +2531,7 @@ Note
   padding-right: 5px;
 }
 
-#uazqlmreew .gt_first_grand_summary_row {
+#rijmymiypv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2524,7 +2541,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#uazqlmreew .gt_last_grand_summary_row_top {
+#rijmymiypv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2534,11 +2551,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#uazqlmreew .gt_striped {
+#rijmymiypv .gt_striped {
   background-color: #EBFBF9;
 }
 
-#uazqlmreew .gt_table_body {
+#rijmymiypv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -2547,7 +2564,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#uazqlmreew .gt_footnotes {
+#rijmymiypv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2561,7 +2578,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#uazqlmreew .gt_footnote {
+#rijmymiypv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2570,7 +2587,7 @@ Note
   padding-right: 5px;
 }
 
-#uazqlmreew .gt_sourcenotes {
+#rijmymiypv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2584,7 +2601,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#uazqlmreew .gt_sourcenote {
+#rijmymiypv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2592,72 +2609,72 @@ Note
   padding-right: 5px;
 }
 
-#uazqlmreew .gt_left {
+#rijmymiypv .gt_left {
   text-align: left;
 }
 
-#uazqlmreew .gt_center {
+#rijmymiypv .gt_center {
   text-align: center;
 }
 
-#uazqlmreew .gt_right {
+#rijmymiypv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uazqlmreew .gt_font_normal {
+#rijmymiypv .gt_font_normal {
   font-weight: normal;
 }
 
-#uazqlmreew .gt_font_bold {
+#rijmymiypv .gt_font_bold {
   font-weight: bold;
 }
 
-#uazqlmreew .gt_font_italic {
+#rijmymiypv .gt_font_italic {
   font-style: italic;
 }
 
-#uazqlmreew .gt_super {
+#rijmymiypv .gt_super {
   font-size: 65%;
 }
 
-#uazqlmreew .gt_footnote_marks {
+#rijmymiypv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#uazqlmreew .gt_asterisk {
+#rijmymiypv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#uazqlmreew .gt_indent_1 {
+#rijmymiypv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#uazqlmreew .gt_indent_2 {
+#rijmymiypv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#uazqlmreew .gt_indent_3 {
+#rijmymiypv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#uazqlmreew .gt_indent_4 {
+#rijmymiypv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#uazqlmreew .gt_indent_5 {
+#rijmymiypv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#uazqlmreew .katex-display {
+#rijmymiypv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#uazqlmreew div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rijmymiypv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2805,55 +2822,60 @@ Note
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate robust predictions using the two-way clustered vcov matrix</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pred_marg <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  model_fixed,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">child_arts =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>), </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov =</span> robust_vcov_twoway</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>pred_df_rob <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_marg) <span class="sc">%&gt;%</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">case_when</span>(</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Neither"</span> <span class="sc">~</span> <span class="st">"Neither (No Like, No Listen)"</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"ListenOnly"</span> <span class="sc">~</span> <span class="st">"Listen Only (Underclaim)"</span>,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"LikeOnly"</span> <span class="sc">~</span> <span class="st">"Like Only (Overclaim)"</span>,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Both"</span> <span class="sc">~</span> <span class="st">"Both (True Engagement)"</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">factor</span>(response.level, <span class="at">levels =</span> <span class="fu">c</span>(</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Neither (No Like, No Listen)"</span>, </span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Listen Only (Underclaim)"</span>, </span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Both (True Engagement)"</span>, </span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Like Only (Overclaim)"</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  )))</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>arts_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"1 (None)"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4 (Moderate)"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7 (Extensive)"</span>)</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>p_margins <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df_rob, <span class="fu">aes</span>(<span class="at">x =</span> child_arts, <span class="at">y =</span> estimate, <span class="at">color =</span> response.level)) <span class="sc">+</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.15</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>) <span class="sc">+</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>, <span class="at">labels =</span> arts_labels) <span class="sc">+</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.7</span>, <span class="at">by =</span> <span class="fl">0.1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.7</span>)) <span class="sc">+</span></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">"vertical"</span></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Effect of Childhood Arts Exposure on Genre Engagement"</span>,</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"95% CIs computed via two-way cluster-robust standard errors (Person &amp; Genre)"</span>,</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Level of Childhood Arts Exposure"</span>,</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Probability"</span>,</span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Complex Tastes"</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"Plots"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_Effects_RobustCI_Errorbars.png"</span>, p_margins, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>p_margins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"pred_marg.rds"</span>)) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  pred_marg <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"pred_marg.rds"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  pred_marg <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    model_fixed,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">newdata =</span> <span class="fu">datagrid</span>(<span class="at">child_arts =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>), </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">vcov =</span> robust_vcov_twoway</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(pred_marg, <span class="st">"pred_marg.rds"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>pred_df_rob <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_marg) <span class="sc">%&gt;%</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">case_when</span>(</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Neither"</span> <span class="sc">~</span> <span class="st">"Neither (No Like, No Listen)"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"ListenOnly"</span> <span class="sc">~</span> <span class="st">"Listen Only (Underclaim)"</span>,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"LikeOnly"</span> <span class="sc">~</span> <span class="st">"Like Only (Overclaim)"</span>,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    group <span class="sc">==</span> <span class="st">"Both"</span> <span class="sc">~</span> <span class="st">"Both (True Engagement)"</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response.level =</span> <span class="fu">factor</span>(response.level, <span class="at">levels =</span> <span class="fu">c</span>(</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Neither (No Like, No Listen)"</span>, </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Listen Only (Underclaim)"</span>, </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Both (True Engagement)"</span>, </span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Like Only (Overclaim)"</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  )))</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>arts_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"1 (None)"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4 (Moderate)"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7 (Extensive)"</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>p_margins <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df_rob, <span class="fu">aes</span>(<span class="at">x =</span> child_arts, <span class="at">y =</span> estimate, <span class="at">color =</span> response.level)) <span class="sc">+</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>, <span class="at">alpha =</span> <span class="fl">0.15</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>) <span class="sc">+</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>, <span class="at">labels =</span> arts_labels) <span class="sc">+</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.7</span>, <span class="at">by =</span> <span class="fl">0.1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.7</span>)) <span class="sc">+</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.direction =</span> <span class="st">"vertical"</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Effect of Childhood Arts Exposure on Genre Engagement"</span>,</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"95% CIs computed via two-way cluster-robust standard errors (Person &amp; Genre)"</span>,</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Level of Childhood Arts Exposure"</span>,</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Probability"</span>,</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Complex Tastes"</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"Plots"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_Effects_RobustCI_Errorbars.png"</span>, p_margins, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>p_margins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -2864,30 +2886,29 @@ Note
 </div>
 </div>
 <p>As childhood arts exposure increases, respondents genuinely engage with more music (the “True Engagement” estimates increase). However, their propensity to overclaim genres (“Like Only”) rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader <em>claimed</em> listening habits.</p>
-<section id="model-fit-and-strategy" class="level3">
-<h3 class="anchored" data-anchor-id="model-fit-and-strategy">Model Fit and Strategy</h3>
-<p>Thus far, our multinomial models have pooled all 20 genres together, treating the effect of demographic predictors as uniform across the entire musical landscape. However, we suspect that overclaiming is deeply genre-dependent.</p>
-<p>To formally test this, we evaluate three nested models: 1. <strong>Base Demographics</strong>: A pooled model assuming demographic effects (and the baseline rate of overclaiming) are identical across all genres. 2. <strong>Genre Fixed Effects</strong>: Adding independent intercepts for all 20 genres (accounting for the fact that Classical is inherently overclaimed more globally than Country, independent of demographics). 3. <strong>Genre Interactions</strong>: Adding an interaction between childhood arts exposure and genre (allowing the specific <em>slope</em> or effect of arts exposure to vary uniquely for every single genre).</p>
-<p>We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance. In all three metrics, lower values indicate a superior balance of model accuracy and parsimony.</p>
+<section id="model-fit-random-effects-and-model-selection" class="level3">
+<h3 class="anchored" data-anchor-id="model-fit-random-effects-and-model-selection">Model Fit, Random Effects, and Model Selection</h3>
+<p>Because our data is structured with repeated observations crossed across respondents (<span class="math inline">\(N = 1,574\)</span>) and genres (<span class="math inline">\(N = 20\)</span>), we evaluate multiple modeling strategies: 1. <strong>Pooled Multinomial Logistic Model with Two-Way Clustered SEs (<code>nnet::multinom</code>)</strong>: Treats observations as pooled while adjusting standard errors for two-way clustering (<code>vcovCL</code>). 2. <strong>Crossed Random-Intercepts Multinomial Model (<code>mclogit::mblogit</code>)</strong>: Estimates crossed random intercepts for respondents (<code>(1|id)</code>) and genres (<code>(1|genre_id)</code>) using penalized quasi-likelihood (PQL). 3. <strong>Crossed Random-Slopes Multinomial Model (<code>mclogit::mblogit</code>)</strong>: Adds random slopes for childhood arts exposure across genres (<code>(1 + child_arts|genre_id)</code>). 4. <strong>Fixed Interaction Multinomial Model (<code>nnet::multinom</code>)</strong>: Fully parameterizes genre fixed effects and genre <span class="math inline">\(\times\)</span> arts exposure interaction terms.</p>
+<p>We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="hktzedpxds" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#hktzedpxds table {
+<div id="wblartreec" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wblartreec table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#hktzedpxds thead, #hktzedpxds tbody, #hktzedpxds tfoot, #hktzedpxds tr, #hktzedpxds td, #hktzedpxds th {
+#wblartreec thead, #wblartreec tbody, #wblartreec tfoot, #wblartreec tr, #wblartreec td, #wblartreec th {
   border-style: none;
 }
 
-#hktzedpxds p {
+#wblartreec p {
   margin: 0;
   padding: 0;
 }
 
-#hktzedpxds .gt_table {
+#wblartreec .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2913,12 +2934,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#hktzedpxds .gt_caption {
+#wblartreec .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#hktzedpxds .gt_title {
+#wblartreec .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2930,7 +2951,7 @@ Note
   border-bottom-width: 0;
 }
 
-#hktzedpxds .gt_subtitle {
+#wblartreec .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2942,7 +2963,7 @@ Note
   border-top-width: 0;
 }
 
-#hktzedpxds .gt_heading {
+#wblartreec .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2954,13 +2975,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#hktzedpxds .gt_bottom_border {
+#wblartreec .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#hktzedpxds .gt_col_headings {
+#wblartreec .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -2975,7 +2996,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#hktzedpxds .gt_col_heading {
+#wblartreec .gt_col_heading {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -2995,7 +3016,7 @@ Note
   overflow-x: hidden;
 }
 
-#hktzedpxds .gt_column_spanner_outer {
+#wblartreec .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #01837B;
   font-size: 100%;
@@ -3007,15 +3028,15 @@ Note
   padding-right: 4px;
 }
 
-#hktzedpxds .gt_column_spanner_outer:first-child {
+#wblartreec .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#hktzedpxds .gt_column_spanner_outer:last-child {
+#wblartreec .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#hktzedpxds .gt_column_spanner {
+#wblartreec .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -3027,11 +3048,11 @@ Note
   width: 100%;
 }
 
-#hktzedpxds .gt_spanner_row {
+#wblartreec .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#hktzedpxds .gt_group_heading {
+#wblartreec .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3057,7 +3078,7 @@ Note
   text-align: left;
 }
 
-#hktzedpxds .gt_empty_group_heading {
+#wblartreec .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3072,15 +3093,15 @@ Note
   vertical-align: middle;
 }
 
-#hktzedpxds .gt_from_md > :first-child {
+#wblartreec .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#hktzedpxds .gt_from_md > :last-child {
+#wblartreec .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#hktzedpxds .gt_row {
+#wblartreec .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3099,7 +3120,7 @@ Note
   overflow-x: hidden;
 }
 
-#hktzedpxds .gt_stub {
+#wblartreec .gt_stub {
   color: #333333;
   background-color: #A5FEF2;
   font-size: 100%;
@@ -3112,7 +3133,7 @@ Note
   padding-right: 5px;
 }
 
-#hktzedpxds .gt_stub_row_group {
+#wblartreec .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3126,15 +3147,15 @@ Note
   vertical-align: top;
 }
 
-#hktzedpxds .gt_row_group_first td {
+#wblartreec .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#hktzedpxds .gt_row_group_first th {
+#wblartreec .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#hktzedpxds .gt_summary_row {
+#wblartreec .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3144,16 +3165,16 @@ Note
   padding-right: 5px;
 }
 
-#hktzedpxds .gt_first_summary_row {
+#wblartreec .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#hktzedpxds .gt_first_summary_row.thick {
+#wblartreec .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#hktzedpxds .gt_last_summary_row {
+#wblartreec .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3163,7 +3184,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#hktzedpxds .gt_grand_summary_row {
+#wblartreec .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -3173,7 +3194,7 @@ Note
   padding-right: 5px;
 }
 
-#hktzedpxds .gt_first_grand_summary_row {
+#wblartreec .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3183,7 +3204,7 @@ Note
   border-top-color: #5F5F5F;
 }
 
-#hktzedpxds .gt_last_grand_summary_row_top {
+#wblartreec .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3193,11 +3214,11 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#hktzedpxds .gt_striped {
+#wblartreec .gt_striped {
   background-color: #EBFBF9;
 }
 
-#hktzedpxds .gt_table_body {
+#wblartreec .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -3206,7 +3227,7 @@ Note
   border-bottom-color: #5F5F5F;
 }
 
-#hktzedpxds .gt_footnotes {
+#wblartreec .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3220,7 +3241,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#hktzedpxds .gt_footnote {
+#wblartreec .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3229,7 +3250,7 @@ Note
   padding-right: 5px;
 }
 
-#hktzedpxds .gt_sourcenotes {
+#wblartreec .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3243,7 +3264,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#hktzedpxds .gt_sourcenote {
+#wblartreec .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3251,72 +3272,72 @@ Note
   padding-right: 5px;
 }
 
-#hktzedpxds .gt_left {
+#wblartreec .gt_left {
   text-align: left;
 }
 
-#hktzedpxds .gt_center {
+#wblartreec .gt_center {
   text-align: center;
 }
 
-#hktzedpxds .gt_right {
+#wblartreec .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#hktzedpxds .gt_font_normal {
+#wblartreec .gt_font_normal {
   font-weight: normal;
 }
 
-#hktzedpxds .gt_font_bold {
+#wblartreec .gt_font_bold {
   font-weight: bold;
 }
 
-#hktzedpxds .gt_font_italic {
+#wblartreec .gt_font_italic {
   font-style: italic;
 }
 
-#hktzedpxds .gt_super {
+#wblartreec .gt_super {
   font-size: 65%;
 }
 
-#hktzedpxds .gt_footnote_marks {
+#wblartreec .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#hktzedpxds .gt_asterisk {
+#wblartreec .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#hktzedpxds .gt_indent_1 {
+#wblartreec .gt_indent_1 {
   text-indent: 5px;
 }
 
-#hktzedpxds .gt_indent_2 {
+#wblartreec .gt_indent_2 {
   text-indent: 10px;
 }
 
-#hktzedpxds .gt_indent_3 {
+#wblartreec .gt_indent_3 {
   text-indent: 15px;
 }
 
-#hktzedpxds .gt_indent_4 {
+#wblartreec .gt_indent_4 {
   text-indent: 20px;
 }
 
-#hktzedpxds .gt_indent_5 {
+#wblartreec .gt_indent_5 {
   text-indent: 25px;
 }
 
-#hktzedpxds .katex-display {
+#wblartreec .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#hktzedpxds div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wblartreec div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3324,139 +3345,171 @@ Note
 <table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading header">
-<td colspan="4" class="gt_heading gt_title gt_font_normal"><strong>Multinomial Model Fit Comparison</strong></td>
+<td colspan="6" class="gt_heading gt_title gt_font_normal"><strong>Comprehensive Multinomial Model Fit Comparison</strong></td>
 </tr>
 <tr class="gt_heading even">
-<td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Lower AIC and BIC indicate better model fit</td>
+<td colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Comparing Pooled vs. Mixed-Effects (mblogit) Specifications</td>
 </tr>
 <tr class="gt_col_headings header">
-<th id="Model" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Model</th>
+<th id="Model" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Model Specification</th>
+<th id="Method" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Estimation</th>
+<th id="DF" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Params (df)</th>
+<th id="Deviance" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Residual Deviance</th>
 <th id="AIC" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">AIC</th>
 <th id="BIC" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">BIC</th>
-<th id="Deviance" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Deviance</th>
 </tr>
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left" headers="Model">1. Base Demographics</td>
-<td class="gt_row gt_right" headers="AIC">58,995</td>
-<td class="gt_row gt_right" headers="BIC">59,336</td>
-<td class="gt_row gt_right" headers="Deviance">58,911</td>
+<td class="gt_row gt_left" headers="Model">1. Pooled Multinomial (Clustered SEs)</td>
+<td class="gt_row gt_left" headers="Method">ML (nnet)</td>
+<td class="gt_row gt_right" headers="DF">42</td>
+<td class="gt_row gt_right" headers="Deviance">58,911.5</td>
+<td class="gt_row gt_right" headers="AIC">58,995.5</td>
+<td class="gt_row gt_right" headers="BIC">59,335.9</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left gt_striped" headers="Model">2. Base + Genre Fixed Effects</td>
-<td class="gt_row gt_right gt_striped" headers="AIC">52,830</td>
-<td class="gt_row gt_right gt_striped" headers="BIC">53,633</td>
-<td class="gt_row gt_right gt_striped" headers="Deviance">52,632</td>
+<td class="gt_row gt_left gt_striped" headers="Model" style="background-color: #E6F5FF; font-weight: bold">2. Crossed Random Intercepts (mblogit)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></td>
+<td class="gt_row gt_left gt_striped" headers="Method" style="background-color: #E6F5FF; font-weight: bold">PQL (mclogit)</td>
+<td class="gt_row gt_right gt_striped" headers="DF" style="background-color: #E6F5FF; font-weight: bold">54</td>
+<td class="gt_row gt_right gt_striped" headers="Deviance" style="background-color: #E6F5FF; font-weight: bold">50,654.9</td>
+<td class="gt_row gt_right gt_striped" headers="AIC" style="background-color: #E6F5FF; font-weight: bold">50,762.9</td>
+<td class="gt_row gt_right gt_striped" headers="BIC" style="background-color: #E6F5FF; font-weight: bold">51,200.5</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Model">3. Base + Genre FEs + Arts × Genre Interactions</td>
-<td class="gt_row gt_right" headers="AIC">52,699</td>
-<td class="gt_row gt_right" headers="BIC">53,963</td>
-<td class="gt_row gt_right" headers="Deviance">52,387</td>
+<td class="gt_row gt_left" headers="Model">3. Crossed Random Slopes: Arts (mblogit)</td>
+<td class="gt_row gt_left" headers="Method">PQL (mclogit)</td>
+<td class="gt_row gt_right" headers="DF">69</td>
+<td class="gt_row gt_right" headers="Deviance">50,691.5</td>
+<td class="gt_row gt_right" headers="AIC">50,829.5</td>
+<td class="gt_row gt_right" headers="BIC">51,388.7</td>
 </tr>
-</tbody>
+</tbody><tfoot>
+<tr class="gt_footnotes odd">
+<td colspan="6" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Model 2 (Crossed Random Intercepts) achieves the lowest AIC and BIC, offering the optimal balance of explanatory fit and parsimony.</td>
+</tr>
+</tfoot>
+
 </table>
 
 </div>
 </div>
 </div>
+<p>The fit comparison demonstrates that accounting for crossed clustering at both the respondent and genre levels results in an enormous reduction in deviance (<span class="math inline">\(\Delta \text{Deviance} = -8,256.58\)</span>) over the pooled multinomial model. <strong>Model 2 (Crossed Random Intercepts)</strong> achieves the lowest AIC (<span class="math inline">\(50,762.9\)</span>) and BIC (<span class="math inline">\(51,200.5\)</span>), making it our preferred specification for primary baseline inference.</p>
 </section>
-<section id="true-engagement-across-different-genres-ame" class="level3">
-<h3 class="anchored" data-anchor-id="true-engagement-across-different-genres-ame">True Engagement Across Different Genres (AME)</h3>
 </section>
-<section id="overclaiming-across-different-genres-interaction-effects" class="level3">
-<h3 class="anchored" data-anchor-id="overclaiming-across-different-genres-interaction-effects">Overclaiming Across Different Genres (Interaction Effects)</h3>
-<p>To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we can fit a fixed-effects model that interacts <code>child_arts</code> with <code>genre_id</code>.</p>
-<p>To quantify and formally compare the strength of this effect across genres, we calculate the <strong>Average Marginal Effect (AME)</strong> of a 1-unit increase in childhood arts exposure for each genre, isolating the “Like Only” state.</p>
+<section id="genre-specific-effects-of-childhood-arts-exposure" class="level1">
+<h1>Genre-Specific Effects of Childhood Arts Exposure</h1>
+<p>To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we evaluate genre-specific Average Marginal Effects (AMEs) using both our fixed-effects interaction multinomial model (<code>nnet::multinom</code> with <code>child_arts * genre_id</code>) and the crossed random-slopes model (<code>mclogit::mblogit</code>).</p>
+<section id="overclaiming-across-genres-fixed-effects-interaction-model" class="level3">
+<h3 class="anchored" data-anchor-id="overclaiming-across-genres-fixed-effects-interaction-model">1. Overclaiming Across Genres (Fixed-Effects Interaction Model)</h3>
+<p>We calculate the Average Marginal Effect of a 1-unit increase in childhood arts exposure for each genre using the delta method to compute cluster-adjusted 95% confidence intervals.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the Average Marginal Effect (slope) of child_arts for each genre</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ame_genre <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  model_int,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"child_arts"</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"genre_id"</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine demographic preferences for highlighting</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>pref_df <span class="ot">&lt;-</span> df_long <span class="sc">%&gt;%</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># College: BA or Grad Degree. Baseline: HS or less (excluding 'some college' &amp; 'associates')</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">college =</span> <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(educ2) <span class="sc">&gt;=</span> <span class="dv">5</span>, <span class="cn">TRUE</span>, <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(educ2) <span class="sc">&lt;=</span> <span class="dv">2</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span>)),</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Black</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">black =</span> <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(race5) <span class="sc">==</span> <span class="dv">2</span>, <span class="cn">TRUE</span>, <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(race5) <span class="sc">==</span> <span class="dv">1</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span>))</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre_id) <span class="sc">%&gt;%</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio_col =</span> <span class="fu">mean</span>(like[college <span class="sc">==</span> <span class="cn">TRUE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(like[college <span class="sc">==</span> <span class="cn">FALSE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio_black =</span> <span class="fu">mean</span>(like[black <span class="sc">==</span> <span class="cn">TRUE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(like[black <span class="sc">==</span> <span class="cn">FALSE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for the LikeOnly state and arrange by effect size</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>ame_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"LikeOnly"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pref_df, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">case_when</span>(</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">&amp;</span> ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Both"</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"College Preferred"</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>      ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Black Preferred"</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">factor</span>(pref_group, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"College Preferred"</span>, <span class="st">"Black Preferred"</span>, <span class="st">"Both"</span>, <span class="st">"Other"</span>))</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(estimate) <span class="sc">%&gt;%</span></span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_name =</span> <span class="fu">factor</span>(genre_name, <span class="at">levels =</span> genre_name))</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>p_ame <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_df, <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high, <span class="at">color =</span> pref_group), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> pref_group), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>      <span class="st">"College Preferred"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>, </span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Black Preferred"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>, </span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both"</span> <span class="ot">=</span> <span class="st">"#7570b3"</span>, </span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"gray70"</span></span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Demographic Preference</span><span class="sc">\n</span><span class="st">(Ratio &gt; 1.0)"</span></span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span></span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Strength of Arts Exposure Effect on Overclaiming by Genre"</span>,</span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure"</span>,</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Percentage Point Change in Prob(Like Only)"</span>,</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span></span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_AME_by_Genre.png"</span>, p_ame, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>p_ame</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Determine demographic preferences for highlighting</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pref_df <span class="ot">&lt;-</span> df_long <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># College: BA or Grad Degree. Baseline: HS or less (excluding 'some college' &amp; 'associates')</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">college =</span> <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(educ2) <span class="sc">&gt;=</span> <span class="dv">5</span>, <span class="cn">TRUE</span>, <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(educ2) <span class="sc">&lt;=</span> <span class="dv">2</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span>)),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Black</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">black =</span> <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(race5) <span class="sc">==</span> <span class="dv">2</span>, <span class="cn">TRUE</span>, <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(race5) <span class="sc">==</span> <span class="dv">1</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span>))</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre_id) <span class="sc">%&gt;%</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio_col =</span> <span class="fu">mean</span>(like[college <span class="sc">==</span> <span class="cn">TRUE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(like[college <span class="sc">==</span> <span class="cn">FALSE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratio_black =</span> <span class="fu">mean</span>(like[black <span class="sc">==</span> <span class="cn">TRUE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(like[black <span class="sc">==</span> <span class="cn">FALSE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate or load pre-computed AME from fixed-effects interaction model</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"ame_genre_fixed.rds"</span>)) {</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  ame_genre <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"ame_genre_fixed.rds"</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">"model_int.rds"</span>)) {</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    model_int <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"model_int.rds"</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    model_int <span class="ot">&lt;-</span> <span class="fu">multinom</span>(</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>      engagement_state <span class="sc">~</span> educ2 <span class="sc">+</span> parent_educ <span class="sc">+</span> agecat <span class="sc">+</span> female <span class="sc">+</span> income <span class="sc">+</span> <span class="fu">as.factor</span>(race5) <span class="sc">+</span> <span class="fu">as.factor</span>(platform) <span class="sc">+</span> child_arts <span class="sc">*</span> genre_id,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> df_long, <span class="at">MaxNWts =</span> <span class="dv">5000</span>, <span class="at">maxit =</span> <span class="dv">300</span>, <span class="at">trace =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(model_int, <span class="st">"model_int.rds"</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  ame_genre <span class="ot">&lt;-</span> <span class="fu">avg_slopes</span>(</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    model_int,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">variables =</span> <span class="st">"child_arts"</span>,</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"genre_id"</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(ame_genre, <span class="st">"ame_genre_fixed.rds"</span>)</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Filter for LikeOnly (Overclaim)</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>ame_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"LikeOnly"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pref_df, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">&amp;</span> ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Both"</span>,</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"College Preferred"</span>,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>      ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Black Preferred"</span>,</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">factor</span>(pref_group, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"College Preferred"</span>, <span class="st">"Black Preferred"</span>, <span class="st">"Both"</span>, <span class="st">"Other"</span>))</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_name =</span> <span class="fu">factor</span>(genre_name, <span class="at">levels =</span> genre_name))</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>p_ame <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_df, <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high, <span class="at">color =</span> pref_group), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> pref_group), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>      <span class="st">"College Preferred"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>, </span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Black Preferred"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>, </span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both"</span> <span class="ot">=</span> <span class="st">"#7570b3"</span>, </span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"gray70"</span></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Demographic Preference</span><span class="sc">\n</span><span class="st">(Ratio &gt; 1.0)"</span></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Strength of Arts Exposure Effect on Overclaiming by Genre"</span>,</span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure"</span>,</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Percentage Point Change in Prob(Like Only)"</span>,</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Plots directory</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"Plots"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_AME_by_Genre.png"</span>, p_ame, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>p_ame</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-1.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-fixed-1.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>The forest plot above perfectly illustrates the sociological hierarchy of overclaiming. A 1-unit increase in childhood arts exposure increases the probability of overclaiming Classical music by nearly 8 percentage points, and Jazz by over 6 percentage points. In stark contrast, it increases the probability of overclaiming Country, Rap, and Heavy Metal by barely 1 percentage point (with confidence intervals brushing zero).</p>
-<p>We can repeat this exact marginal effect analysis for “True Engagement” (Both liking and listening) to see if early arts exposure drives genuine consumption of these genres, or merely the symbolic claiming of them.</p>
+</section>
+<section id="true-engagement-across-genres-fixed-effects-interaction-model" class="level3">
+<h3 class="anchored" data-anchor-id="true-engagement-across-genres-fixed-effects-interaction-model">2. True Engagement Across Genres (Fixed-Effects Interaction Model)</h3>
+<p>We repeat this analysis for “True Engagement” (both liking and listening) to see if early arts exposure drives genuine consumption of these genres.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the AME results for the "Both" state</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for the Both state</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>ame_df_both <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"Both"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
@@ -3489,20 +3542,20 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-both-1.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-both-fixed-1.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>The contrast between the two plots is striking. While arts exposure drives massive <em>overclaiming</em> of Classical and Jazz, its effect on <em>genuine engagement</em> with those same genres is tiny (around +1 percentage point) and barely distinguishable from zero. Instead, arts exposure actually seems to drive genuine engagement with Rap/Hip Hop and Heavy Metal.</p>
 </section>
-<section id="underclaiming-across-different-genres-ame" class="level3">
-<h3 class="anchored" data-anchor-id="underclaiming-across-different-genres-ame">Underclaiming Across Different Genres (AME)</h3>
-<p>Finally, we can look at the average marginal effect of childhood arts exposure on underclaiming (listening without reporting liking).</p>
+<section id="underclaiming-across-genres-fixed-effects-interaction-model" class="level3">
+<h3 class="anchored" data-anchor-id="underclaiming-across-genres-fixed-effects-interaction-model">3. Underclaiming Across Genres (Fixed-Effects Interaction Model)</h3>
+<p>Finally, we examine the average marginal effect of childhood arts exposure on underclaiming (listening without reporting liking).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the AME results for the "ListenOnly" state</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for the ListenOnly state</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ame_df_under <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ame_genre) <span class="sc">%&gt;%</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(group <span class="sc">==</span> <span class="st">"ListenOnly"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(genre_id)) <span class="sc">%&gt;%</span></span>
@@ -3512,8 +3565,8 @@ Note
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>p_ame_under <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_df_under, <span class="fu">aes</span>(<span class="at">x =</span> estimate, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#7570b3"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#7570b3"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> conf.low, <span class="at">xmax =</span> conf.high), <span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#56B4E9"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#56B4E9"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
@@ -3535,7 +3588,7 @@ Note
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-under-1.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-under-fixed-1.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
@@ -3543,84 +3596,52 @@ Note
 <p>The effect of arts exposure on underclaiming is universally flat or negative across almost all genres. The only genres that show a mild negative effect (meaning arts exposure makes you <em>less</em> likely to underclaim them) are Contemporary Rock, Rap/Hip Hop, and Latin. For most of the cultural hierarchy, childhood arts exposure simply has no bearing on whether someone listens to a genre in secret.</p>
 </section>
 <section id="overclaiming-and-demographic-prestige" class="level3">
-<h3 class="anchored" data-anchor-id="overclaiming-and-demographic-prestige">Overclaiming and Demographic Prestige</h3>
-<p>To fully understand the sociological driver of overclaiming, we can test whether the magnitude of the overclaiming effect (the AME) correlates with the demographic prestige of the genre.</p>
-<p>We can create a “Prestige Index” by averaging two distinct demographic preference ratios, computed directly from the survey respondents’ actual abstract liking rates: 1. <strong>Class Prestige (College Ratio):</strong> The ratio of liking among respondents with a BA degree or higher divided by the liking among respondents with a High School diploma or less (excluding the “some college” and “associate’s degree” middle categories to sharpen the contrast). 2. <strong>Racial Prestige (Black Ratio):</strong> The ratio of liking among Black respondents divided by the liking among White respondents.</p>
-<p>By plotting this average index against the Average Marginal Effect (AME) on overclaiming, we can see if genres with higher combined demographic prestige are the ones most prone to symbolic overclaiming.</p>
+<h3 class="anchored" data-anchor-id="overclaiming-and-demographic-prestige">4. Overclaiming and Demographic Prestige</h3>
+<p>To fully understand the sociological driver of overclaiming, we test whether the magnitude of the overclaiming effect (the AME from our fixed-effects interaction model) correlates with the demographic prestige of the genre.</p>
+<p>We create a “Prestige Index” by averaging two distinct demographic preference ratios, computed directly from the survey respondents’ actual abstract liking rates: 1. <strong>Class Prestige (College Ratio):</strong> The ratio of liking among respondents with a BA degree or higher divided by the liking among respondents with a High School diploma or less (excluding the “some college” and “associate’s degree” middle categories to sharpen the contrast). 2. <strong>Racial Prestige (Black Ratio):</strong> The ratio of liking among Black respondents divided by the liking among White respondents.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calculate College Ratio (BA+ vs HS or less)</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>pref_col <span class="ot">&lt;-</span> df_long <span class="sc">%&gt;%</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">college =</span> <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(educ2) <span class="sc">&gt;=</span> <span class="dv">5</span>, <span class="cn">TRUE</span>, <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(educ2) <span class="sc">&lt;=</span> <span class="dv">2</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre_id) <span class="sc">%&gt;%</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">ratio_col =</span> <span class="fu">mean</span>(like[college <span class="sc">==</span> <span class="cn">TRUE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(like[college <span class="sc">==</span> <span class="cn">FALSE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Calculate Black Ratio (Black vs White)</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>pref_black <span class="ot">&lt;-</span> df_long <span class="sc">%&gt;%</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">black =</span> <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(race5) <span class="sc">==</span> <span class="dv">2</span>, <span class="cn">TRUE</span>, <span class="fu">ifelse</span>(<span class="fu">as.numeric</span>(race5) <span class="sc">==</span> <span class="dv">1</span>, <span class="cn">FALSE</span>, <span class="cn">NA</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre_id) <span class="sc">%&gt;%</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">ratio_black =</span> <span class="fu">mean</span>(like[black <span class="sc">==</span> <span class="cn">TRUE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">mean</span>(like[black <span class="sc">==</span> <span class="cn">FALSE</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Combine and calculate Average Prestige Index</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>cor_data <span class="ot">&lt;-</span> ame_df <span class="sc">%&gt;%</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(genre_id, genre_name, estimate, pref_group) <span class="sc">%&gt;%</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pref_col, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pref_black, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">avg_ratio =</span> (ratio_col <span class="sc">+</span> ratio_black) <span class="sc">/</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">case_when</span>(</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">&amp;</span> ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Both"</span>,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"College Preferred"</span>,</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>      ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Black Preferred"</span>,</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">factor</span>(pref_group, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"College Preferred"</span>, <span class="st">"Black Preferred"</span>, <span class="st">"Both"</span>, <span class="st">"Other"</span>))</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Spearman Correlation</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>spearman_rho <span class="ot">&lt;-</span> <span class="fu">cor</span>(cor_data<span class="sc">$</span>estimate, cor_data<span class="sc">$</span>avg_ratio, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>cor_label <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"Spearman \u03c1: %.2f"</span>, spearman_rho)</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>p_cor <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(cor_data, <span class="fu">aes</span>(<span class="at">x =</span> avg_ratio, <span class="at">y =</span> estimate)) <span class="sc">+</span></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"gray50"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> pref_group), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> genre_name), <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">box.padding =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">min</span>(cor_data<span class="sc">$</span>avg_ratio, <span class="at">na.rm=</span>T), <span class="at">y =</span> <span class="fu">max</span>(cor_data<span class="sc">$</span>estimate, <span class="at">na.rm=</span>T), </span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> cor_label, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">fontface =</span> <span class="st">"italic"</span>, <span class="at">color =</span> <span class="st">"gray30"</span>) <span class="sc">+</span></span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>      <span class="st">"College Preferred"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>, </span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Black Preferred"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>, </span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both"</span> <span class="ot">=</span> <span class="st">"#7570b3"</span>, </span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"gray70"</span></span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Demographic Group"</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Demographic Prestige vs. Overclaiming"</span>,</span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"How structural preference drives symbolic claiming"</span>,</span>
-<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Prestige Index (Avg of College Ratio &amp; Black Ratio)"</span>,</span>
-<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"AME on Overclaiming (Percentage Points)"</span></span>
-<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/Overclaiming_Prestige_Correlation.png"</span>, p_cor, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine with Demographic Preference Ratios and calculate Average Prestige Index</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>cor_data <span class="ot">&lt;-</span> ame_df <span class="sc">%&gt;%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(genre_id, genre_name, estimate, pref_group, ratio_col, ratio_black) <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">avg_ratio =</span> (ratio_col <span class="sc">+</span> ratio_black) <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate Spearman Correlation</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>spearman_rho <span class="ot">&lt;-</span> <span class="fu">cor</span>(cor_data<span class="sc">$</span>estimate, cor_data<span class="sc">$</span>avg_ratio, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>cor_label <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"Spearman \u03c1: %.2f"</span>, spearman_rho)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>p_cor <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(cor_data, <span class="fu">aes</span>(<span class="at">x =</span> avg_ratio, <span class="at">y =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"gray50"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> pref_group), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="fu">aes</span>(<span class="at">label =</span> genre_name), <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">box.padding =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">min</span>(cor_data<span class="sc">$</span>avg_ratio, <span class="at">na.rm=</span>T), <span class="at">y =</span> <span class="fu">max</span>(cor_data<span class="sc">$</span>estimate, <span class="at">na.rm=</span>T), </span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> cor_label, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">fontface =</span> <span class="st">"italic"</span>, <span class="at">color =</span> <span class="st">"gray30"</span>) <span class="sc">+</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>      <span class="st">"College Preferred"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>, </span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Black Preferred"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>, </span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both"</span> <span class="ot">=</span> <span class="st">"#7570b3"</span>, </span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"gray70"</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Demographic Group"</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Demographic Prestige vs. Overclaiming"</span>,</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"How structural preference drives symbolic claiming"</span>,</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Prestige Index (Avg of College Ratio &amp; Black Ratio)"</span>,</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"AME on Overclaiming (Percentage Points)"</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/Overclaiming_Prestige_Correlation.png"</span>, p_cor, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>p_cor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>p_cor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -3630,6 +3651,115 @@ Note
 </div>
 </div>
 <p>The positive Spearman correlation (<span class="math inline">\(\rho \approx 0.64\)</span>) confirms a powerful sociological dynamic: once we control for differences in streaming platform usage (e.g., Spotify vs.&nbsp;iTunes), the more a genre is structurally associated with high-status demographic boundaries (both high education and distinct racial groups), the more strongly childhood arts exposure drives individuals to falsely claim an affinity for it. Genres like Classical and Jazz score high on this combined prestige index and trigger massive overclaiming, while low-prestige genres like Rap, Heavy Metal, and Country sit at the bottom left with almost zero symbolic overclaiming value.</p>
+</section>
+<section id="robustness-check-random-coefficients-model-mblogit" class="level3">
+<h3 class="anchored" data-anchor-id="robustness-check-random-coefficients-model-mblogit">Robustness Check: Random Coefficients Model (mblogit)</h3>
+<p>As an additional robustness check, we extract the genre-specific BLUPs from the crossed random-slopes model (<code>mclogit::mblogit</code>, random = <code>list(~ 1|id, ~ 1 + child_arts|genre_id)</code>). In this specification, each genre’s slope is shrunk toward the global mean via empirical Bayes shrinkage.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract link predictions and random slopes from m_mblogit_slope</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>genre_vec <span class="ot">&lt;-</span> m_mblogit_slope<span class="sc">$</span>model<span class="sc">$</span>genre_id</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>pr_link <span class="ot">&lt;-</span> <span class="fu">predict</span>(m_mblogit_slope, <span class="at">type =</span> <span class="st">"link"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>re_genre <span class="ot">&lt;-</span> m_mblogit_slope<span class="sc">$</span>random.effects[[<span class="dv">2</span>]]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>rn <span class="ot">&lt;-</span> <span class="fu">rownames</span>(re_genre)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract random slopes for each equation and genre</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>u_slopes <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"ListenOnly"</span>, <span class="st">"LikeOnly"</span>, <span class="st">"Both"</span>)) {</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  u_slopes[[j]] <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="dv">20</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(u_slopes[[j]]) <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (g <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>) {</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    pat <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"^"</span>, j, <span class="st">"~child_arts</span><span class="sc">\\</span><span class="st">|"</span>, g, <span class="st">"$"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    idx <span class="ot">&lt;-</span> <span class="fu">grep</span>(pat, rn)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    u_slopes[[j]][<span class="fu">as.character</span>(g)] <span class="ot">&lt;-</span> re_genre[idx, <span class="dv">1</span>]</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>total_slopes <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">ListenOnly =</span> <span class="fu">coef</span>(m_mblogit_slope)[<span class="st">"ListenOnly~child_arts"</span>] <span class="sc">+</span> u_slopes[[<span class="st">"ListenOnly"</span>]],</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">LikeOnly =</span> <span class="fu">coef</span>(m_mblogit_slope)[<span class="st">"LikeOnly~child_arts"</span>] <span class="sc">+</span> u_slopes[[<span class="st">"LikeOnly"</span>]],</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Both =</span> <span class="fu">coef</span>(m_mblogit_slope)[<span class="st">"Both~child_arts"</span>] <span class="sc">+</span> u_slopes[[<span class="st">"Both"</span>]]</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute new link under +1 child_arts</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>pr_link_plus1 <span class="ot">&lt;-</span> pr_link</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col_name <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"ListenOnly"</span>, <span class="st">"LikeOnly"</span>, <span class="st">"Both"</span>)) {</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  pr_link_plus1[, col_name] <span class="ot">&lt;-</span> pr_link[, col_name] <span class="sc">+</span> total_slopes[[col_name]][<span class="fu">as.character</span>(genre_vec)]</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Probabilities</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>exp_link <span class="ot">&lt;-</span> <span class="fu">exp</span>(pr_link)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>p_orig <span class="ot">&lt;-</span> exp_link <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">rowSums</span>(exp_link))</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>exp_link_plus1 <span class="ot">&lt;-</span> <span class="fu">exp</span>(pr_link_plus1)</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>p_plus1 <span class="ot">&lt;-</span> exp_link_plus1 <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">rowSums</span>(exp_link_plus1))</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>delta_p_like <span class="ot">&lt;-</span> p_plus1[, <span class="st">"LikeOnly"</span>] <span class="sc">-</span> p_orig[, <span class="st">"LikeOnly"</span>]</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute summary stats by genre for LikeOnly</span></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>ame_mblogit_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">genre_id =</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(genre_labels, <span class="at">by =</span> <span class="st">"genre_id"</span>)</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>ame_stats <span class="ot">&lt;-</span> <span class="fu">tapply</span>(delta_p_like, genre_vec, <span class="cf">function</span>(x) {</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">ame =</span> <span class="fu">mean</span>(x), <span class="at">se =</span> <span class="fu">sd</span>(x)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">length</span>(x)), <span class="at">sd =</span> <span class="fu">sd</span>(x), <span class="at">n =</span> <span class="fu">length</span>(x))</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>ame_stats_mat <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, ame_stats)</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>ame_stats_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">genre_id =</span> <span class="fu">rownames</span>(ame_stats_mat), ame_stats_mat, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>ame_mblogit_df <span class="ot">&lt;-</span> ame_mblogit_df <span class="sc">%&gt;%</span></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(ame_stats_df, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pref_df, <span class="at">by =</span> <span class="st">"genre_id"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">case_when</span>(</span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">&amp;</span> ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Both"</span>,</span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>      ratio_col <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"College Preferred"</span>,</span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>      ratio_black <span class="sc">&gt;</span> <span class="fl">1.0</span> <span class="sc">~</span> <span class="st">"Black Preferred"</span>,</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">pref_group =</span> <span class="fu">factor</span>(pref_group, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"College Preferred"</span>, <span class="st">"Black Preferred"</span>, <span class="st">"Both"</span>, <span class="st">"Other"</span>))</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(ame) <span class="sc">%&gt;%</span></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">genre_name =</span> <span class="fu">factor</span>(genre_name, <span class="at">levels =</span> genre_name))</span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>p_ame_rc <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ame_mblogit_df, <span class="fu">aes</span>(<span class="at">x =</span> ame, <span class="at">y =</span> genre_name)) <span class="sc">+</span></span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> pref_group), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>      <span class="st">"College Preferred"</span> <span class="ot">=</span> <span class="st">"#1b9e77"</span>, </span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Black Preferred"</span> <span class="ot">=</span> <span class="st">"#d95f02"</span>, </span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Both"</span> <span class="ot">=</span> <span class="st">"#7570b3"</span>, </span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Other"</span> <span class="ot">=</span> <span class="st">"gray70"</span></span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Demographic Preference</span><span class="sc">\n</span><span class="st">(Ratio &gt; 1.0)"</span></span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span></span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Arts Exposure Effect on Overclaiming (Random Coefficients Model)"</span>,</span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Crossed Multilevel Model (mblogit): Empirical Bayes BLUPs of 1-unit increase in Arts Exposure"</span>,</span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Percentage Point Change in Prob(Like Only)"</span>,</span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"Plots/ChildArts_AME_by_Genre_RandomCoefficients.png"</span>, p_ame_rc, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">7</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>p_ame_rc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="overclaiming_report_files/figure-html/marginal-effects-genre-ame-random-coefficients-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The random coefficients point estimates closely mirror the fixed-effects interaction model: early arts exposure selectively drives overclaiming in Opera, Classical, Swing, Musicals, Latin, and Jazz (+5.6 to +7.7 percentage points), while having a negligible effect on Country, Classic Rock, Contemporary Pop, and Rap. This confirms that our findings are completely robust across both fixed-effects and hierarchical random-effects specifications.</p>
 </section>
 </section>
 
