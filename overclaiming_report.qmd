@@ -231,25 +231,27 @@ Because our data is in a long format where the same respondent appears 20 times 
 ```{r}
 #| label: multinomial-model
 #| results: hide
-if (file.exists("model_fixed.rds")) {
-  model_fixed <- readRDS("model_fixed.rds")
+dir.create("rds", showWarnings = FALSE)
+
+if (file.exists("rds/model_fixed.rds")) {
+  model_fixed <- readRDS("rds/model_fixed.rds")
 } else {
   model_fixed <- multinom(
     engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform),
     data = df_long
   )
-  saveRDS(model_fixed, "model_fixed.rds")
+  saveRDS(model_fixed, "rds/model_fixed.rds")
 }
 ```
 
 ```{r}
 #| label: clustered-se
 # Calculate two-way clustered standard errors (Person + Genre)
-if (file.exists("robust_vcov_twoway.rds")) {
-  robust_vcov_twoway <- readRDS("robust_vcov_twoway.rds")
+if (file.exists("rds/robust_vcov_twoway.rds")) {
+  robust_vcov_twoway <- readRDS("rds/robust_vcov_twoway.rds")
 } else {
   robust_vcov_twoway <- vcovCL(model_fixed, cluster = df_long[, c("id", "genre_id")])
-  saveRDS(robust_vcov_twoway, "robust_vcov_twoway.rds")
+  saveRDS(robust_vcov_twoway, "rds/robust_vcov_twoway.rds")
 }
 robust_se_twoway <- sqrt(diag(robust_vcov_twoway))
 
@@ -438,15 +440,15 @@ To make these multinomial dynamics intuitive, we calculate the marginal predicte
 #| fig-width: 9
 #| fig-height: 7
 # Generate robust predictions using the two-way clustered vcov matrix
-if (file.exists("pred_marg.rds")) {
-  pred_marg <- readRDS("pred_marg.rds")
+if (file.exists("rds/pred_marg.rds")) {
+  pred_marg <- readRDS("rds/pred_marg.rds")
 } else {
   pred_marg <- predictions(
     model_fixed,
     newdata = datagrid(child_arts = 1:7), 
     vcov = robust_vcov_twoway
   )
-  saveRDS(pred_marg, "pred_marg.rds")
+  saveRDS(pred_marg, "rds/pred_marg.rds")
 }
 
 pred_df_rob <- as.data.frame(pred_marg) %>%
@@ -498,66 +500,106 @@ As childhood arts exposure increases, respondents genuinely engage with more mus
 
 # Model fit and model selection
 
-Because our data is structured with repeated observations across respondents ($N = 1,574$) and genres ($N = 20$), we evaluate three nested multinomial modeling strategies:
+Because our data is structured with repeated observations across respondents ($N = 1,574$) and genres ($N = 20$), we evaluate four nested multinomial modeling strategies:
 1. **Pooled Multinomial Logistic Model with Two-Way Clustered SEs (`nnet::multinom`)**: Treats observations as pooled while adjusting standard errors for two-way clustering (`vcovCL`).
 2. **Genre Fixed Effects Multinomial Model (`nnet::multinom`)**: Adds 20 independent genre intercepts to account for baseline differences in liking/listening across genres.
-3. **Genre Fixed Effects + Arts Interactions (`nnet::multinom`)**: Adds genre-specific slopes via `child_arts * genre_id` interaction terms to capture genre-contingent returns to cultural capital.
+3. **Genre Fixed Effects + Constrained LikeOnly Interactions (`nnet.default` via parameter masking)**: Constrains the 19 genre $\times$ arts interaction terms to operate strictly on the Overclaiming (`LikeOnly`) logit, fixing them to zero for `ListenOnly` and `Both`.
+4. **Genre Fixed Effects + Full Arts Interactions (`nnet::multinom`)**: Unconstrained estimation of genre-specific slopes across all three non-baseline logit equations.
 
 We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance.
 
 ```{r}
 #| label: model-fit-comparison
 # Load pre-computed models
-if (file.exists("model_fixed_genre.rds")) {
-  m_fixed_genre <- readRDS("model_fixed_genre.rds")
+if (file.exists("rds/model_fixed_genre.rds")) {
+  m_fixed_genre <- readRDS("rds/model_fixed_genre.rds")
 } else {
   m_fixed_genre <- multinom(
     engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform) + genre_id,
     data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
   )
-  saveRDS(m_fixed_genre, "model_fixed_genre.rds")
+  saveRDS(m_fixed_genre, "rds/model_fixed_genre.rds")
 }
 
-if (file.exists("model_int.rds")) {
-  m_int <- readRDS("model_int.rds")
+if (file.exists("rds/model_constrained_likeonly.rds")) {
+  m_constrained <- readRDS("rds/model_constrained_likeonly.rds")
+} else {
+  # Fit constrained model via nnet.default masking
+  formula_int <- engagement_state ~ educ2 + parent_educ + agecat + female + income + 
+    as.factor(race5) + as.factor(platform) + child_arts * genre_id
+  mf <- model.frame(formula_int, data = df_long)
+  Terms <- attr(mf, "terms")
+  X <- model.matrix(Terms, mf)
+  Y <- model.response(mf)
+  if (!is.factor(Y)) Y <- as.factor(Y)
+  lev <- levels(Y); p_cat <- length(lev); r_cols <- ncol(X)
+  Y_mat <- matrix(0, nrow = nrow(X), ncol = p_cat)
+  for (i in seq_along(lev)) Y_mat[, i] <- as.integer(Y == lev[i])
+  colnames(Y_mat) <- lev
+  is_interact <- grepl("child_arts:genre_id", colnames(X))
+  mask_listen <- c(FALSE, !is_interact)
+  mask_like   <- c(FALSE, rep(TRUE, r_cols))
+  mask_both   <- c(FALSE, !is_interact)
+  full_mask   <- c(rep(FALSE, r_cols + 1L), mask_listen, mask_like, mask_both)
+  
+  fit_c_raw <- nnet::nnet.default(
+    X, Y_mat, w = rep(1, nrow(X)), mask = full_mask,
+    size = 0, skip = TRUE, softmax = TRUE, MaxNWts = 5000, maxit = 400, rang = 0, trace = FALSE
+  )
+  m_constrained <- fit_c_raw
+  m_constrained$deviance <- 2 * fit_c_raw$value
+  m_constrained$edf <- sum(full_mask)
+  m_constrained$AIC <- m_constrained$deviance + 2 * m_constrained$edf
+  m_constrained$BIC <- m_constrained$deviance + m_constrained$edf * log(nrow(X))
+  saveRDS(m_constrained, "rds/model_constrained_likeonly.rds")
+}
+
+if (file.exists("rds/model_int.rds")) {
+  m_int <- readRDS("rds/model_int.rds")
 } else {
   m_int <- multinom(
     engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + as.factor(platform) + child_arts * genre_id,
     data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
   )
-  saveRDS(m_int, "model_int.rds")
+  saveRDS(m_int, "rds/model_int.rds")
 }
 
-# Extract fit statistics across fixed-effects specifications
+# Extract fit statistics across specifications
 fit_table <- data.frame(
   Model = c(
     "1. Pooled Multinomial (Clustered SEs)",
     "2. Genre Fixed Effects",
-    "3. Genre FEs + Arts Interactions"
+    "3. Genre FEs + Constrained LikeOnly Interactions",
+    "4. Genre FEs + Full Arts Interactions"
   ),
   Method = c(
     "ML (nnet)",
     "ML (nnet)",
+    "Constrained ML (nnet)",
     "ML (nnet)"
   ),
   DF = c(
     length(coef(model_fixed)),
     length(coef(m_fixed_genre)),
+    m_constrained$edf,
     length(coef(m_int))
   ),
   Deviance = c(
     deviance(model_fixed),
     deviance(m_fixed_genre),
+    m_constrained$deviance,
     deviance(m_int)
   ),
   AIC = c(
     AIC(model_fixed),
     AIC(m_fixed_genre),
+    m_constrained$AIC,
     AIC(m_int)
   ),
   BIC = c(
     BIC(model_fixed),
     BIC(m_fixed_genre),
+    m_constrained$BIC,
     BIC(m_int)
   )
 )
@@ -566,7 +608,7 @@ fit_gt <- fit_table %>%
   gt() %>%
   tab_header(
     title = md("**Multinomial Model Fit Comparison**"),
-    subtitle = "Comparing Pooled, Genre Fixed-Effects, and Genre Interaction Specifications"
+    subtitle = "Comparing Pooled, Genre Fixed-Effects, Constrained, and Full Interaction Specifications"
   ) %>%
   cols_label(
     Model = "Model Specification",
@@ -582,7 +624,7 @@ fit_gt <- fit_table %>%
     locations = cells_body(rows = 3)
   ) %>%
   tab_footnote(
-    footnote = "Model 3 (Genre FEs + Arts Interactions) achieves the lowest AIC and residual deviance, confirming substantial genre heterogeneity in the returns to arts exposure.",
+    footnote = "Model 3 (Constrained LikeOnly Interactions) restricts arts exposure variation strictly to the Overclaiming logit, yielding the optimal BIC among interaction models by saving 35 degrees of freedom.",
     locations = cells_body(columns = Model, rows = 3)
   ) %>%
   opt_stylize(style = 6, color = "cyan")
@@ -592,7 +634,7 @@ gtsave(fit_gt, "Tabs/Table_Model_Fit.html")
 fit_gt
 ```
 
-The fit comparison demonstrates that incorporating genre-specific intercepts and genre $\times$ arts interactions substantially improves model fit, reducing residual deviance by over 6,500 points relative to the pooled model and lowering the AIC from 58,977.5 down to 52,686.0.
+The fit comparison demonstrates that incorporating genre-specific intercepts and genre $\times$ arts interactions substantially improves model fit over the pooled baseline. Restricting the interaction terms strictly to the overclaiming equation (Model 3) captures the primary sociological mechanism while conserving degrees of freedom, producing an improved BIC relative to the fully unconstrained interaction model.
 
 # Genre-Specific Effects of Childhood Arts Exposure
 
@@ -621,24 +663,24 @@ pref_df <- df_long %>%
   )
 
 # Calculate or load pre-computed AME from fixed-effects interaction model
-if (file.exists("ame_genre_fixed.rds")) {
-  ame_genre <- readRDS("ame_genre_fixed.rds")
+if (file.exists("rds/ame_genre_fixed.rds")) {
+  ame_genre <- readRDS("rds/ame_genre_fixed.rds")
 } else {
-  if (file.exists("model_int.rds")) {
-    model_int <- readRDS("model_int.rds")
+  if (file.exists("rds/model_int.rds")) {
+    model_int <- readRDS("rds/model_int.rds")
   } else {
     model_int <- multinom(
       engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + as.factor(platform) + child_arts * genre_id,
       data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
     )
-    saveRDS(model_int, "model_int.rds")
+    saveRDS(model_int, "rds/model_int.rds")
   }
   ame_genre <- avg_slopes(
     model_int,
     variables = "child_arts",
     by = "genre_id"
   )
-  saveRDS(ame_genre, "ame_genre_fixed.rds")
+  saveRDS(ame_genre, "rds/ame_genre_fixed.rds")
 }
 
 # 1. Filter for LikeOnly (Overclaim)

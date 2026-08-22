@@ -3,7 +3,7 @@ library(haven)
 library(dplyr)
 library(nnet)
 
-df_long <- read_dta("analysis_time_long.dta")
+df_long <- read_dta("dta/analysis_time_long.dta")
 
 # Create 4-level nominal outcome
 df_long <- df_long %>%
@@ -31,4 +31,5 @@ p <- (1 - pnorm(abs(z), 0, 1)) * 2
 print("P-Values for Fixed Effects:")
 print(p)
 
-saveRDS(model_fixed, "model_multinomial_fixed.rds")
+dir.create("rds", showWarnings = FALSE)
+saveRDS(model_fixed, "rds/model_multinomial_fixed.rds")

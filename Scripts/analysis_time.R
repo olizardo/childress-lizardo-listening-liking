@@ -135,11 +135,11 @@ df_long_overclaim <- df %>%
   ) %>%
   mutate(genre_id = as.factor(genre_id))
 
-write_dta(df_long_overclaim, "analysis_time_long.dta")
+write_dta(df_long_overclaim, "dta/analysis_time_long.dta")
 
 # Linear models (examples matching the Stata regressions)
 # You can run these natively:
 # summary(lm(gap_volume_listen_like ~ educ2 + child_arts + agecat + income + female + urban_rural2 + as.factor(race5), data=df))
 # summary(lm(racegap_incpop ~ educ2 + child_arts + agecat + income + female + urban_rural2 + as.factor(race5) + social, data=df))
 
-write_dta(df, "analysis_time_R_processed.dta")
+write_dta(df, "dta/analysis_time_R_processed.dta")

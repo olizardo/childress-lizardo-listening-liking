@@ -114,6 +114,8 @@ priors_slopes <- c(
   prior(lkj(2), class = "cor")
 )
 
+dir.create("rds", showWarnings = FALSE)
+
 cat("Starting brms Random Slopes sampling via cmdstanr...\n")
 fit_brms_slopes <- brm(
   formula = bf_slopes,
@@ -127,9 +129,9 @@ fit_brms_slopes <- brm(
   warmup = 1000,
   control = list(adapt_delta = 0.90, max_treedepth = 12),
   backend = "cmdstanr",
-  file = "model_brms_slopes",
+  file = "rds/model_brms_slopes",
   file_refit = "on_change",
   seed = 42
 )
 
-cat("Random Slopes model sampling complete and saved to model_brms_slopes.rds!\n")
+cat("Random Slopes model sampling complete and saved to rds/model_brms_slopes.rds!\n")

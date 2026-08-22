@@ -7,7 +7,7 @@ The core goal of this project is to study "overclaiming" in musical tastes: when
 1. **Data Wrangling:** 
    - Mapped 20 survey questions about abstract genre liking (`like_music_genres_X`) to the 20 consistent numeric genre codes used for classifying actual listened-to artists (`genre_final1` through `genre_final10`).
    - Created strict binary indicators: `like` (rated 5-7) and `listen` (genre appeared anywhere in top 10).
-   - Reshaped the data into a long format (`analysis_time_long.dta`) containing 36,420 rows (20 genres × 1,821 respondents).
+   - Reshaped the data into a long format (`dta/analysis_time_long.dta`) containing 36,420 rows (20 genres × 1,821 respondents).
    - Created a custom `parent_educ` composite variable (`pmax(mom_educ, dad_educ)`).
    - Extracted and categorized the `stream_source` variable into a 4-level `platform` control (Free Recall, iTunes, Spotify, Winamp) to account for how respondents generated their top-10 lists.
 
@@ -41,12 +41,13 @@ The core goal of this project is to study "overclaiming" in musical tastes: when
   - `Scripts/run_brms_intercepts.R` & `Scripts/submit_brms_intercepts.sh`: Bayesian crossed random-intercepts estimation on Hoffman2.
   - `Scripts/run_brms_slopes.R` & `Scripts/submit_brms_slopes.sh`: Bayesian random coefficient (arts slope) estimation on Hoffman2.
   - `Scripts/fixed_multinomial_model.R`: Local fixed-effects baseline multinomial models.
+- All fitted models, estimation matrices, and intermediate data files are organized in the `rds/` directory.
 - All high-resolution plots are exported to the `Plots/` directory.
 - Regression tables and model fit statistics are exported to `Tabs/` as HTML tables via `gt::gtsave()`.
 - The primary reproducible document is `overclaiming_report.qmd` (rendered to `.html`).
 
 ## Next Steps
-- Monitor completion of Hoffman2 jobs 14500225 and 14500226 (`qstat -u olizardo`).
-- Download `model_brms_intercepts.rds` and `model_brms_slopes.rds` once sampling completes.
+- Monitor completion of Hoffman2 jobs 14500265 and 14500267 (`qstat -u olizardo`).
+- Download `rds/model_brms_intercepts.rds` and `rds/model_brms_slopes.rds` once sampling completes.
 - Extract posterior distributions, credible intervals for variance parameters ($\Sigma$), and genre-specific random slope BLUPs/draws.
 - Generate Bayesian AME plots with exact 95% posterior credible intervals and incorporate them into `overclaiming_report.qmd`.

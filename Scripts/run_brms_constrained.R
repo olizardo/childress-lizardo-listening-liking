@@ -1,6 +1,7 @@
-#' @title Fit Bayesian Categorical Random Intercepts Model
-#' @description Fits a crossed random-intercepts multinomial logistic regression
-#'   model (individual and crossed genre intercepts) using brms and cmdstanr on Hoffman2.
+#' @title Fit Bayesian Categorical Model Constrained to LikeOnly Slopes
+#' @description Fits a crossed random-effects multinomial logistic regression model
+#'   where random slopes for childhood arts exposure are estimated strictly for
+#'   the Overclaiming (LikeOnly) state, with random intercepts for ListenOnly and Both.
 
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!requireNamespace("brms", quietly = TRUE)) install.packages("brms")
@@ -17,7 +18,7 @@ library(tidyr)
 
 cmdstanr::set_cmdstan_path("~/.cmdstan/cmdstan-2.33.1")
 
-cat("Loading and processing data for Random Intercepts model...\n")
+cat("Loading and processing data for Constrained LikeOnly Slopes model...\n")
 df_raw <- read_dta("dta/analysis_time_CCC.dta")
 df_raw$id <- 1:nrow(df_raw)
 
@@ -92,15 +93,19 @@ cat(" - Allocated slots:", n_slots, "\n")
 cat(" - Chains:", n_chains, "\n")
 cat(" - Threads per chain:", threads_per_chain, "\n")
 
-# Crossed Random Intercepts Formula: (1 | id) + (1 | genre_id)
-bf_intercepts <- bf(
-  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + race5 + platform +
-    (1 | id) +
-    (1 | genre_id)
+# Constrained Model Formula: Slopes ONLY for LikeOnly (Overclaiming)
+bf_constrained <- bf(
+  engagement_state ~ 1,
+  muListenOnly ~ educ2 + parent_educ + child_arts + agecat + female + income + race5 + platform +
+                 (1 | id) + (1 | genre_id),
+  muLikeOnly   ~ educ2 + parent_educ + child_arts + agecat + female + income + race5 + platform +
+                 (1 | id) + (1 + child_arts | genre_id),
+  muBoth       ~ educ2 + parent_educ + child_arts + agecat + female + income + race5 + platform +
+                 (1 | id) + (1 | genre_id)
 )
 
 # Regularizing Weakly Informative Priors
-priors_intercepts <- c(
+priors_constrained <- c(
   prior(normal(0, 1.5), class = "b", dpar = "muListenOnly"),
   prior(normal(0, 1.5), class = "b", dpar = "muLikeOnly"),
   prior(normal(0, 1.5), class = "b", dpar = "muBoth"),
@@ -109,17 +114,18 @@ priors_intercepts <- c(
   prior(normal(0, 2), class = "Intercept", dpar = "muBoth"),
   prior(exponential(1), class = "sd", dpar = "muListenOnly"),
   prior(exponential(1), class = "sd", dpar = "muLikeOnly"),
-  prior(exponential(1), class = "sd", dpar = "muBoth")
+  prior(exponential(1), class = "sd", dpar = "muBoth"),
+  prior(lkj(2), class = "cor")
 )
 
 dir.create("rds", showWarnings = FALSE)
 
-cat("Starting brms Random Intercepts sampling via cmdstanr...\n")
-fit_brms_intercepts <- brm(
-  formula = bf_intercepts,
+cat("Starting brms Constrained LikeOnly Slopes sampling via cmdstanr...\n")
+fit_brms_constrained <- brm(
+  formula = bf_constrained,
   data = df_long,
   family = categorical(link = "logit", refcat = "Neither"),
-  prior = priors_intercepts,
+  prior = priors_constrained,
   chains = n_chains,
   cores = n_chains,
   threads = threading(threads_per_chain),
@@ -127,9 +133,9 @@ fit_brms_intercepts <- brm(
   warmup = 1000,
   control = list(adapt_delta = 0.90, max_treedepth = 12),
   backend = "cmdstanr",
-  file = "rds/model_brms_intercepts",
+  file = "rds/model_brms_constrained_likeonly",
   file_refit = "on_change",
   seed = 42
 )
 
-cat("Random Intercepts model sampling complete and saved to rds/model_brms_intercepts.rds!\n")
+cat("Constrained model sampling complete and saved to rds/model_brms_constrained_likeonly.rds!\n")
