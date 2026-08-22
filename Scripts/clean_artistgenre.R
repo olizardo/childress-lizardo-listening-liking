@@ -8,7 +8,7 @@ library(stringr)
 # ==============================================================================
 
 # Read data
-df <- read_dta("genresobjects.dta")
+df <- read_dta("dta/genresobjects.dta")
 
 # Ensure stream_source exists
 if (!"stream_source" %in% names(df)) {
@@ -147,4 +147,4 @@ for (i in 1:10) {
   df[[final_var]][df[[final_var]] %in% c(21, 999)] <- NA
 }
 
-write_dta(df, "genresobjects_processed.dta")
+write_dta(df, "dta/genresobjects_processed.dta")

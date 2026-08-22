@@ -112,6 +112,8 @@ priors_intercepts <- c(
   prior(exponential(1), class = "sd", dpar = "muBoth")
 )
 
+dir.create("rds", showWarnings = FALSE)
+
 cat("Starting brms Random Intercepts sampling via cmdstanr...\n")
 fit_brms_intercepts <- brm(
   formula = bf_intercepts,
@@ -125,9 +127,9 @@ fit_brms_intercepts <- brm(
   warmup = 1000,
   control = list(adapt_delta = 0.90, max_treedepth = 12),
   backend = "cmdstanr",
-  file = "model_brms_intercepts",
+  file = "rds/model_brms_intercepts",
   file_refit = "on_change",
   seed = 42
 )
 
-cat("Random Intercepts model sampling complete and saved to model_brms_intercepts.rds!\n")
+cat("Random Intercepts model sampling complete and saved to rds/model_brms_intercepts.rds!\n")
