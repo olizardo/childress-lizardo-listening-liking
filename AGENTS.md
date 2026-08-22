@@ -12,21 +12,24 @@ The core goal of this project is to study "overclaiming" in musical tastes: when
    - Extracted and categorized the `stream_source` variable into a 4-level `platform` control (Free Recall, iTunes, Spotify, Winamp) to account for how respondents generated their top-10 lists.
 
 2. **Complex Tastes Framework:**
-   - Instead of a simple binary, we modeled the data as four competing, mutually exclusive complex taste states:
+   - Instead of a simple binary, we model the data as four competing, mutually exclusive complex taste states:
      - `Neither` (Baseline: No like, no listen)
      - `ListenOnly` (Underclaim: Listen, but no like)
      - `LikeOnly` (Overclaim: Like, but no listen)
      - `Both` (True Engagement: Like AND listen)
 
 3. **Modeling Strategy:**
-   - *Fixed-Effects Multinomial Logistic Regression:* We successfully fit `nnet::multinom` models locally, incorporating fixed effects for all 20 genres as well as genre $\times$ arts exposure interactions (controlling for `platform`).
-   - *Robust Inference:* We manually computed **Two-Way Cluster-Robust Standard Errors** (clustering simultaneously on `id` and `genre_id` using `sandwich::vcovCL`) to achieve valid inference accounting for repeated measures without crashing local memory. We manually extract diagonals to compute Z-scores/P-values and robust Wald tests (`aod::wald.test`) for joint significance.
-   - *Hoffman2 `mblogit`:* For true multi-level inference, we bypassed local container memory limits by submitting penalized quasi-likelihood `mclogit::mblogit()` models with crossed random intercepts (`(1|id)` and `(1|genre_id)`) and random slopes (`child_arts|genre_id`) to the UCLA Hoffman2 HPC cluster. These models (which include the `platform` control) have successfully converged and been downloaded back to the local machine.
+   - *Fixed-Effects Multinomial Logistic Regression:* We fit `nnet::multinom` models locally, incorporating fixed effects for all 20 genres as well as genre $\times$ arts exposure interactions (controlling for `platform`).
+   - *Robust Inference:* We computed **Two-Way Cluster-Robust Standard Errors** (clustering simultaneously on `id` and `genre_id` using `sandwich::vcovCL`) to achieve valid inference accounting for repeated measures. We manually extract diagonals to compute Z-scores/P-values and robust Wald tests (`aod::wald.test`) for joint significance.
+   - *Transition from PQL (`mblogit`) to Bayesian Estimation (`brms`):* Earlier penalized quasi-likelihood models (`mclogit::mblogit`) lacked credible uncertainty estimates for random coefficients and variance components. We transitioned the multilevel analysis entirely to full Bayesian MCMC estimation using `brms` and `cmdstanr`.
+   - *Hoffman2 Bayesian HPC Jobs (Active):* Two Bayesian categorical mixed-effects models are currently running on Hoffman2 using 16 shared cores with within-chain multi-threading (4 chains × 4 threads):
+     - **Model 1 (Crossed Random Intercepts, Job 14500225):** `(1 | id) + (1 | genre_id)` $\rightarrow$ `model_brms_intercepts.rds`
+     - **Model 2 (Random Coefficients / Slopes, Job 14500226):** `(1 | id) + (1 + child_arts | genre_id)` $\rightarrow$ `model_brms_slopes.rds`
 
 4. **Visualizations:**
    - **Descriptive Plots:** Generated clean lollipop (drop-line) charts mapping the baseline prevalence of Overclaiming, Underclaiming, and True Engagement for each specific genre.
-   - **Marginal Effects & Interactions:** Used `marginaleffects` to calculate robust predicted probabilities and Average Marginal Effects (AMEs). Plotted these trajectories with clean vertical error bars, isolating the top and bottom of the education distribution (BA+ vs HS) and racial categories (Black vs White) to sharply capture demographic preference logic.
-   - **Sociological Prestige Index:** Plotted the calculated AME of childhood arts on overclaiming against an aggregated "Prestige Index" (averaging the College/HS and Black/White preference ratios), revealing a massive positive Spearman correlation ($\rho \approx 0.64$) tying demographic exclusivity to the severity of symbolic overclaiming.
+   - **Marginal Effects & Interactions:** Used `marginaleffects` to calculate robust predicted probabilities and Average Marginal Effects (AMEs). Plotted these trajectories with vertical error bars, isolating the top and bottom of the education distribution (BA+ vs HS) and racial categories (Black vs White).
+   - **Sociological Prestige Index:** Plotted the calculated AME of childhood arts on overclaiming against an aggregated "Prestige Index" (averaging the College/HS and Black/White preference ratios), revealing a strong positive Spearman correlation ($\rho \approx 0.64$) tying demographic exclusivity to the severity of symbolic overclaiming.
 
 5. **Key Findings:**
    - **Childhood Arts Exposure** and **Parental Education** are the strongest and most robust global predictors of complex taste states. 
@@ -34,11 +37,16 @@ The core goal of this project is to study "overclaiming" in musical tastes: when
    - **Crucial Interaction:** The effect of arts exposure on overclaiming is overwhelmingly concentrated on *culturally legitimated (highbrow)* genres like Classical, Opera, and Jazz. It has almost no effect on overclaiming Country, Rap, or Heavy Metal.
 
 ## Environment & Scripts
-- All R scripts are organized in the `Scripts/` directory.
+- All R scripts are organized in the `Scripts/` directory:
+  - `Scripts/run_brms_intercepts.R` & `Scripts/submit_brms_intercepts.sh`: Bayesian crossed random-intercepts estimation on Hoffman2.
+  - `Scripts/run_brms_slopes.R` & `Scripts/submit_brms_slopes.sh`: Bayesian random coefficient (arts slope) estimation on Hoffman2.
+  - `Scripts/fixed_multinomial_model.R`: Local fixed-effects baseline multinomial models.
 - All high-resolution plots are exported to the `Plots/` directory.
-- Regression tables and model fit statistics are explicitly exported to the `Tabs/` directory as HTML tables via `gt::gtsave()`.
-- The final, end-to-end reproducible document is `overclaiming_report.qmd` (rendered to `.html`).
+- Regression tables and model fit statistics are exported to `Tabs/` as HTML tables via `gt::gtsave()`.
+- The primary reproducible document is `overclaiming_report.qmd` (rendered to `.html`).
 
 ## Next Steps
-- The data and fixed-effects analysis pipeline are completely clean and stable.
-- The Hoffman2 HPC models (`model_mblogit.rds` and `model_mblogit_intercepts.rds`) have been downloaded successfully. Next step is to load these `.rds` files, extract the random effects (BLUPs), and compare them against the local fixed-effects interaction model.
+- Monitor completion of Hoffman2 jobs 14500225 and 14500226 (`qstat -u olizardo`).
+- Download `model_brms_intercepts.rds` and `model_brms_slopes.rds` once sampling completes.
+- Extract posterior distributions, credible intervals for variance parameters ($\Sigma$), and genre-specific random slope BLUPs/draws.
+- Generate Bayesian AME plots with exact 95% posterior credible intervals and incorporate them into `overclaiming_report.qmd`.
