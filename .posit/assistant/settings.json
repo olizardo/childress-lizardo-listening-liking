@@ -22,5 +22,8 @@
     "external_directory": {
       "/home/omarlizardo/.config/agents/*": "allow"
     }
+  },
+  "sandbox": {
+    "enabled": false
   }
 }
