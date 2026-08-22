@@ -46,7 +46,6 @@ library(nnet)
 library(sandwich)
 library(lmtest)
 library(marginaleffects)
-library(mclogit)
 library(gt)
 library(aod)
 ```
@@ -497,63 +496,77 @@ p_margins
 
 As childhood arts exposure increases, respondents genuinely engage with more music (the "True Engagement" estimates increase). However, their propensity to overclaim genres ("Like Only") rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
 
-### Model Fit, Random Effects, and Model Selection
+# Model fit and model selection
 
-Because our data is structured with repeated observations crossed across respondents ($N = 1,574$) and genres ($N = 20$), we evaluate multiple modeling strategies:
+Because our data is structured with repeated observations across respondents ($N = 1,574$) and genres ($N = 20$), we evaluate three nested multinomial modeling strategies:
 1. **Pooled Multinomial Logistic Model with Two-Way Clustered SEs (`nnet::multinom`)**: Treats observations as pooled while adjusting standard errors for two-way clustering (`vcovCL`).
-2. **Crossed Random-Intercepts Multinomial Model (`mclogit::mblogit`)**: Estimates crossed random intercepts for respondents (`(1|id)`) and genres (`(1|genre_id)`) using penalized quasi-likelihood (PQL).
-3. **Crossed Random-Slopes Multinomial Model (`mclogit::mblogit`)**: Adds random slopes for childhood arts exposure across genres (`(1 + child_arts|genre_id)`).
-4. **Fixed Interaction Multinomial Model (`nnet::multinom`)**: Fully parameterizes genre fixed effects and genre $\times$ arts exposure interaction terms.
+2. **Genre Fixed Effects Multinomial Model (`nnet::multinom`)**: Adds 20 independent genre intercepts to account for baseline differences in liking/listening across genres.
+3. **Genre Fixed Effects + Arts Interactions (`nnet::multinom`)**: Adds genre-specific slopes via `child_arts * genre_id` interaction terms to capture genre-contingent returns to cultural capital.
 
 We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance.
 
 ```{r}
 #| label: model-fit-comparison
-#| echo: false
-# Load pre-computed mblogit models
-m_mblogit_int <- readRDS("model_mblogit_intercepts.rds")
-m_mblogit_slope <- readRDS("model_mblogit.rds")
+# Load pre-computed models
+if (file.exists("model_fixed_genre.rds")) {
+  m_fixed_genre <- readRDS("model_fixed_genre.rds")
+} else {
+  m_fixed_genre <- multinom(
+    engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform) + genre_id,
+    data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
+  )
+  saveRDS(m_fixed_genre, "model_fixed_genre.rds")
+}
 
-# Extract comprehensive fit statistics
+if (file.exists("model_int.rds")) {
+  m_int <- readRDS("model_int.rds")
+} else {
+  m_int <- multinom(
+    engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + as.factor(platform) + child_arts * genre_id,
+    data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
+  )
+  saveRDS(m_int, "model_int.rds")
+}
+
+# Extract fit statistics across fixed-effects specifications
 fit_table <- data.frame(
   Model = c(
     "1. Pooled Multinomial (Clustered SEs)",
-    "2. Crossed Random Intercepts (mblogit)",
-    "3. Crossed Random Slopes: Arts (mblogit)"
+    "2. Genre Fixed Effects",
+    "3. Genre FEs + Arts Interactions"
   ),
   Method = c(
     "ML (nnet)",
-    "PQL (mclogit)",
-    "PQL (mclogit)"
+    "ML (nnet)",
+    "ML (nnet)"
   ),
   DF = c(
-    42,
-    54,
-    69
+    length(coef(model_fixed)),
+    length(coef(m_fixed_genre)),
+    length(coef(m_int))
   ),
   Deviance = c(
-    deviance(model_fixed), 
-    m_mblogit_int$deviance, 
-    m_mblogit_slope$deviance
+    deviance(model_fixed),
+    deviance(m_fixed_genre),
+    deviance(m_int)
   ),
   AIC = c(
-    AIC(model_fixed), 
-    AIC(m_mblogit_int), 
-    m_mblogit_slope$deviance + 2 * m_mblogit_slope$model.df
+    AIC(model_fixed),
+    AIC(m_fixed_genre),
+    AIC(m_int)
   ),
   BIC = c(
-    BIC(model_fixed), 
-    BIC(m_mblogit_int), 
-    m_mblogit_slope$deviance + m_mblogit_slope$model.df * log(m_mblogit_slope$N)
+    BIC(model_fixed),
+    BIC(m_fixed_genre),
+    BIC(m_int)
   )
 )
 
-# Format table
 fit_gt <- fit_table %>%
   gt() %>%
   tab_header(
-    title = md("**Comprehensive Multinomial Model Fit Comparison**"),
-    subtitle = "Comparing Pooled vs. Mixed-Effects (mblogit) Specifications"
+    title = md("**Multinomial Model Fit Comparison**"),
+    subtitle = "Comparing Pooled, Genre Fixed-Effects, and Genre Interaction Specifications"
   ) %>%
   cols_label(
     Model = "Model Specification",
@@ -565,15 +578,12 @@ fit_gt <- fit_table %>%
   ) %>%
   fmt_number(columns = c(AIC, BIC, Deviance), decimals = 1) %>%
   tab_style(
-    style = list(
-      cell_fill(color = "#e6f5ff"),
-      cell_text(weight = "bold")
-    ),
-    locations = cells_body(rows = 2)
+    style = list(cell_fill(color = "#e6f5ff"), cell_text(weight = "bold")),
+    locations = cells_body(rows = 3)
   ) %>%
   tab_footnote(
-    footnote = "Model 2 (Crossed Random Intercepts) achieves the lowest AIC and BIC, offering the optimal balance of explanatory fit and parsimony.",
-    locations = cells_body(columns = Model, rows = 2)
+    footnote = "Model 3 (Genre FEs + Arts Interactions) achieves the lowest AIC and residual deviance, confirming substantial genre heterogeneity in the returns to arts exposure.",
+    locations = cells_body(columns = Model, rows = 3)
   ) %>%
   opt_stylize(style = 6, color = "cyan")
 
@@ -582,11 +592,11 @@ gtsave(fit_gt, "Tabs/Table_Model_Fit.html")
 fit_gt
 ```
 
-The fit comparison demonstrates that accounting for crossed clustering at both the respondent and genre levels results in an enormous reduction in deviance ($\Delta \text{Deviance} = -8,256.58$) over the pooled multinomial model. **Model 2 (Crossed Random Intercepts)** achieves the lowest AIC ($50,762.9$) and BIC ($51,200.5$), making it our preferred specification for primary baseline inference.
+The fit comparison demonstrates that incorporating genre-specific intercepts and genre $\times$ arts interactions substantially improves model fit, reducing residual deviance by over 6,500 points relative to the pooled model and lowering the AIC from 58,977.5 down to 52,686.0.
 
 # Genre-Specific Effects of Childhood Arts Exposure
 
-To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we evaluate genre-specific Average Marginal Effects (AMEs) using both our fixed-effects interaction multinomial model (`nnet::multinom` with `child_arts * genre_id`) and the crossed random-slopes model (`mclogit::mblogit`).
+To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we evaluate genre-specific Average Marginal Effects (AMEs) using the fixed-effects interaction multinomial model (`nnet::multinom` with `child_arts * genre_id`) with two-way cluster-robust inference.
 
 ### 1. Overclaiming Across Genres (Fixed-Effects Interaction Model)
 
@@ -822,108 +832,4 @@ p_cor
 ```
 
 The positive Spearman correlation ($\rho \approx 0.64$) confirms a powerful sociological dynamic: once we control for differences in streaming platform usage (e.g., Spotify vs. iTunes), the more a genre is structurally associated with high-status demographic boundaries (both high education and distinct racial groups), the more strongly childhood arts exposure drives individuals to falsely claim an affinity for it. Genres like Classical and Jazz score high on this combined prestige index and trigger massive overclaiming, while low-prestige genres like Rap, Heavy Metal, and Country sit at the bottom left with almost zero symbolic overclaiming value.
-
-### Robustness Check: Random Coefficients Model (mblogit)
-
-As an additional robustness check, we extract the genre-specific BLUPs from the crossed random-slopes model (`mclogit::mblogit`, random = `list(~ 1|id, ~ 1 + child_arts|genre_id)`). In this specification, each genre's slope is shrunk toward the global mean via empirical Bayes shrinkage.
-
-```{r}
-#| label: marginal-effects-genre-ame-random-coefficients
-#| fig-width: 9
-#| fig-height: 7
-# Extract link predictions and random slopes from m_mblogit_slope
-genre_vec <- m_mblogit_slope$model$genre_id
-pr_link <- predict(m_mblogit_slope, type = "link")
-re_genre <- m_mblogit_slope$random.effects[[2]]
-rn <- rownames(re_genre)
-
-# Extract random slopes for each equation and genre
-u_slopes <- list()
-for (j in c("ListenOnly", "LikeOnly", "Both")) {
-  u_slopes[[j]] <- numeric(20)
-  names(u_slopes[[j]]) <- as.character(1:20)
-  for (g in 1:20) {
-    pat <- paste0("^", j, "~child_arts\\|", g, "$")
-    idx <- grep(pat, rn)
-    u_slopes[[j]][as.character(g)] <- re_genre[idx, 1]
-  }
-}
-
-total_slopes <- list(
-  ListenOnly = coef(m_mblogit_slope)["ListenOnly~child_arts"] + u_slopes[["ListenOnly"]],
-  LikeOnly = coef(m_mblogit_slope)["LikeOnly~child_arts"] + u_slopes[["LikeOnly"]],
-  Both = coef(m_mblogit_slope)["Both~child_arts"] + u_slopes[["Both"]]
-)
-
-# Compute new link under +1 child_arts
-pr_link_plus1 <- pr_link
-for (col_name in c("ListenOnly", "LikeOnly", "Both")) {
-  pr_link_plus1[, col_name] <- pr_link[, col_name] + total_slopes[[col_name]][as.character(genre_vec)]
-}
-
-# Probabilities
-exp_link <- exp(pr_link)
-p_orig <- exp_link / (1 + rowSums(exp_link))
-
-exp_link_plus1 <- exp(pr_link_plus1)
-p_plus1 <- exp_link_plus1 / (1 + rowSums(exp_link_plus1))
-
-delta_p_like <- p_plus1[, "LikeOnly"] - p_orig[, "LikeOnly"]
-
-# Compute summary stats by genre for LikeOnly
-ame_mblogit_df <- data.frame(genre_id = as.character(1:20), stringsAsFactors = FALSE) %>%
-  left_join(genre_labels, by = "genre_id")
-
-ame_stats <- tapply(delta_p_like, genre_vec, function(x) {
-  c(ame = mean(x), se = sd(x)/sqrt(length(x)), sd = sd(x), n = length(x))
-})
-ame_stats_mat <- do.call(rbind, ame_stats)
-ame_stats_df <- data.frame(genre_id = rownames(ame_stats_mat), ame_stats_mat, stringsAsFactors = FALSE)
-
-ame_mblogit_df <- ame_mblogit_df %>%
-  left_join(ame_stats_df, by = "genre_id") %>%
-  left_join(pref_df, by = "genre_id") %>%
-  mutate(
-    pref_group = case_when(
-      ratio_col > 1.0 & ratio_black > 1.0 ~ "Both",
-      ratio_col > 1.0 ~ "College Preferred",
-      ratio_black > 1.0 ~ "Black Preferred",
-      TRUE ~ "Other"
-    ),
-    pref_group = factor(pref_group, levels = c("College Preferred", "Black Preferred", "Both", "Other"))
-  ) %>%
-  arrange(ame) %>%
-  mutate(genre_name = factor(genre_name, levels = genre_name))
-
-p_ame_rc <- ggplot(ame_mblogit_df, aes(x = ame, y = genre_name)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_point(aes(color = pref_group), size = 3) +
-  scale_color_manual(
-    values = c(
-      "College Preferred" = "#1b9e77", 
-      "Black Preferred" = "#d95f02", 
-      "Both" = "#7570b3", 
-      "Other" = "gray70"
-    ),
-    name = "Demographic Preference\n(Ratio > 1.0)"
-  ) +
-  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-  theme_minimal(base_size = 14) +
-  theme(
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor.y = element_blank(),
-    legend.position = "right"
-  ) +
-  labs(
-    title = "Arts Exposure Effect on Overclaiming (Random Coefficients Model)",
-    subtitle = "Crossed Multilevel Model (mblogit): Empirical Bayes BLUPs of 1-unit increase in Arts Exposure",
-    x = "Percentage Point Change in Prob(Like Only)",
-    y = ""
-  )
-
-ggsave("Plots/ChildArts_AME_by_Genre_RandomCoefficients.png", p_ame_rc, width = 9, height = 7, dpi = 300)
-p_ame_rc
-```
-
-The random coefficients point estimates closely mirror the fixed-effects interaction model: early arts exposure selectively drives overclaiming in Opera, Classical, Swing, Musicals, Latin, and Jazz (+5.6 to +7.7 percentage points), while having a negligible effect on Country, Classic Rock, Contemporary Pop, and Rap. This confirms that our findings are completely robust across both fixed-effects and hierarchical random-effects specifications.
 
