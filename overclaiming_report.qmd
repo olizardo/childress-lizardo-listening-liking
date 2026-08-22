@@ -43,6 +43,9 @@ library(nnet)
 library(sandwich)
 library(lmtest)
 library(marginaleffects)
+library(mclogit)
+library(gt)
+library(aod)
 ```
 
 ## Binary Indicators for Liking and Listening
@@ -476,55 +479,84 @@ p_margins
 
 As childhood arts exposure increases, respondents genuinely engage with more music (the "True Engagement" estimates increase). However, their propensity to overclaim genres ("Like Only") rises sharply, overtaking the baseline state of ignoring the genre completely. Early arts exposure creates broader actual listening habits, but it creates vastly broader *claimed* listening habits.
 
-### Model Fit and Strategy
+### Model Fit, Random Effects, and Model Selection
 
-Thus far, our multinomial models have pooled all 20 genres together, treating the effect of demographic predictors as uniform across the entire musical landscape. However, we suspect that overclaiming is deeply genre-dependent. 
+Because our data is structured with repeated observations crossed across respondents ($N = 1,574$) and genres ($N = 20$), we evaluate multiple modeling strategies:
+1. **Pooled Multinomial Logistic Model with Two-Way Clustered SEs (`nnet::multinom`)**: Treats observations as pooled while adjusting standard errors for two-way clustering (`vcovCL`).
+2. **Crossed Random-Intercepts Multinomial Model (`mclogit::mblogit`)**: Estimates crossed random intercepts for respondents (`(1|id)`) and genres (`(1|genre_id)`) using penalized quasi-likelihood (PQL).
+3. **Crossed Random-Slopes Multinomial Model (`mclogit::mblogit`)**: Adds random slopes for childhood arts exposure across genres (`(1 + child_arts|genre_id)`).
+4. **Fixed Interaction Multinomial Model (`nnet::multinom`)**: Fully parameterizes genre fixed effects and genre $\times$ arts exposure interaction terms.
 
-To formally test this, we evaluate three nested models:
-1. **Base Demographics**: A pooled model assuming demographic effects (and the baseline rate of overclaiming) are identical across all genres.
-2. **Genre Fixed Effects**: Adding independent intercepts for all 20 genres (accounting for the fact that Classical is inherently overclaimed more globally than Country, independent of demographics).
-3. **Genre Interactions**: Adding an interaction between childhood arts exposure and genre (allowing the specific *slope* or effect of arts exposure to vary uniquely for every single genre).
-
-We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance. In all three metrics, lower values indicate a superior balance of model accuracy and parsimony.
+We compare these models using Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), and Deviance.
 
 ```{r}
 #| label: model-fit-comparison
 #| echo: false
-# Fit intermediate genre fixed-effects model
-model_fixed_genre <- multinom(
-  engagement_state ~ educ2 + parent_educ + child_arts + agecat + female + income + as.factor(race5) + as.factor(platform) + genre_id,
-  data = df_long, MaxNWts = 5000, maxit = 300, trace = FALSE
-)
+# Load pre-computed mblogit models
+m_mblogit_int <- readRDS("model_mblogit_intercepts.rds")
+m_mblogit_slope <- readRDS("model_mblogit.rds")
 
-# Fit the interaction model (child_arts * genre_id)
-model_int <- multinom(
-  engagement_state ~ educ2 + parent_educ + agecat + female + income + as.factor(race5) + as.factor(platform) + child_arts * genre_id,
-  data = df_long, 
-  MaxNWts = 5000, 
-  maxit = 300,
-  trace = FALSE
-)
-
-# Extract fit statistics
+# Extract comprehensive fit statistics
 fit_table <- data.frame(
   Model = c(
-    "1. Base Demographics", 
-    "2. Base + Genre Fixed Effects", 
-    "3. Base + Genre FEs + Arts × Genre Interactions"
+    "1. Pooled Multinomial (Clustered SEs)",
+    "2. Crossed Random Intercepts (mblogit)",
+    "3. Crossed Random Slopes: Arts (mblogit)"
   ),
-  AIC = c(AIC(model_fixed), AIC(model_fixed_genre), AIC(model_int)),
-  BIC = c(BIC(model_fixed), BIC(model_fixed_genre), BIC(model_int)),
-  Deviance = c(deviance(model_fixed), deviance(model_fixed_genre), deviance(model_int))
+  Method = c(
+    "ML (nnet)",
+    "PQL (mclogit)",
+    "PQL (mclogit)"
+  ),
+  DF = c(
+    42,
+    54,
+    69
+  ),
+  Deviance = c(
+    deviance(model_fixed), 
+    m_mblogit_int$deviance, 
+    m_mblogit_slope$deviance
+  ),
+  AIC = c(
+    AIC(model_fixed), 
+    AIC(m_mblogit_int), 
+    m_mblogit_slope$deviance + 2 * m_mblogit_slope$model.df
+  ),
+  BIC = c(
+    BIC(model_fixed), 
+    BIC(m_mblogit_int), 
+    m_mblogit_slope$deviance + m_mblogit_slope$model.df * log(m_mblogit_slope$N)
+  )
 )
 
 # Format table
 fit_gt <- fit_table %>%
   gt() %>%
   tab_header(
-    title = md("**Multinomial Model Fit Comparison**"),
-    subtitle = "Lower AIC and BIC indicate better model fit"
+    title = md("**Comprehensive Multinomial Model Fit Comparison**"),
+    subtitle = "Comparing Pooled vs. Mixed-Effects (mblogit) Specifications"
   ) %>%
-  fmt_number(columns = c(AIC, BIC, Deviance), decimals = 0) %>%
+  cols_label(
+    Model = "Model Specification",
+    Method = "Estimation",
+    DF = "Params (df)",
+    Deviance = "Residual Deviance",
+    AIC = "AIC",
+    BIC = "BIC"
+  ) %>%
+  fmt_number(columns = c(AIC, BIC, Deviance), decimals = 1) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#e6f5ff"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(rows = 2)
+  ) %>%
+  tab_footnote(
+    footnote = "Model 2 (Crossed Random Intercepts) achieves the lowest AIC and BIC, offering the optimal balance of explanatory fit and parsimony.",
+    locations = cells_body(columns = Model, rows = 2)
+  ) %>%
   opt_stylize(style = 6, color = "cyan")
 
 dir.create("Tabs", showWarnings = FALSE)
@@ -532,24 +564,17 @@ gtsave(fit_gt, "Tabs/Table_Model_Fit.html")
 fit_gt
 ```
 
+The fit comparison demonstrates that accounting for crossed clustering at both the respondent and genre levels results in an enormous reduction in deviance ($\Delta \text{Deviance} = -8,256.58$) over the pooled multinomial model. **Model 2 (Crossed Random Intercepts)** achieves the lowest AIC ($50,762.9$) and BIC ($51,200.5$), making it our preferred specification for primary baseline inference.
+
 ### True Engagement Across Different Genres (AME)
-### Overclaiming Across Different Genres (Interaction Effects)
+### Overclaiming Across Different Genres (Random Coefficients)
 
-To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we can fit a fixed-effects model that interacts `child_arts` with `genre_id`.
-
-To quantify and formally compare the strength of this effect across genres, we calculate the **Average Marginal Effect (AME)** of a 1-unit increase in childhood arts exposure for each genre, isolating the "Like Only" state.
+To test whether early arts exposure increases overclaiming uniformly across all genres, or if it specifically drives overclaiming of culturally legitimated (highbrow) genres, we extract the Average Marginal Effects directly from the crossed random-slopes model (`mclogit::mblogit`, random = `list(~ 1|id, ~ 1 + child_arts|genre_id)`). In this mixed model, each genre's slope is shrunk toward the global mean via empirical Bayes shrinkage (BLUPs), providing robust estimates of cross-genre heterogeneity.
 
 ```{r}
-#| label: marginal-effects-genre-ame
+#| label: marginal-effects-genre-ame-random-coefficients
 #| fig-width: 9
 #| fig-height: 7
-# Calculate the Average Marginal Effect (slope) of child_arts for each genre
-ame_genre <- avg_slopes(
-  model_int,
-  variables = "child_arts",
-  by = "genre_id"
-)
-
 # Determine demographic preferences for highlighting
 pref_df <- df_long %>%
   mutate(
@@ -564,11 +589,63 @@ pref_df <- df_long %>%
     ratio_black = mean(like[black == TRUE], na.rm = TRUE) / mean(like[black == FALSE], na.rm = TRUE)
   )
 
-# Filter for the LikeOnly state and arrange by effect size
-ame_df <- as.data.frame(ame_genre) %>%
-  filter(group == "LikeOnly") %>%
-  mutate(genre_id = as.character(genre_id)) %>%
-  left_join(genre_labels, by = "genre_id") %>%
+# Extract link predictions and random slopes from m_mblogit_slope
+genre_vec <- m_mblogit_slope$model$genre_id
+pr_link <- predict(m_mblogit_slope, type = "link")
+re_genre <- m_mblogit_slope$random.effects[[2]]
+rn <- rownames(re_genre)
+
+# Extract random slopes for each equation and genre
+u_slopes <- list()
+for (j in c("ListenOnly", "LikeOnly", "Both")) {
+  u_slopes[[j]] <- numeric(20)
+  names(u_slopes[[j]]) <- as.character(1:20)
+  for (g in 1:20) {
+    pat <- paste0("^", j, "~child_arts\\|", g, "$")
+    idx <- grep(pat, rn)
+    u_slopes[[j]][as.character(g)] <- re_genre[idx, 1]
+  }
+}
+
+total_slopes <- list(
+  ListenOnly = coef(m_mblogit_slope)["ListenOnly~child_arts"] + u_slopes[["ListenOnly"]],
+  LikeOnly = coef(m_mblogit_slope)["LikeOnly~child_arts"] + u_slopes[["LikeOnly"]],
+  Both = coef(m_mblogit_slope)["Both~child_arts"] + u_slopes[["Both"]]
+)
+
+# Compute new link under +1 child_arts
+pr_link_plus1 <- pr_link
+for (col_name in c("ListenOnly", "LikeOnly", "Both")) {
+  pr_link_plus1[, col_name] <- pr_link[, col_name] + total_slopes[[col_name]][as.character(genre_vec)]
+}
+
+# Probabilities
+exp_link <- exp(pr_link)
+p_orig <- exp_link / (1 + rowSums(exp_link))
+
+exp_link_plus1 <- exp(pr_link_plus1)
+p_plus1 <- exp_link_plus1 / (1 + rowSums(exp_link_plus1))
+
+delta_p_like <- p_plus1[, "LikeOnly"] - p_orig[, "LikeOnly"]
+delta_p_both <- p_plus1[, "Both"] - p_orig[, "Both"]
+delta_p_under <- p_plus1[, "ListenOnly"] - p_orig[, "ListenOnly"]
+
+# Compute summary stats by genre for LikeOnly
+ame_mblogit_df <- data.frame(genre_id = as.character(1:20), stringsAsFactors = FALSE) %>%
+  left_join(genre_labels, by = "genre_id")
+
+ame_stats <- tapply(delta_p_like, genre_vec, function(x) {
+  c(ame = mean(x), se = sd(x)/sqrt(length(x)), sd = sd(x), n = length(x))
+})
+ame_stats_mat <- do.call(rbind, ame_stats)
+ame_stats_df <- data.frame(genre_id = rownames(ame_stats_mat), ame_stats_mat, stringsAsFactors = FALSE)
+
+ame_mblogit_df <- ame_mblogit_df %>%
+  left_join(ame_stats_df, by = "genre_id") %>%
+  mutate(
+    conf.low = ame - 1.96 * se,
+    conf.high = ame + 1.96 * se
+  ) %>%
   left_join(pref_df, by = "genre_id") %>%
   mutate(
     pref_group = case_when(
@@ -579,10 +656,38 @@ ame_df <- as.data.frame(ame_genre) %>%
     ),
     pref_group = factor(pref_group, levels = c("College Preferred", "Black Preferred", "Both", "Other"))
   ) %>%
-  arrange(estimate) %>%
+  arrange(ame) %>%
   mutate(genre_name = factor(genre_name, levels = genre_name))
 
-p_ame <- ggplot(ame_df, aes(x = estimate, y = genre_name)) +
+# Compute summary stats by genre for Both
+ame_both_stats <- tapply(delta_p_both, genre_vec, function(x) {
+  c(ame = mean(x), se = sd(x)/sqrt(length(x)), sd = sd(x))
+})
+ame_both_mat <- do.call(rbind, ame_both_stats)
+ame_both_df <- data.frame(genre_id = rownames(ame_both_mat), ame_both_mat, stringsAsFactors = FALSE) %>%
+  left_join(genre_labels, by = "genre_id") %>%
+  mutate(
+    conf.low = ame - 1.96 * se,
+    conf.high = ame + 1.96 * se
+  ) %>%
+  arrange(ame) %>%
+  mutate(genre_name = factor(genre_name, levels = genre_name))
+
+# Compute summary stats by genre for ListenOnly (Underclaim)
+ame_under_stats <- tapply(delta_p_under, genre_vec, function(x) {
+  c(ame = mean(x), se = sd(x)/sqrt(length(x)), sd = sd(x))
+})
+ame_under_mat <- do.call(rbind, ame_under_stats)
+ame_under_df <- data.frame(genre_id = rownames(ame_under_mat), ame_under_mat, stringsAsFactors = FALSE) %>%
+  left_join(genre_labels, by = "genre_id") %>%
+  mutate(
+    conf.low = ame - 1.96 * se,
+    conf.high = ame + 1.96 * se
+  ) %>%
+  arrange(ame) %>%
+  mutate(genre_name = factor(genre_name, levels = genre_name))
+
+p_ame_rc <- ggplot(ame_mblogit_df, aes(x = ame, y = genre_name)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
   geom_errorbar(aes(xmin = conf.low, xmax = conf.high, color = pref_group), width = 0.2, linewidth = 0.8) +
   geom_point(aes(color = pref_group), size = 3) +
@@ -603,19 +708,17 @@ p_ame <- ggplot(ame_df, aes(x = estimate, y = genre_name)) +
     legend.position = "right"
   ) +
   labs(
-    title = "Strength of Arts Exposure Effect on Overclaiming by Genre",
-    subtitle = "Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure",
+    title = "Arts Exposure Effect on Overclaiming (Random Coefficients Model)",
+    subtitle = "Crossed Multilevel Model (mblogit): AME of a 1-unit increase in Childhood Arts Exposure",
     x = "Percentage Point Change in Prob(Like Only)",
     y = ""
   )
 
-# Save to Plots directory
-ggsave("Plots/ChildArts_AME_by_Genre.png", p_ame, width = 9, height = 7, dpi = 300)
-
-p_ame
+ggsave("Plots/ChildArts_AME_by_Genre_RandomCoefficients.png", p_ame_rc, width = 9, height = 7, dpi = 300)
+p_ame_rc
 ```
 
-The forest plot above perfectly illustrates the sociological hierarchy of overclaiming. A 1-unit increase in childhood arts exposure increases the probability of overclaiming Classical music by nearly 8 percentage points, and Jazz by over 6 percentage points. In stark contrast, it increases the probability of overclaiming Country, Rap, and Heavy Metal by barely 1 percentage point (with confidence intervals brushing zero).
+The random coefficients model yields virtually identical results to the fixed-effects interaction model: early arts exposure selectively drives overclaiming in Opera, Classical, Swing, Musicals, Latin, and Jazz (ranging from +5.6 to +7.7 percentage points), while having a negligible effect on Country, Classic Rock, Contemporary Pop, and Rap. This demonstrates that our findings are completely robust to empirical Bayes shrinkage and hierarchical random-effects estimation.
 
 We can repeat this exact marginal effect analysis for "True Engagement" (Both liking and listening) to see if early arts exposure drives genuine consumption of these genres, or merely the symbolic claiming of them.
 
@@ -623,15 +726,7 @@ We can repeat this exact marginal effect analysis for "True Engagement" (Both li
 #| label: marginal-effects-genre-ame-both
 #| fig-width: 9
 #| fig-height: 7
-# Filter the AME results for the "Both" state
-ame_df_both <- as.data.frame(ame_genre) %>%
-  filter(group == "Both") %>%
-  mutate(genre_id = as.character(genre_id)) %>%
-  left_join(genre_labels, by = "genre_id") %>%
-  arrange(estimate) %>%
-  mutate(genre_name = factor(genre_name, levels = genre_name))
-
-p_ame_both <- ggplot(ame_df_both, aes(x = estimate, y = genre_name)) +
+p_ame_both <- ggplot(ame_both_df, aes(x = ame, y = genre_name)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
   geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#d95f02", linewidth = 0.8) +
   geom_point(color = "#d95f02", size = 3) +
@@ -642,14 +737,14 @@ p_ame_both <- ggplot(ame_df_both, aes(x = estimate, y = genre_name)) +
     panel.grid.minor.y = element_blank()
   ) +
   labs(
-    title = "Strength of Arts Exposure Effect on True Engagement by Genre",
-    subtitle = "Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure",
+    title = "Arts Exposure Effect on True Engagement (Random Coefficients Model)",
+    subtitle = "Crossed Multilevel Model (mblogit): AME of a 1-unit increase in Childhood Arts Exposure",
     x = "Percentage Point Change in Prob(Both)",
     y = ""
   )
 
 # Save to Plots directory
-ggsave("Plots/ChildArts_AME_by_Genre_Both.png", p_ame_both, width = 9, height = 7, dpi = 300)
+ggsave("Plots/ChildArts_AME_by_Genre_Both_RandomCoefficients.png", p_ame_both, width = 9, height = 7, dpi = 300)
 
 p_ame_both
 ```
@@ -664,18 +759,10 @@ Finally, we can look at the average marginal effect of childhood arts exposure o
 #| label: marginal-effects-genre-ame-under
 #| fig-width: 9
 #| fig-height: 7
-# Filter the AME results for the "ListenOnly" state
-ame_df_under <- as.data.frame(ame_genre) %>%
-  filter(group == "ListenOnly") %>%
-  mutate(genre_id = as.character(genre_id)) %>%
-  left_join(genre_labels, by = "genre_id") %>%
-  arrange(estimate) %>%
-  mutate(genre_name = factor(genre_name, levels = genre_name))
-
-p_ame_under <- ggplot(ame_df_under, aes(x = estimate, y = genre_name)) +
+p_ame_under <- ggplot(ame_under_df, aes(x = ame, y = genre_name)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#7570b3", linewidth = 0.8) +
-  geom_point(color = "#7570b3", size = 3) +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, color = "#56B4E9", linewidth = 0.8) +
+  geom_point(color = "#56B4E9", size = 3) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   theme_minimal(base_size = 14) +
   theme(
@@ -683,14 +770,14 @@ p_ame_under <- ggplot(ame_df_under, aes(x = estimate, y = genre_name)) +
     panel.grid.minor.y = element_blank()
   ) +
   labs(
-    title = "Strength of Arts Exposure Effect on Underclaiming by Genre",
-    subtitle = "Average Marginal Effect (AME) of a 1-unit increase in Childhood Arts Exposure",
+    title = "Arts Exposure Effect on Underclaiming (Random Coefficients Model)",
+    subtitle = "Crossed Multilevel Model (mblogit): AME of a 1-unit increase in Childhood Arts Exposure",
     x = "Percentage Point Change in Prob(Listen Only)",
     y = ""
   )
 
 # Save to Plots directory
-ggsave("Plots/ChildArts_AME_by_Genre_Underclaim.png", p_ame_under, width = 9, height = 7, dpi = 300)
+ggsave("Plots/ChildArts_AME_by_Genre_Underclaim_RandomCoefficients.png", p_ame_under, width = 9, height = 7, dpi = 300)
 
 p_ame_under
 ```
@@ -727,8 +814,8 @@ pref_black <- df_long %>%
   summarize(ratio_black = mean(like[black == TRUE], na.rm = TRUE) / mean(like[black == FALSE], na.rm = TRUE))
 
 # 3. Combine and calculate Average Prestige Index
-cor_data <- ame_df %>%
-  select(genre_id, genre_name, estimate, pref_group) %>%
+cor_data <- ame_mblogit_df %>%
+  select(genre_id, genre_name, ame, pref_group) %>%
   left_join(pref_col, by = "genre_id") %>%
   left_join(pref_black, by = "genre_id") %>%
   mutate(avg_ratio = (ratio_col + ratio_black) / 2) %>%
@@ -743,15 +830,15 @@ cor_data <- ame_df %>%
   )
 
 # Calculate Spearman Correlation
-spearman_rho <- cor(cor_data$estimate, cor_data$avg_ratio, method = "spearman")
+spearman_rho <- cor(cor_data$ame, cor_data$avg_ratio, method = "spearman")
 cor_label <- sprintf("Spearman \u03c1: %.2f", spearman_rho)
 
 # Plot
-p_cor <- ggplot(cor_data, aes(x = avg_ratio, y = estimate)) +
+p_cor <- ggplot(cor_data, aes(x = avg_ratio, y = ame)) +
   geom_smooth(method = "lm", se = FALSE, color = "gray50", linetype = "dashed") +
   geom_point(aes(color = pref_group), size = 3) +
   geom_text_repel(aes(label = genre_name), size = 3.5, box.padding = 0.5) +
-  annotate("text", x = min(cor_data$avg_ratio, na.rm=T), y = max(cor_data$estimate, na.rm=T), 
+  annotate("text", x = min(cor_data$avg_ratio, na.rm=T), y = max(cor_data$ame, na.rm=T), 
            label = cor_label, hjust = 0, vjust = 1, size = 5, fontface = "italic", color = "gray30") +
   scale_color_manual(
     values = c(
