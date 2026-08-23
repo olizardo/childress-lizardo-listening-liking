@@ -1,0 +1,479 @@
+---
+title: "Qualtrics Dataset Codebook & Reference Manual"
+subtitle: "Cuisine Authenticity, Culinary Tastes, and Social Distinction Study"
+author: "Omar Lizardo"
+date: "2026-06-24"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    code-fold: show
+    number-sections: true
+---
+
+::: {.callout-note}
+This codebook serves as the definitive reference manual for the raw/complete survey dataset `qualtrics.dta` (and its identical counterpart `genresobjects.dta`) used in the study of culinary tastes, authenticity, and social distinction. All pre-calculated composite indices, multiple correspondence analysis (MCA) results, and analytical recodings have been removed to preserve dataset hygiene.
+:::
+
+# Introduction & Dataset Overview
+
+This dataset was collected via an online survey administered to United States respondents using the Qualtrics platform. It contains detailed assessments of cultural tastes, aesthetic preferences, daily practices, cuisine judgments, and socioeconomic background indicators.
+
+Following a hygiene audit, all composite, recoded, and derived variables were eliminated from this dataset. The primary Qualtrics data now contains only primary raw measurements, metadata, and experimental variables, consisting of exactly **1,821 observations (rows)** and **522 variables (columns)**.
+
+---
+
+# Data Loading Reference
+
+The dataset is stored as a Stata dataset (`.dta` format) at `[dat/qualtrics.dta](dat/qualtrics.dta)`.
+
+## Loading in R
+To load the dataset in R, use the `haven` package:
+
+```r
+library(haven)
+library(here)
+
+# Load the Qualtrics dataset
+qualtrics_df <- read_dta(here("dat/qualtrics.dta"))
+
+# Preview dimensions
+dim(qualtrics_df)
+# [1] 1821  522
+```
+
+## Loading in Python
+To load the dataset in Python using Pandas:
+
+```python
+import pandas as pd
+
+# Load the Qualtrics dataset
+df = pd.read_stata('dat/qualtrics.dta')
+
+# Preview dimensions
+print(f"Loaded {df.shape[0]} rows and {df.shape[1]} columns.")
+# Loaded 1821 rows and 522 columns.
+```
+
+---
+
+# Global Variables Directory Table
+
+The table below summarizes the 522 raw variables present in the dataset, grouped by their survey block and function.
+
+| Variable Group / Prefix | Number of Columns | Survey Block / Concept | Response Scale / Type |
+|:---|:---|:---|:---|
+| `startdate` to `userlanguage` | 11 | Survey Metadata | Date/Time, ID, Lat/Long, and Language metadata |
+| `sex`, `age`, `race`, `in_school`, `educ`, `income` | 8 | Block 28 (Early Demographics) | Categorical, Year of Birth, and Income Brackets |
+| `hours_movies`, `like_movies_genres_11` to `_23` | 13 | Movie Genres | Weekly consumption (numeric) and Liking (1–7 scale) |
+| `hours_music`, `like_music_genres_21` to `_40` | 21 | Music Genres | Daily hours (numeric) and Liking (1–7 scale) |
+| `hours_tv`, `like_tv_genres_11` to `_25` | 16 | TV Genres | Daily hours (numeric) and Liking (1–7 scale, with attention checks) |
+| `like_movies_125` to `_211` | 37 | Movies Liking | Liking for 35 specific movies (1–7 scale, with attention checks) |
+| `like_music_132` to `_222` | 35 | Music Liking | Liking for 35 specific artists/bands (1–7 scale) |
+| `like_tv_107` to `_192` | 35 | TV Shows Liking | Liking for 35 specific TV shows (1–7 scale) |
+| `how_listen`, `itunes_sort`, `itunes_1_1` to `_10_3` | 32 | iTunes Sorting Block | Experience sorting iTunes songs by "Plays" (top 10 artists, plays, and genres) |
+| `itunes_rotation1_1_1` to `_rotation2_10` | 20 | iTunes Rotation | Top 10 artists in rotation and their assigned genres |
+| `winamp_sort`, `winamp_monkey_1_1` to `_10_3` | 31 | Winamp/MediaMonkey Block | Experience sorting library by play counts (top 10 artists, plays, and genres) |
+| `winamp_rotation1_1_1` to `_rotation2_10` | 20 | Winamp Rotation | Top 10 artists in rotation and their assigned genres |
+| `spotify_sort`, `spotify_rotation1_1_1` to `_rotation2_10` | 21 | Spotify Rotation | Experience sorting Spotify and current top 10 artists and genres |
+| `spotify_phone_comp`, `spotify_comp...`, `spotify_phone...` | 41 | Spotify Devices | Top 10 artists and genres on Spotify Computer vs. Phone |
+| `rotation1_1_1` to `_rotation2_10` | 20 | General Rotation Block | Top 10 artists in rotation and their assigned genres |
+| `tv_practice_107` to `_192` | 35 | TV Practice | Consumption frequency for 35 TV shows: 1 (None) to 4 (All episodes) |
+| `like_leisure_58` to `_114` | 15 | Leisure Preferences | Liking of 15 leisure activities on vacation: 1 (Dislike) to 7 (Like) |
+| `practice_leisure_58` to `_114` | 14 | Leisure Practices | Frequency of doing 14 leisure activities: 1 (Never) to 4 (Often) |
+| `like_sports_58` to `_105` | 15 | Sports Preferences | Liking of 15 sports to watch: 1 (Dislike) to 7 (Like) |
+| `practice_sports_58` to `_119` | 14 | Sports Practices | Frequency of playing/practicing 14 sports: 1 (Never) to 4 (Often) |
+| `cosmo_1_1` to `cosmo_3_7` | 24 | Cosmopolitanism | General opinions, cultural interest in 15 countries, and globalization opinions |
+| `social`, `econ`, `urban_rural` | 3 | Demographics & Politics | Social and economic political opinions (1–7), and residency area |
+| `network_1` to `network_30` | 30 | Occupational Network | Knowing anyone in 30 occupations (No, Acquaintance, Friend, Family Member) |
+| `self_arts`, `child_arts`, `mom_educ`, `dad_educ`, `mom_arts`, `dad_arts` | 6 | Demographics & Arts | Arts engagement and parental education / arts engagement background |
+| `rid`, `rnid` | 2 | Respondent Identifiers | Cleaned unique study/panel respondent IDs |
+
+---
+
+# Detailed Survey Blocks & Variable Specifications
+
+## Survey Metadata Block
+* **Description:** Automatic system variables captured by Qualtrics.
+* **Variables:**
+  - `startdate` / `enddate`: Survey start and end timestamps.
+  - `progress`: Survey completion percentage.
+  - `durationinseconds`: Time taken to complete the survey in seconds.
+  - `finished`: Binary indicator (`1` = Yes, `0` = No) for survey completion.
+  - `recordeddate`: Timestamp when the response was recorded.
+  - `responseid`: Unique respondent identifier.
+  - `locationlatitude` / `locationlongitude`: Approximate GPS coordinates.
+  - `distributionchannel`: Survey distribution channel (e.g., anonymous link).
+  - `userlanguage`: Respondent's language configuration.
+
+---
+
+## Block 28 (Early Demographics)
+* **Description:** Basic demographics collected at the beginning of the survey.
+* **Variables:**
+  - `sex`: Gender identity.
+    - `1` = Female
+    - `2` = Male
+    - `3` = Other
+  - `age`: Year of birth (integer). Note: Survey skips to end if year is greater than 2000.
+  - `race`: Race identification (multiple-choice).
+    - `1` = White
+    - `2` = Black or African American
+    - `3` = American Indian or Alaska Native
+    - `4` = Native Hawaiian or Pacific Islander
+    - `5` = Hispanic/Latino non-white
+    - `6` = Asian
+    - `7` = Middle Eastern/North African non-white
+    - `8` = Other (write-in)
+  - `race_8_text`: Text box for other race write-in.
+  - `in_school`: "Are you currently in school?" (`1` = Yes, `2` = No).
+  - `educ`: "What is the highest degree or level of school you have completed?"
+    - `1` = Less than 9th grade
+    - `2` = Some high school (no degree)
+    - `3` = High school graduate (or equivalent)
+    - `4` = Some college (no degree)
+    - `5` = Associate's degree
+    - `6` = Bachelor's degree (BA/BS)
+    - `7` = Advanced or graduate degree
+  - `income`: "Please indicate the answer that includes your entire household income before taxes."
+    - `1` = Less than $10,000 to `12` = $150,000 or more, `13` = Don't Know / Decline to Answer.
+
+---
+
+## Movie Genres Block
+* **Question Text:** *"How much do you like watching the following genres of movies?"*
+* **Response Scale (1 to 7, plus 99):**
+  - `1` = Very Much Dislike
+  - `2` = Mostly Dislike
+  - `3` = Somewhat Dislike
+  - `4` = Neither Like nor Dislike
+  - `5` = Somewhat Like
+  - `6` = Mostly Like
+  - `7` = Very Much Like
+  - `99` = Don't Know / Decline to Answer
+* **Variables:**
+  - `hours_movies`: Weekly movie consumption in hours.
+  - `like_movies_genres_11` to `_23`: Movie genre ratings.
+    - `11` = Comedy
+    - `12` = Drama
+    - `13` = Documentary
+    - `14` = Animation
+    - `15` = Action/Adventure
+    - `16` = Science Fiction/Fantasy
+    - `17` = Horror
+    - `18` = Crime
+    - `19` = Musical
+    - `20` = Romance
+    - `21` = Thriller
+    - `22` = International/Foreign
+    - `23` = Classic Cinema
+
+---
+
+## Music Genres Block
+* **Question Text:** *"How much do you like listening to the following genres of music?"*
+* **Response Scale (1 to 7, plus 99):** Same as Movie Genres.
+* **Variables:**
+  - `hours_music`: Daily music listening in hours.
+  - `like_music_genres_21` to `_40`: Music genre ratings.
+    - `21` = Big Band/Swing
+    - `22` = Bluegrass
+    - `23` = Country/Western
+    - `24` = Blues/Rhythm and Blues (R&B)
+    - `25` = Musicals/Showtunes
+    - `26` = Classical/Symphony
+    - `27` = Folk
+    - `28` = Gospel
+    - `29` = Jazz
+    - `30` = Latin
+    - `31` = Easy Listening
+    - `32` = New Age
+    - `33` = Opera
+    - `34` = Rap/Hip-hop
+    - `35` = Reggae
+    - `36` = Pop
+    - `37` = Rock
+    - `38` = Oldies
+    - `39` = Classic Rock
+    - `40` = Heavy Metal
+
+---
+
+## TV Genres Block
+* **Question Text:** *"How much do you like watching the following genres of TV shows?"*
+* **Response Scale (1 to 7, plus 99):** Same as Movie Genres.
+* **Variables:**
+  - `hours_tv`: Daily TV viewing in hours.
+  - `like_tv_genres_11` to `_25`: TV genre ratings (including attention checks).
+    - `11` = Comedy
+    - `12` = Drama
+    - `13` = Reality TV
+    - `14` = Game Shows
+    - `15` = Action/Adventure
+    - `16` = Science Fiction/Fantasy
+    - `17` = Horror
+    - `18` = Talk Shows
+    - `19` = News
+    - `20` = Sports
+    - `21` = Lifestyle/Home/Food
+    - `22` = Documentaries
+    - `23` = Science/Technology
+    - `24` = **Attention Check 1** (labelled `like_tv_check1` - "Click Mostly Like")
+    - `25` = **Attention Check 2** (labelled `like_tv_check2` - "Click Very Much Dislike")
+
+---
+
+## Movies Block
+* **Question Text:** *"On a scale from 'Very Much Dislike' to 'Very Much Like', how much do you like each of the following movies?"*
+* **Response Scale (1 to 7, plus 99):** Same as Movie Genres.
+* **Variables:**
+  - `like_movies_125` to `_211` (Ratings for 35 specific movies and 2 attention checks):
+    - `125` = Paul Blart: Mall Cop
+    - `176` = Joe Dirt
+    - `177` = Scary Movie
+    - `178` = The Hangover
+    - `179` = The Grand Budapest Hotel
+    - `180` = Annie Hall
+    - `181` = Being John Malkovich
+    - `182` = Tyler Perry's Good Deeds
+    - `183` = Pearl Harbor
+    - `184` = I am Sam
+    - `185` = The Notebook
+    - `186` = No Country for Old Men
+    - `187` = 12 Years a Slave
+    - `188` = The Godfather
+    - `189` = The Last Airbender
+    - `190` = Twilight
+    - `191` = Transformers
+    - `192` = The Martian
+    - `193` = Blade Runner (1982)
+    - `194` = 2001: A Space Odyssey
+    - `195` = E.T.
+    - `196` = The Human Centipede
+    - `197` = I Know What You Did Last Summer
+    - `198` = Final Destination
+    - `199` = The Blair Witch Project
+    - `200` = Get Out
+    - `201` = The Sixth Sense
+    - `202` = The Shining
+    - `203` = Suicide Squad
+    - `204` = Olympus Has Fallen
+    - `205` = Gone in 60 Seconds
+    - `206` = Air Force One
+    - `207` = True Grit (2010)
+    - `208` = Crouching Tiger, Hidden Dragon
+    - `209` = Saving Private Ryan
+    - `210` = **Attention Check 3** (labeled `mov test1` - "Click 'Very Much Dislike'")
+    - `211` = **Attention Check 4** (labeled `mov test2` - "Click 'Mostly Like'")
+
+---
+
+## Music Block
+* **Question Text:** *"On a scale from 'Very Much Dislike' to 'Very Much Like', how much do you like each of the following musicians or groups?"*
+* **Response Scale (1 to 7, plus 99):** Same as Movie Genres.
+* **Variables:**
+  - `like_music_132` to `_222` (Ratings for 35 specific music acts):
+    - `132` = Insane Clown Posse (ICP)
+    - `189` = Ja Rule
+    - `190` = Flo Rida
+    - `191` = Sean "Diddy" Combs
+    - `192` = Kendrick Lamar
+    - `193` = Lauryn Hill
+    - `194` = Tupac Shakur
+    - `195` = Justin Bieber
+    - `196` = Britney Spears
+    - `197` = One Direction
+    - `198` = Katy Perry
+    - `199` = Pharrell Williams
+    - `200` = Beyoncé
+    - `201` = Adele
+    - `202` = Nickelback
+    - `203` = Limp Bizkit
+    - `204` = Kid Rock
+    - `205` = Coldplay
+    - `206` = Foo Fighters
+    - `207` = Red Hot Chili Peppers
+    - `208` = U2
+    - `209` = Mötley Crüe
+    - `210` = Kiss
+    - `211` = Lynyrd Skynyrd
+    - `212` = AC/DC
+    - `213` = Bob Dylan
+    - `214` = Pink Floyd
+    - `215` = Rolling Stones
+    - `216` = Florida Georgia Line
+    - `217` = Sugarland
+    - `218` = Rascal Flatts
+    - `219` = Carrie Underwood
+    - `220` = Patsy Cline
+    - `221` = Willie Nelson
+    - `222` = Johnny Cash
+
+---
+
+## TV Shows Block
+* **Question Text:** *"On a scale from 'Very Much Dislike' to 'Very Much Like', how much do you like each of the following TV shows?"*
+* **Response Scale (1 to 7, plus 99):** Same as Movie Genres.
+* **Variables:**
+  - `like_tv_107` to `_192` (Ratings for 35 specific TV shows):
+    - `107` = 2 Broke Girls
+    - `159` = Two and a Half Men
+    - `160` = The King of Queens
+    - `161` = How I Met Your Mother
+    - `162` = Orange is the New Black
+    - `163` = Curb Your Enthusiasm
+    - `164` = The Office (US)
+    - `165` = Gossip Girl
+    - `166` = One Tree Hill
+    - `167` = Bones
+    - `168` = Grey's Anatomy
+    - `169` = Mad Men
+    - `170` = Downton Abbey
+    - `171` = The Sopranos
+    - `172` = Jerry Springer
+    - `173` = The View
+    - `174` = Dr. Phil
+    - `175` = Jimmy Kimmel Live!
+    - `176` = The Ellen DeGeneres Show
+    - `177` = Late Show with David Letterman
+    - `178` = The Oprah Winfrey Show
+    - `179` = The Real Housewives franchise
+    - `180` = The Bachelor
+    - `181` = Pawn Stars
+    - `182` = Hell's Kitchen
+    - `183` = The Amazing Race
+    - `184` = Top Chef
+    - `185` = Antiques Roadshow
+    - `186` = Supergirl
+    - `187` = Ghost Whisperer
+    - `188` = Grimm
+    - `189` = Supernatural
+    - `190` = Stranger Things
+    - `191` = The X-Files
+    - `192` = Game of Thrones
+
+---
+
+## Music Player Experimental Blocks
+These blocks gather the respondent's actual music library statistics (top 10 artists, play counts, and genres) depending on which media player they use.
+
+### iTunes block
+* **Condition:** Displayed if respondent has access to iTunes (`how_listen` or `itunes_sort` = Yes).
+* **Variables:**
+  - `itunes_sort`: "Do you currently have access to your iTunes?" (`1` = Yes, `2` = No).
+  - `itunes_1_1` to `itunes_10_3` (3 variables for each of 10 slots):
+    - `itunes_X_1`: Musician/Band name (Text)
+    - `itunes_X_2`: Number of plays (Numeric)
+    - `itunes_X_3`: Genre listed (Text)
+  - `itunes_rotation1_1_1` to `_10_1` (Text entries for top 10 rotation artists) and `_rotation2_1` to `_10` (Dropdown genre assignments, 1–21 scale where `1` = Big Band/Swing to `21` = Other).
+
+### Winamp & MediaMonkey Block
+* **Condition:** Displayed if respondent has access to Winamp/MediaMonkey and NOT iTunes.
+* **Variables:**
+  - `winamp_sort`: "Do you currently have access to your Winamp or MediaMonkey?" (`1` = Yes, `2` = No).
+  - `winamp_monkey_1_1` to `_10_3` (3 variables for each of 10 slots): Musician/Band, Play Count, and Genre.
+  - `winamp_rotation1_X_1` and `_rotation2_X`: Current rotation artists and genres.
+
+### Spotify Block
+* **Condition:** Displayed if respondent has access to Spotify and NOT iTunes or Winamp.
+* **Variables:**
+  - `spotify_sort`: "Do you currently have access to your Spotify?" (`1` = Yes, `2` = No).
+  - `spotify_phone_comp`: "Do you currently have access to Spotify on your computer or phone/tablet?" (`1` = Computer, `2` = Phone/tablet).
+  - **Spotify Computer Variables:** `spotify_comp1_1_1` to `_10_1` (Top 10 artists) and `_comp2_1` to `_10` (Genre dropdown assignments).
+  - **Spotify Phone Variables:** `spotify_phone1_1_1` to `_10_1` (Top 10 artists) and `_phone2_1` to `_10` (Genre dropdown assignments).
+  - `spotify_rotation1_X` and `_rotation2_X`: General rotation artists and genres.
+
+---
+
+## TV Practice Block
+* **Question Text:** *"For each of the following TV shows, please indicate whether you have seen none, some, most or all of the episodes."*
+* **Response Scale (1 to 4):**
+  - `1` = None
+  - `2` = Some episodes
+  - `3` = Most episodes
+  - `4` = All episodes
+* **Variables:**
+  - `tv_practice_107` to `_192` (Applies to the same 35 TV shows listed in the TV Shows Block).
+
+---
+
+## Leisure Block
+* **Liking Question:** *"Please indicate on a scale from 'Very Much Dislike' to 'Very Much Like' how much you would like doing each of the following activities while on vacation."* (1–7 scale + 99).
+* **Practice Question:** *"Please indicate whether or not you have actually done each of these activities while on vacation."* (1 = Never, 2 = At least once, 3 = Sometimes, 4 = Often).
+* **Variables:**
+  - `like_leisure_58` to `_114` & `practice_leisure_58` to `_114` (15 items total):
+    - `58` = Ride an ATV
+    - `101` = Go to a Casino
+    - `102` = Go to Bars/Clubs
+    - `103` = Go to a State/County fair
+    - `104` = Relax and watch TV
+    - `105` = Go to an Amusement park
+    - `106` = Sit by the pool
+    - `107` = Sightseeing
+    - `108` = Eco-Tourism
+    - `109` = Taste authentic cuisine
+    - `110` = Explore architecture
+    - `111` = Visit a Health spa
+    - `112` = Visit Cultural heritage museums
+    - `113` = Wine tasting
+    - `114` = Attend a performance of opera, ballet, or symphony (Liking rating only; practice rating combined as `opera etc`).
+
+---
+
+## Sports Block
+* **Liking Question:** *"On a scale from 'Very Much Dislike' to 'Very Much Like', please indicate how much you like to watch each of the following sports, either in person or on television."* (1–7 scale + 99).
+* **Practice Question:** *"Please indicate how often you play or practice each of the following sports."* (1 = Never, 2 = At least once, 3 = Sometimes, 4 = Often).
+* **Variables:**
+  - `like_sports_58` to `_105` & `practice_sports_58` to `_119` (15 items total):
+    - `58` = NASCAR (Liking) / Mixed Martial Arts (MMA) (Practice)
+    - `92` = Rodeo (Liking)
+    - `93` = UFC/Mixed Martial Arts (MMA) (Liking)
+    - `94` = Motocross (Liking)
+    - `95` = Boxing (Liking)
+    - `96` = E-Sports (Liking) / E-Sports (Practice, index 109)
+    - `97` = Football (Liking) / Football (Practice, index 110)
+    - `98` = Basketball (Liking) / Basketball (Practice, index 111)
+    - `99` = Baseball (Liking) / Baseball (Practice, index 112)
+    - `100` = Soccer (Liking) / Soccer (Practice, index 113)
+    - `101` = Downhill Skiing (Liking)
+    - `102` = Rowing (Liking)
+    - `103` = Tour de France (Liking)
+    - `104` = Tennis (Liking) / Tennis (Practice, index 117)
+    - `105` = Golf (Liking) / Golf (Practice, index 118)
+    - Other practice items: Motocross (`106`), Boxing (`107`), Darts (`108`), Downhill Skiing (`114`), Hunting (`115`), Yoga (`116`), Sailing (`119`).
+
+---
+
+## Cosmopolitanism Block
+* **Opinions (`cosmo_1`):** *"On a scale from 'Strongly disagree' to 'Strongly agree', please indicate how strongly you agree or disagree with each statement."* (1–7 scale + 99).
+  - `cosmo_1_1`: "There are many countries that I would like to visit during my lifetime."
+  - `cosmo_1_2`: "I appreciate the importance of following tradition."
+  - `cosmo_1_4`: "I feel very close to the people in my community."
+* **Learning customized cultures (`cosmo_2`):** *"If I had the time and resources, I would enjoy learning more about the local culture and customs in [Country]"* (1–7 scale + 99).
+  - Countries: Italy (`1`), Bangladesh (`4`), Saudi Arabia (`5`), Sudan (`6`), Slovenia (`7`), Norway (`8`), Turkey (`9`), Germany (`10`), South Korea (`11`), Kambezi Republic (fictional attention check, `12`), Ecuador (`13`), Bahari (fictional attention check, `14`), Kazirstan (fictional attention check, `15`), Guyana (`16`), Thailand (`17`), Alvania (fictional attention check, `18`).
+* **Globalization Views (`cosmo_3`):** *"On a scale from 'Very bad' to 'Very good', please indicate whether you think that globalization is bad or good for each of the following:"* (1–7 scale + 99).
+  - `cosmo_3_1`: Consumers like myself.
+  - `cosmo_3_4`: The range of choice in things like TV, film, music, food, etc.
+  - `cosmo_3_5`: My ability to sample different cultures.
+  - `cosmo_3_6`: My ability to learn about cultures other than my own.
+  - `cosmo_3_7`: My access to goods and services outside the US.
+
+---
+
+## Demographics & Social Networks Block
+* **Political Views:**
+  - `social`: Political stance on social issues (1 = Very Liberal to 7 = Very Conservative, 99 = Don't Know).
+  - `econ`: Political stance on economic issues (1 = Very Liberal to 7 = Very Conservative, 99 = Don't Know).
+* **Residency:**
+  - `urban_rural`: "Which of the following best describes the area you live in?" (`1` = Urban, `2` = Suburban, `3` = Rural).
+* **Social Networks (`network_1` to `_30`):**
+  - "We'd like to know if you know anyone with the following jobs... Please mark if they are an acquaintance, a friend, or a family member."
+  - Checkboxes parsed as multiple indicator columns for each of the 30 occupations (e.g., Lawyer, Doctor, Policy Maker, IT, Manager, Union, Scientist, Mechanic, Teacher, Police, Bookkeeper, Artist, Nurse, Cook, Farmer, Cleaner, Construction, etc.).
+* **Cultural Exposure & Parents:**
+  - `self_arts`: "How would you rate yourself on engagement with the arts?" (1 = Very Low to 7 = Very High).
+  - `child_arts`: "During your childhood how frequently did your parents or guardians engage you with the arts?" (1 = Not At All to 7 = All The Time).
+  - `mom_educ` / `dad_educ`: Parents' completed education level (1 = Less than 9th grade to 7 = Advanced or graduate degree, 99 = Don't know).
+  - `mom_arts` / `dad_arts`: "How would you rate your mother's/father's engagement of the arts?" (1 = Very Low to 7 = Very High, 99 = Don't Know).
+  - `rid` / `rnid`: Unique respondent and panel identifiers.

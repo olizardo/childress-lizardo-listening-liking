@@ -1,0 +1,899 @@
+--- PAGE 1 ---
+Final Survey
+Start of Block: Consent
+Q1 Dear Participant, Thank you for agreeing to participate in this survey.    Purpose and 
+Procedure: As part of a broader project on cultural tastes for things like movies, 
+television, food, and fashion we are conducting an online survey of individuals in the 
+United States. You will be presented with questions about your impressions and tastes 
+for different cultural goods and items. At the end of the survey, you will also be asked a 
+series of more general demographic and attitudinal questions, simply to allow for the 
+comparison and analysis of the results.     Potential Risks and Benefits: There are no 
+risks to your participation in this research. You will receive financial compensation for the 
+adequate, honest, and full completion of this survey, as predetermined by Qualtrics.    
+Confidentiality: All steps necessary will be taken to ensure your confidentiality. No 
+personally identifiable information will be present in the data analyzed. All data for this 
+project will be securely stored on a password protected computer. Only the researchers 
+will have access to the data.    Right to Withdraw: You may withdraw from the study for 
+any reason, at any time, without penalty of any sort. However, no compensation will be 
+provided for partial completion of the survey. If you choose to withdraw from the study 
+after completion of the survey, any data that you have contributed will be destroyed. All 
+participation is voluntary.    Note: You are encouraged to save or print a copy of this 
+consent statement for your records.    If you have any questions or concerns, you may 
+contact us through the Prolific interface or through the contact information below.     
+Thank you again for your participation in this research.    Best regards,    Clayton 
+Childress  CultureHistoryTasteStudy@gmail.com    I have read the conditions of my 
+participation in this study and give my consent to be a participant.   
+Yes  (1) 
+No  (2) 
+Display this question:
+If Dear Participant, Thank you for agreeing to participate in this survey. Purpose and 
+Procedure: As... = No
+Q2 Because you do not consent to being a participant in this study, please return your 
+submission by closing the survey and clicking 'Stop Without Completing' on Prolific.
+--- PAGE 2 ---
+Skip To: End of Survey If  Because you do not consent to being a participant in this study, please 
+return your submission by... Displayed
+Page Break
+Q3 We care about the quality of our survey data.  For us to get the most accurate 
+measures of your opinions, it is important that you provide thoughtful answers to each 
+question in this survey.    Do you commit to providing thoughtful answers to the 
+questions in this in this survey?
+I can't promise either way  (1) 
+Yes, I will  (2) 
+No, I will not  (3) 
+Display this question:
+If We care about the quality of our survey data. For us to get the most accurate measures of 
+your op... != Yes, I will
+Q4 Because you cannot commit to providing thoughtful answers, please return your 
+submission by closing the survey and clicking 'Stop Without Completing' on Prolific.
+Skip To: End of Survey If  Because you cannot commit to providing thoughtful answers, please 
+return your submission by closi... Displayed
+Page Break
+End of Block: Consent
+Start of Block: Prolific ID
+Q1 What is your Prolific ID?  Please note that this response should auto-fill with the 
+correct ID
+________________________________________________________________
+End of Block: Prolific ID
+--- PAGE 3 ---
+Start of Block: IsItArt
+Crayon Is this image art?         
+Definitely not  (1) 
+Probably not  (2) 
+Maybe not  (3) 
+May or may not be  (4) 
+Maybe yes  (5) 
+Probably yes  (6) 
+Definitely yes  (7) 
+Page Break
+End of Block: IsItArt
+Start of Block: Paw Patrol
+PawPatrok  
+Is this image art?    
+Definitely not  (1) 
+Probably not  (2) 
+Maybe not  (3) 
+May or may not be  (4) 
+Maybe yes  (5) 
+Probably yes  (6) 
+Definitely yes  (7) 
+End of Block: Paw Patrol
+Start of Block: OceanBikerBlock
+oceanbike Please indicate your agreement with the statement below
+Strongly Disagree 
+(1)
+Disagree (4) Agree (5) Strongly Agree (6)
+I bike across the 
+Pacific Ocean to 
+get to work every 
+day (1) 
+--- PAGE 4 ---
+End of Block: OceanBikerBlock
+Start of Block: Rorsach
+Rorshach  
+Is this image art?      
+Definitely not  (1) 
+Probably not  (2) 
+Maybe not  (3) 
+May or may not be  (4) 
+Maybe yes  (5) 
+Probably yes  (6) 
+Definitely yes  (7) 
+End of Block: Rorsach
+Start of Block: LastSup
+Last Supper  
+Is this image art?  
+  
+   
+Definitely not  (1) 
+Probably not  (2) 
+Maybe not  (3) 
+May or may not be  (4) 
+Maybe yes  (5) 
+Probably yes  (6) 
+Definitely yes  (7) 
+End of Block: LastSup
+Start of Block: KnowAPerson
+Knowaperson On a scale from "Nothing at All" to "A Great Amount " how much do each 
+of the following things tell you about a person?
+Nothing at 
+all (1)
+A little (2) Some but 
+not much 
+(3)
+A moderate 
+amount (4)
+A fair 
+amount (5)
+A lot (6) A great 
+Amount (7)
+The 
+--- PAGE 5 ---
+music/movi
+es/tv shows 
+they love 
+(1) 
+The 
+music/movi
+es/tv shows 
+they hate 
+(2) 
+What they 
+find 
+funny/what 
+makes 
+them laugh 
+(3) 
+What they 
+don't find 
+funny/what 
+they won't 
+laugh at (4) 
+Their 
+political 
+beliefs (5) 
+Their 
+job/occupat
+ion (6) 
+Their 
+friends (7) 
+Their race 
+(8) 
+Their 
+gender (9) 
+Their 
+religion (10) 
+Their 
+sexuality 
+(11) 
+Their class 
+(12) 
+Their age 
+(13) 
+How they 
+spend their 
+free time 
+(14) 
+--- PAGE 6 ---
+End of Block: KnowAPerson
+Start of Block: Photo
+PhotoItems For each of the following items is a photographer more likely to produce a 
+photo that is "beautiful," "interesting," "meaningless," or "ugly"?  
+Beautiful (1) Interesting (2) Meaningless (3) Ugly (4)
+A landscape (1) 
+A car crash (2) 
+A little girl playing 
+with a cat (3) 
+A pregnant woman 
+(4) 
+A flower vase (5) 
+A woman 
+breastfeeding (6) 
+A metal structure 
+(7) 
+Homeless men 
+arguing (8) 
+Fruits and 
+vegetables (9) 
+A sunset over the 
+sea (10) 
+A weaver at his 
+loom (11) 
+A folk dance (12) 
+A rope (13) 
+A butcher (14) 
+The bark of a tree 
+(15) 
+A famous 
+monument (16) 
+A scrapyard (17) 
+A first communion 
+(18) 
+A wounded man 
+(19) 
+A snake (20) 
+End of Block: Photo
+--- PAGE 7 ---
+Start of Block: Fashion
+Fashion From "not at all like me" to "very much like me" how much do each of these 
+terms describe your style of dress? 
+Not at all like 
+me (1)
+Slightly like me 
+(2)
+Somewhat like 
+me (3)
+Like me (4) Very much like 
+me (5)
+Comfortable (1) 
+Casual (2) 
+Smart (3) 
+Inexpensive (4) 
+Sophisticated 
+(5) 
+Designer 
+brands (6) 
+Trendy (7) 
+Unique (8) 
+Sporty (9) 
+Edgy (10) 
+End of Block: Fashion
+Start of Block: PRACTICE 
+Practice How many times in the past 12 months have you engaged in the following 
+activities?
+0 times/not 
+in the past 
+year (1)
+1 to 2 times 
+in the past 
+year (2)
+3-5 times 
+(every few 
+months or 
+so) (3)
+6-11 times 
+(every 
+other 
+month or 
+more) (4)
+12-23 times 
+(once or 
+twice a 
+month) (5)
+24-51 times 
+(every 
+other week 
+to almost 
+every 
+week) (6)
+52 or more 
+(once a 
+week or 
+more) (7)
+Go to a 
+museum 
+(1) 
+Go to an art 
+gallery (2) 
+Go to the 
+symphony, 
+orchestra, 
+or opera (3) 
+--- PAGE 8 ---
+Gardening 
+or planting 
+(4) 
+Go to a 
+carnival, 
+county fair, 
+or 
+amusement 
+park (5) 
+Go to a 
+music 
+concert or 
+festival (6) 
+Go to a 
+play, 
+musical, or 
+performanc
+e in a 
+theater (7) 
+Go to the 
+library (8) 
+Go to a 
+fancy 
+restaurant 
+(9) 
+Eat fast 
+food (10) 
+Go for a 
+walk (11) 
+Go to the 
+gym, to 
+exercise, or 
+do yoga. 
+(12) 
+Go to the 
+ballet or a 
+dance 
+performanc
+e (13) 
+Go to see a 
+movie in 
+the theater 
+(14) 
+Reading a 
+novel, 
+poem, or 
+play (15) 
+--- PAGE 9 ---
+Mark "12-
+23 times" 
+(16) 
+Attend a 
+sports 
+game or 
+match (17) 
+Do home or 
+auto repair 
+(18) 
+Go hiking, 
+camping, or 
+boating 
+(19) 
+Visit a 
+historic site 
+or landmark 
+(20) 
+Go to a 
+cultural, 
+artistic, 
+food, or 
+neighborho
+od festival 
+(21) 
+End of Block: PRACTICE 
+Start of Block: Bourdieu Food
+Types of Food On a scale from "extremely dislike" to "extremely like" how much do you 
+dislike or like food that is:
+Extremely 
+Dislike (1)
+Very Much 
+Dislike (2)
+Somewhat 
+Dislike (3)
+Neither 
+Like Nor 
+Dislike (4)
+Somewhat 
+Like (5)
+Very Much 
+Like (6)
+Exremely 
+Like (7)
+Light, airy, 
+fresh, 
+delicate (1) 
+Rich, 
+hearty, 
+filling, 
+savory (2) 
+Caviar (3) 
+Oysters (4) 
+--- PAGE 10 ---
+Exotic and 
+authentic 
+(5) 
+Convention
+al and 
+familiar (6) 
+Too large of 
+a portion 
+(7) 
+Too small 
+of a portion 
+(8) 
+Chicken 
+Nuggets (9) 
+Cheesebur
+ger (10) 
+Sourdough 
+Bread (11) 
+Avocado 
+(12) 
+End of Block: Bourdieu Food
+Start of Block: Foodies
+Authenticity Cuisine Is each type of cuisine below best prepared using "a traditional 
+family recipe cooked by an elder at home" or "a developed recipe by a trained chef 
+cooked at a high-end restaurant"?    
+A 
+Traditional 
+Family 
+Recipe 
+Cooked by 
+an Elder at 
+Home (1)
+Lean more 
+to this side 
+(2)
+Lean 
+somewhat 
+to this side 
+(3)
+Equal/One 
+not better 
+than the 
+other (4)
+Lean 
+somewhat 
+to this side 
+(5)
+Lean more 
+to this side 
+(6)
+A 
+Developed 
+Recipe by 
+a 
+Profession
+al Chef at 
+a High-End 
+Restaurant 
+(7)
+Japanese 
+(1) 
+French (2) 
+Italian (3) 
+Mexican (4) 
+--- PAGE 11 ---
+Moroccan 
+(5) 
+Korean (6) 
+Peruvian 
+(7) 
+American 
+Indian/Nativ
+e American 
+(8) 
+Swedish (9) 
+Pakistani 
+(10) 
+Ethiopian 
+(11) 
+Vietnamese 
+(12) 
+Nigerian 
+(13) 
+Jamaican 
+(14) 
+Lebanese 
+(15) 
+End of Block: Foodies
+Start of Block: Fields
+UniqueTastes I like it when my tastes are different or unique from other people 
+Strongly disagree  (1) 
+Disagree  (2) 
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+BestArtPolitical The best art has a clear political point of view.  
+Strongly disagree  (1) 
+--- PAGE 12 ---
+Disagree  (2) 
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+Best Art Moral The best art has a clear moral point of view.  
+Strongly disagree  (1) 
+Disagree  (2) 
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+BestArtNotMoral The best art makes us think about what is right and wrong in new ways. 
+Strongly disagree  (1) 
+Disagree  (2) 
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+BestArtNotPolitical The best art doesn't pick political sides and makes us think about 
+politics in new ways.  
+Strongly disagree  (1) 
+Disagree  (2) 
+--- PAGE 13 ---
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+CancelledArtists It's wrong to appreciate music or art created by people who act poorly 
+or hold objectionable beliefs. 
+Strongly disagree  (1) 
+Disagree  (2) 
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+Polarized I avoid engaging with art and music created by those who publicly endorse 
+political candidates and policies that I do not support. 
+Strongly disagree  (1) 
+Disagree  (2) 
+Somewhat disagree  (3) 
+Neither agree nor disagree  (4) 
+Somewhat agree  (5) 
+Agree  (6) 
+Strongly agree  (7) 
+Page Break
+EnjoyableDifficult On a scale from "entirely entertaining and enjoyable" to "entirely 
+difficult and challenging" what kind of art and media do you like? 
+Entirely entertaining and enjoyable  (1) 
+--- PAGE 14 ---
+Very much more entertaining and enjoyable  (2) 
+Somewhat more entertaining and enjoyable  (3) 
+Equally entertaining, enjoyable, difficult, and challenging  (4) 
+Somewhat more difficult and challenging  (5) 
+Very much more difficult and challenging  (6) 
+Entirely difficult and challenging  (7) 
+Page Break
+Ironic How frequently do you ironically consume music, TV shows, or movies? (i.e. 
+consume something to laugh at it, or because it's "so bad it's good") 
+Never at all  (1) 
+Very Rarely  (2) 
+Somewhat Rarely  (3) 
+Sometimes  (4) 
+Somewhat Frequently  (5) 
+Very Frequently  (6) 
+All the Time  (7) 
+Page Break
+Comedy Thinking about comedy, on a scale from "The only goal is to create laughter" to 
+"The only goal is to say something" what do you think the goal is for the best comedy?  
+The only goal is to create laughter  (1) 
+The goal is mostly to create laughter  (2) 
+The goal is somewhat more to create laughter  (3) 
+Creating laughter and saying something important are equal goals  (4) 
+The goal is somewhat more to say something important  (5) 
+The goal is mostly to say something important  (6) 
+The only goal is to say something important  (7) 
+End of Block: Fields
+Start of Block: Carrot Juice
+--- PAGE 15 ---
+Q1 What would you say your favorite drink is? There are many drink choices these days. 
+To demonstrate that you have read this much, go ahead and select Carrot Juice from the 
+choices below. Ignore the question and just choose Carrot Juice.
+Wine  (1) 
+Beer  (2) 
+Vodka  (3) 
+Whiskey  (4) 
+Carrot Juice  (5) 
+Other  (6) 
+Display this question:
+If Please indicate your agreement with the statement below = Agree
+Or Please indicate your agreement with the statement below = Strongly Agree
+And If
+What would you say your favorite drink is? There are many drink choices these days. To 
+demonstrat... != Carrot Juice
+Q2 Unfortunately you failed two attention checks. Per Prolific's policy, please return 
+your submission by closing the survey and clicking 'Stop Without Completing' on Prolific.
+Skip To: End of Survey If  Unfortunately you failed two attention checks. Per Prolific's policy, 
+please return your submissi... Displayed
+End of Block: Carrot Juice
+Start of Block: Animus
+Animus Please read the following statements and indicate your agreement or 
+disagreement about Democrats.  Democrats are _____:  
+Strongly 
+disagree 
+(1)
+Moderately 
+disagree 
+(2)
+Slightly 
+disagree 
+(3)
+Neither 
+Agree/Disa
+gree (4)
+Slightly 
+Agree  (5)
+Moderately 
+Agree (6)
+Strongly 
+Agree (7)
+Intelligent 
+(1) 
+Open-
+minded (2) 
+Generous 
+(3) 
+--- PAGE 16 ---
+Hypocritical 
+(4) 
+Selfish (5) 
+Mean (6) 
+Page Break
+Q2 Please read the following statements and indicate your agreement or disagreement 
+about Republicans.  Republicans are _____:  
+Strongly 
+disagree 
+(1)
+Moderately 
+disagree 
+(2)
+Slightly 
+disagree 
+(3)
+Neither 
+Agree/Disa
+gree (4)
+Slightly 
+Agree  (5)
+Moderately 
+Agree (6)
+Strongly 
+Agree (7)
+Intelligent 
+(1) 
+Open-
+minded (2) 
+Generous 
+(3) 
+Hypocritical 
+(4) 
+Selfish (5) 
+Mean (6) 
+End of Block: Animus
+Start of Block: cosmo
+cosmo How much do you think your identity and sense of self are influenced by: 
+Not at all 
+influential 
+(1)
+Slightly 
+influential 
+(2)
+Somewhat 
+influential 
+(3)
+Moderately 
+influential 
+(4)
+Quite 
+influential 
+(5)
+Very 
+influential 
+(6)
+Extremely 
+influential 
+(7)
+Your 
+neighborho
+od, city, or 
+town (1) 
+Your state 
+or region of 
+the country 
+(2) 
+--- PAGE 17 ---
+The nation 
+or country 
+you live in 
+or  are from 
+(3) 
+The 
+continent 
+you live in 
+or are from 
+(4) 
+The whole 
+globe; a 
+citizen of 
+the world 
+(5) 
+End of Block: cosmo
+Start of Block: Social Media
+Social Media For each social media platform you use enter a number between 1 and 50 
+to indicate the approximate number of hours per week you spend on each platform.   For 
+any platforms you do not use, leave the corresponding box blank.   If you do not use any 
+of the listed platforms, please select the option "I don't use any of these social media 
+platforms."
+Facebook  (1) __________________________________________________
+Instagram  (2) __________________________________________________
+Reddit  (3) __________________________________________________
+X (Twitter)  (4) __________________________________________________
+TikTok  (5) __________________________________________________
+BlueSky  (6) __________________________________________________
+YouTube  (7) __________________________________________________
+Snapchat  (8) __________________________________________________
+Pinterest  (9) __________________________________________________
+LinkedIn  (10) __________________________________________________
+Truth Social  (11) __________________________________________________
+I don't use any of these social media platforms  (12) 
+End of Block: Social Media
+Start of Block: Weak Ties
+--- PAGE 18 ---
+WeakTies We're now going to ask you some questions about all the people that you 
+are acquainted with, meaning that you know their name and would stop and talk at least 
+for a moment if you ran into the person on the street or in a shopping mall.   Some of 
+these questions may seem unusual but they are important to understand about social 
+networks.   ow many people that you are acquainted with:  
+None/0 people 
+(1)
+1 person (2) 2 to 5 people 
+(3)
+6 to 10 people 
+(4)
+more than 10 
+people (5)
+Are gay or 
+lesbian or 
+queer or 
+transgender (1) 
+Attend religious 
+services on a 
+regular basis 
+(2) 
+Attend religious 
+services rarely 
+or never (3) 
+Are strongly 
+liberal (4) 
+Are strongly 
+conservative (5) 
+Are Asian or 
+Asian American 
+(6) 
+Are Hispanic or 
+Latino or Latinx 
+(7) 
+Are Black or 
+African 
+American (8) 
+Are white (9) 
+Own a second 
+home (10) 
+Were born in or 
+are from a 
+country that is 
+not the United 
+States (11) 
+Are MENA (of 
+Middle Eastern 
+or North African 
+descent) (12) 
+Are Native 
+--- PAGE 19 ---
+Hawaiian or 
+Pacific Islander 
+(13) 
+Are American 
+Indian or Alaska 
+Native (14) 
+Live in a large 
+city (over 
+250,000) (15) 
+Live in a rural 
+area or small 
+town (less than 
+50,000) (16) 
+Are men (17) 
+Are women (18) 
+End of Block: Weak Ties
+Start of Block: Networks 2025
+StrongTies We're now going to ask you some questions about all the people that you 
+are close with and trust. For example, good friends, people you discuss important 
+matters with, or trust for advice, or trust with money.  Some of these questions may 
+seem unusual but they are important to understand about social networks.   How many 
+people that you are close with and trust: 
+None/0 people 
+(1)
+1 person (2) 2 to 5 people 
+(3)
+6 to 10 people 
+(4)
+more than 10 
+people (5)
+Are gay or 
+lesbian or 
+queer or 
+transgender (1) 
+Attend religious 
+services on a 
+regular basis 
+(2) 
+Attend religious 
+services rarely 
+or never (3) 
+Are strongly 
+liberal (4) 
+Are strongly 
+conservative (5) 
+Are Asian or 
+--- PAGE 20 ---
+Asian American 
+(6) 
+Are Hispanic or 
+Latino or Latinx 
+(7) 
+Are Black or 
+African 
+American (8) 
+Are white (9) 
+Own a second 
+home (10) 
+Were born in or 
+are from a 
+country that is 
+not the United 
+States (11) 
+Are MENA (of 
+Middle Eastern 
+or North African 
+descent) (12) 
+Are Native 
+Hawaiian or 
+Pacific Islander 
+(13) 
+Are American 
+Indian or Alaska 
+Native (14) 
+Live in a large 
+city (over 
+250,000) (15) 
+Live in a rural 
+area or small 
+town (less than 
+50,000) (16) 
+Are men (17) 
+Are women (18) 
+Page Break
+End of Block: Networks 2025
+Start of Block: Demographics
+--- PAGE 21 ---
+Q1 What is your gender
+Woman  (1) 
+Man  (2) 
+Non-binary  (3) 
+Prefer to self-describe:  (4) 
+__________________________________________________
+Page Break
+Q2 What is your sexual orientation
+Heterosexual or straight  (1) 
+Gay  (2) 
+Lesbian  (3) 
+Bisexual  (4) 
+Queer  (5) 
+None of the above, please specify  (6) 
+__________________________________________________
+Page Break
+Q3 In what year were you born?
+________________________________________________________________
+Page Break
+Q4 Choose one or more races that you consider yourself to be:
+White  (1) 
+Black or African American  (2) 
+American Indian or Alaska Native  (3) 
+Native Hawaiian or Other Pacific Islander  (4) 
+Hispanic/Latino/Latinx  (5) 
+Asian  (6) 
+Middle Eastern or North African  (7) 
+Other  (8) __________________________________________________
+--- PAGE 22 ---
+Page Break
+Q5 Are you currently in school? 
+Yes  (1) 
+No  (2) 
+Q6 What is the highest degree or level of school you have completed?

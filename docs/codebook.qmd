@@ -1,0 +1,490 @@
+---
+title: "Data Codebook & Reference Manual"
+subtitle: "Cuisine Authenticity, Culinary Tastes, and Social Distinction Study"
+author: "Omar Lizardo"
+date: "2026-06-24"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    code-fold: show
+    number-sections: true
+---
+
+::: {.callout-note}
+This codebook serves as the definitive reference manual for the cleaned dataset `cultdat.dta` used in the study of culinary tastes, authenticity, and social distinction.
+:::
+
+# Introduction & Data Cleaning Audit
+
+This dataset was collected via an online survey administered to United States respondents using the Prolific platform. It contains detailed assessments of cultural tastes, aesthetic preferences, daily practices, cuisine judgments, and socioeconomic background indicators.
+
+## Data Cleaning & Hygiene Audit
+
+Following a rigorous hygiene audit, several columns that were merely **derivatives of other variables or the products of previous statistical analyses** (e.g., pre-calculated index averages, latent classes, and redundant reverse-codings) were systematically eliminated from the primary data file. This ensures that the dataset contains only primary raw measurements and prevents data duplication.
+
+The following **12 derived variables** were eliminated from the dataset:
+
+| Variable Name | Stata Label | Type of Derivative | Original Sources / Components |
+|:---|:---|:---|:---|
+| `photo_lca_class` | LCA Classes from R | Previous statistical model output | Latent Class Analysis (LCA) classes fitted on `landscape:snake` |
+| `home_count` | Foodies | Aggregate summary count | Number of cuisines rated as "Traditional Elder" (1–2) |
+| `chef_count` | Foodies | Aggregate summary count | Number of cuisines rated as "Professional Chef" (6–7) |
+| `r_hood_city_town` | Reverse-coded Cosmo | Direct linear transformation | `8 - hood_city_town` |
+| `r_state_region` | Reverse-coded Cosmo | Direct linear transformation | `8 - state_region` |
+| `r_nation` | Reverse-coded Cosmo | Direct linear transformation | `8 - nation` |
+| `cosmopolitanism` | Cosmo Index | Multi-item average index | Mean of `hood_city_town`, `state_region`, `nation`, `continent`, `global_citizen` |
+| `poli` | Econ + Social/2 | Multi-item average index | Mean of `social` and `economic` political ideology |
+| `educ2` | educ 4 categories | Collapsed categorical variable | Grouping of `educ` into 4 categories |
+| `race2` | race cleaned | Grouping and categorization | Cleaned ethnoracial categories |
+| `race3` | race trimmed | Grouping and categorization | Cleaned ethnoracial categories (trimmed) |
+| `religion2` | religion cleaned | Grouping and categorization | Cleaned religious affiliations |
+
+::: {.callout-tip}
+To support downstream analyses that rely on these index values (such as `poli` for political classification), the recoding script `[recode.dat.R](recode.dat.R)` has been optimized to compute these indices **on the fly** during the data-loading phase, preserving full compatibility without cluttering the primary dataset.
+:::
+
+---
+
+# Data Loading Reference
+
+The cleaned dataset is stored as a Stata dataset (`.dta` format) at `[dat/cultdat.dta](dat/cultdat.dta)`.
+
+## Loading in R
+To load the cleaned dataset and apply the optimized recoding workflow in R, use the following code:
+
+```r
+library(haven)
+library(here)
+library(dplyr)
+
+# Source the optimized recoding function
+source(here("recode.dat.R"))
+
+# Load and recode the dataset
+dat <- recode.dat()
+```
+
+## Loading in Python
+To load the cleaned dataset in Python using Pandas:
+
+```python
+import pandas as pd
+
+# Load the Stata dataset
+df = pd.read_stata('dat/cultdat.dta')
+
+# Preview the dimensions
+print(f"Loaded {df.shape[0]} rows and {df.shape[1]} columns.")
+```
+
+---
+
+# Global Variables Directory Table
+
+The table below lists all 168 primary variables currently stored in the cleaned `cultdat.dta` dataset.
+
+| Variable Name | Survey Block | Stata Label / Concept | Response Scale / Type |
+|:---|:---|:---|:---|
+| `crayon` | IsItArt | Is image of a crayon art? | 1 (Definitely not) to 7 (Definitely yes) |
+| `pawpatrok` | IsItArt | Is image of Paw Patrol art? | 1 (Definitely not) to 7 (Definitely yes) |
+| `rorshach` | IsItArt | Is image of a Rorschach blot art? | 1 (Definitely not) to 7 (Definitely yes) |
+| `lastsupper` | IsItArt | Is image of the Last Supper art? | 1 (Definitely not) to 7 (Definitely yes) |
+| `landscape` to `snake` *(20 items)* | Photo | Photo items aesthetic judgment | 1 (Beautiful), 2 (Interesting), 3 (Meaningless), 4 (Ugly) |
+| `comfortable` to `edgy` *(10 items)* | Fashion | Style of dress terms self-description | 1 (Not at all like me) to 5 (Very much like me) |
+| `museum` to `go_to_festival` *(21 items)* | Practice | Cultural participation and practices | 1 (0 times/not in past year) to 7 (52 or more times) |
+| `light_airy_fresh_delicate` | Bourdieu Food | Taste preference: Light/airy/fresh/delicate | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `rich_hearty_filling_savory` | Bourdieu Food | Taste preference: Rich/hearty/filling/savory | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `exotic_authentic` | Bourdieu Food | Taste preference: Exotic/authentic | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `conventional_familiar` | Bourdieu Food | Taste preference: Conventional/familiar | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `too_large_portion` | Bourdieu Food | Taste preference: Too large portion | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `too_small_portion` | Bourdieu Food | Taste preference: Too small portion | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `caviar`, `oysters`, `chicken_nuggets`, `cheeseburger`, `sourdough`, `avocado` | Bourdieu Food | Individual food preferences | 1 (Extremely Dislike) to 7 (Extremely Like) |
+| `japanese` to `lebanese` *(15 items)* | Foodies | Best prepared: home vs chef-restaurant | 1 (Traditional Elder at Home) to 7 (Professional Chef) |
+| `uniquetastes` | Fields | "I like it when my tastes are different" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `bestartpolitical` | Fields | "The best art has a clear political view" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `bestartmoral` | Fields | "The best art has a clear moral view" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `bestartnotmoral` | Fields | "The best art makes us think about right/wrong" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `bestartnotpolitical` | Fields | "The best art doesn't pick political sides" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `cancelledartists` | Fields | "It's wrong to appreciate art by bad actors" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `polarized` | Fields | "I avoid art/music from opposing political views" | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `enjoyabledifficult` | Fields | Art style preference: entertaining vs difficult | 1 (Entirely entertaining) to 7 (Entirely difficult) |
+| `ironic` | Fields | Frequency of ironic media consumption | 1 (Never at all) to 7 (All the time) |
+| `comedy` | Fields | Goal of best comedy: laughter vs statement | 1 (Only create laughter) to 7 (Only say something) |
+| `democrats_1` to `democrats_6` | Animus | Democrat character traits evaluations | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `republicans_1` to `republicans_6` | Animus | Republican character traits evaluations | 1 (Strongly disagree) to 7 (Strongly agree) |
+| `hood_city_town` to `global_citizen` | Cosmo | Influence of local vs global on identity | 1 (Not at all influential) to 7 (Extremely influential) |
+| `Know..._weak` *(18 items)* | Weak Ties | Number of acquaintances in specific categories | 1 (None/0 people) to 5 (More than 10 people) |
+| `Know..._strong` *(18 items)* | Strong Ties | Number of close/trusted ties in specific categories | 1 (None/0 people) to 5 (More than 10 people) |
+| `gender` | Demographics | Gender identity (raw) | 1 (Woman), 2 (Man), 3 (Non-binary/Trans) |
+| `sexuality` | Demographics | Sexual orientation (raw) | 0 (Straight), 1 (LGBQA) |
+| `educ` | Demographics | Highest completed level of education | 1 (lt 9th grade) to 7 (grad deg) |
+| `degreee` | Demographics | Broad field/area of respondent's degree | Text/Categorical |
+| `parented` | Demographics | Parental highest level of education completed | 1 (lt 9th grade) to 7 (grad deg) |
+| `child_arts` | Demographics | Childhood arts exposure rating | 1 (Very Low) to 7 (Very High) |
+| `income` | Demographics | Household income brackets | 1 (Less than $10K) to 12 (More than $150K) |
+| `social` | Demographics | Political stance on social issues | 1 (Very Liberal) to 7 (Very Conservative) |
+| `economic` | Demographics | Political stance on economic issues | 1 (Very Liberal) to 7 (Very Conservative) |
+| `urban_rural` | Demographics | Rural to Urban residency scale | 1 (Open country) to 6 (Large city) |
+| `zipcode` | Demographics | US Zip Code of residency | Text / Five-digit code |
+| `countries` | Demographics | Total number of countries visited | Numeric / Continuous |
+| `bornagain` | Demographics | Born-again Christian indicator | 1 (Yes), 2 (No) |
+| `attend_service` | Demographics | Religious services attendance frequency | 1 (Never) to 7 (Always) |
+| `working` | Demographics | Employment status | Categorical |
+| `govtorno` | Demographics | Government or non-government sector employment | Categorical |
+| `field` | Demographics | Standard occupational classification field | Categorical / Text |
+| `age2` | Demographics | Calculated age in years | Numeric / Continuous |
+| `race` | Demographics | Ethnoracial identification (raw multiple check) | Categorical / Multiple Codes |
+
+---
+
+# Detailed Survey Blocks & Variable Specifications
+
+## Art Judgments Block (`IsItArt`)
+
+* **Question Text:** *"Is this image art?"*
+* **Response Scale (1 to 7):**
+  - `1` = Definitely not
+  - `2` = Probably not
+  - `3` = Maybe not
+  - `4` = May or may not be
+  - `5` = Maybe yes
+  - `6` = Probably yes
+  - `7` = Definitely yes
+
+### Items:
+- **`crayon`**: Image of a crayon drawing/crayon box.
+- **`pawpatrok`**: Image of Paw Patrol characters (Note: variable name contains a typo `pawpatrok`).
+- **`rorshach`**: Image of a Rorschach inkblot.
+- **`lastsupper`**: Image of Leonardo da Vinci's *The Last Supper*.
+
+---
+
+## Aesthetic Judgments Block (`Photo`)
+
+* **Question Text:** *"PhotoItems: For each of the following items is a photographer more likely to produce a photo that is 'beautiful,' 'interesting,' 'meaningless,' or 'ugly'?"*
+* **Response Scale (1 to 4):**
+  - `1` = Beautiful
+  - `2` = Interesting
+  - `3` = Meaningless
+  - `4` = Ugly
+* **R Factor Labels:** In `[recode.dat.R](recode.dat.R)`, these are converted to factors with labels `c("Be", "In", "Me", "Ug")`.
+
+### 20 Photographic Items:
+1. `landscape`: A landscape
+2. `car_crash`: A car crash
+3. `girl_with_cat`: A little girl playing with a cat
+4. `pregnant_woman`: A pregnant woman
+5. `vase`: A flower vase
+6. `woman_breastfeeding`: A woman breastfeeding
+7. `metal_structure`: A metal structure
+8. `homeless_arguing`: Homeless men arguing
+9. `fruits_vegetables`: Fruits and vegetables
+10. `sunset_over_sea`: A sunset over the sea
+11. `weaver_at_loom`: A weaver at his loom
+12. `folk_dance`: A folk dance
+13. `rope`: A rope
+14. `butcher`: A butcher
+15. `bark_of_tree`: The bark of a tree
+16. `famous_monument`: A famous monument
+17. `scrapyard`: A scrapyard
+18. `first_communion`: A first communion
+19. `wounded_man`: A wounded man
+20. `snake`: A snake
+
+---
+
+## Self-Presentation Block (`Fashion`)
+
+* **Question Text:** *"From 'not at all like me' to 'very much like me' how much do each of these terms describe your style of dress?"*
+* **Response Scale (1 to 5):**
+  - `1` = Not at all like me
+  - `2` = Slightly like me
+  - `3` = Somewhat like me
+  - `4` = Like me
+  - `5` = Very much like me
+
+### 10 Aesthetic Descriptors:
+- `comfortable`: Comfortable style
+- `casual`: Casual style
+- `smart`: Smart style
+- `inexpensive`: Inexpensive style
+- `sophisticated`: Sophisticated style
+- `designer_brands`: Designer brands style
+- `trendy`: Trendy style
+- `unique`: Unique style
+- `sporty`: Sporty style
+- `edgy`: Edgy style
+
+---
+
+## Cultural Practices Block (`Practice`)
+
+* **Question Text:** *"How many times in the past 12 months have you engaged in the following activities?"*
+* **Response Scale (1 to 7):**
+  - `1` = 0 times/not in the past year
+  - `2` = 1 to 2 times in the past year
+  - `3` = 3-5 times (every few months or so)
+  - `4` = 6-11 times (every other month or more)
+  - `5` = 12-23 times (once or twice a month)
+  - `6` = 24-51 times (every other week to almost every week)
+  - `7` = 52 or more (once a week or more)
+
+### 21 Practice Activities:
+- `museum`: Go to a museum
+- `art_gallery`: Go to an art gallery
+- `symphony_orchestra_opera`: Go to the symphony, orchestra, or opera
+- `gardening`: Gardening or planting
+- `carnival_fair_amusement_park`: Go to a carnival, county fair, or amusement park
+- `music_concert_festival`: Go to a music concert or festival
+- `play_or_musical`: Go to a play, musical, or performance in a theater
+- `library`: Go to the library
+- `fancy_restaurant`: Go to a fancy restaurant
+- `fast_food`: Eat fast food
+- `go_for_walk`: Go for a walk
+- `exercise_or_yoga`: Go to the gym, to exercise, or do yoga
+- `dance_performance`: Go to the ballet or a dance performance
+- `movie_theater`: Go to see a movie in the theater
+- `read_novel_poem_or_play`: Reading a novel, poem, or play
+- `attend_sports`: Attend a sports game or match
+- `home_auto_repair`: Do home or auto repair
+- `hiking_camping_boating`: Go hiking, camping, or boating
+- `historic_site`: Visit a historic site or landmark
+- `go_to_festival`: Go to a cultural, artistic, food, or neighborhood festival
+- *Note:* The 16th item in the raw survey practice list (*Mark "12-23 times"*) was an attention-check question and is excluded from statistical analysis.
+
+---
+
+## Bourdieu Food Block (`Types of Food`)
+
+* **Question Text:** *"On a scale from 'extremely dislike' to 'extremely like' how much do you dislike or like food that is / [Item]"*
+* **Response Scale (1 to 7):**
+  - `1` = Extremely Dislike (Stata: *Very Much Dislike*)
+  - `2` = Very Much Dislike (Stata: *Dislike*)
+  - `3` = Somewhat Dislike
+  - `4` = Neither Like Nor Dislike
+  - `5` = Somewhat Like
+  - `6` = Very Much Like (Stata: *Like*)
+  - `7` = Extremely Like (Stata: *Very Much Like*)
+
+### Items:
+- **`light_airy_fresh_delicate`** *(Renamed to `light`)*: "Light, airy, fresh, delicate"
+- **`rich_hearty_filling_savory`** *(Renamed to `rich`)*: "Rich, hearty, filling, savory"
+- **`exotic_authentic`** *(Renamed to `authentic`)*: "Exotic and authentic"
+- **`conventional_familiar`** *(Renamed to `familiar`)*: "Conventional and familiar"
+- **`too_large_portion`** *(Renamed to `big`)*: "Too large of a portion"
+- **`too_small_portion`** *(Renamed to `small`)*: "Too small of a portion"
+- **`caviar`**: Caviar
+- **`oysters`**: Oysters
+- **`chicken_nuggets`** *(Renamed to `nuggets`)*: Chicken Nuggets
+- **`cheeseburger`**: Cheeseburger
+- **`sourdough`**: Sourdough Bread
+- **`avocado`**: Avocado
+
+---
+
+## Foodies Cuisine Authenticity Block (`Cuisine Authenticity`)
+
+* **Question Text:** *"Is each type of cuisine below best prepared using 'a traditional family recipe cooked by an elder at home' or 'a developed recipe by a professional chef cooked at a high-end restaurant'?"*
+* **Response Scale (1 to 7):**
+  - `1` = A Traditional Family Recipe Cooked by an Elder at Home
+  - `2` = Lean more to this side
+  - `3` = Lean somewhat to this side
+  - `4` = Equal/One not better than the other
+  - `5` = Lean somewhat to this side
+  - `6` = Lean more to this side
+  - `7` = A Developed Recipe by a Professional Chef at a High-End Restaurant
+
+### 15 Cuisines Rated:
+`japanese`, `french`, `italian`, `mexican`, `moroccan`, `korean`, `peruvian`, `native_american` (Stata: *american Indian/Native American*), `swedish`, `pakistani`, `ethiopian`, `vietnamese`, `nigerian`, `jamaican`, `lebanese`.
+
+### Analytical Recoding:
+In `recode.dat.R`, these 15 variables are transformed into factors with `.f` suffixes:
+- **`"Trad"` (Traditional Elder)**: Score `< 3`
+- **`"Not Sure"` (Indifferent)**: Score `3` to `5`
+- **`"High-End"` (Professional Chef)**: Score `> 5`
+
+---
+
+## Attitudes & Ideology Block (`Fields`)
+
+* **Response Scale (1 to 7):**
+  - `1` = Strongly disagree
+  - `2` = Disagree
+  - `3` = Somewhat disagree
+  - `4` = Neither agree nor disagree
+  - `5` = Somewhat agree
+  - `6` = Agree
+  - `7` = Strongly agree
+
+### Items & Renamed Formats:
+
+- **`uniquetastes`** *(Renamed to `distinction_y`)*: *"I like it when my tastes are different or unique from other people"*
+- **`bestartpolitical`** *(Renamed to `artpol_y`)*: *"The best art has a clear political point of view."*
+- **`bestartmoral`** *(Renamed to `artmoral_y`)*: *"The best art has a clear moral point of view."*
+- **`bestartnotmoral`** *(Renamed to `artmoral_n`)*: *"The best art makes us think about what is right and wrong in new ways."*
+- **`bestartnotpolitical`** *(Renamed to `artpol_n`)*: *"The best art doesn't pick political sides and makes us think about politics in new ways."*
+- **`cancelledartists`** *(Renamed to `cancel_y`)*: *"It's wrong to appreciate music or art created by people who act poorly or hold objectionable beliefs."*
+- **`polarized`** *(Renamed to `avoidpol_y`)*: *"I avoid engaging with art and music created by those who publicly endorse political candidates and policies that I do not support."*
+- **`enjoyabledifficult`** *(Renamed to `aesthetic_y`)*: *"On a scale from 'entirely entertaining and enjoyable' to 'entirely difficult and challenging' what kind of art and media do you like?"*
+- **`ironic`** *(Renamed to `ironic_y`)*: *"How frequently do you ironically consume music, TV shows, or movies?"*
+- **`comedy`** *(Renamed to `serious_y`)*: *"Thinking about comedy, on a scale from 'The only goal is to create laughter' to 'The only goal is to say something' what do you think the goal is for the best comedy?"*
+
+---
+
+## Political Animus Block (`Animus`)
+
+* **Question Text:** *"Please read the following statements and indicate your agreement or disagreement about [Democrats / Republicans]."*
+* **Response Scale (1 to 7):**
+  - `1` = Strongly disagree
+  - `2` = Moderately disagree
+  - `3` = Slightly disagree
+  - `4` = Neither Agree/Disagree
+  - `5` = Slightly Agree
+  - `6` = Moderately Agree
+  - `7` = Strongly Agree
+
+### Items:
+- **`democrats_1` to `democrats_6`** (Democrats are...):
+  - `democrats_1`: Intelligent
+  - `democrats_2`: Open-minded
+  - `democrats_3`: Generous
+  - `democrats_4`: Hypocritical
+  - `democrats_5`: Selfish
+  - `democrats_6`: Mean
+- **`republicans_1` to `republicans_6`** (Republicans are...):
+  - `republicans_1`: Intelligent
+  - `republicans_2`: Open-minded
+  - `republicans_3`: Generous
+  - `republicans_4`: Hypocritical
+  - `republicans_5`: Selfish
+  - `republicans_6`: Mean
+
+---
+
+## Identity & Cosmopolitanism Block (`cosmo`)
+
+* **Question Text:** *"How much do you think your identity and sense of self are influenced by:"*
+* **Response Scale (1 to 7):**
+  - `1` = Not at all influential
+  - `2` = Slightly influential
+  - `3` = Somewhat influential
+  - `4` = Moderately influential
+  - `5` = Quite influential
+  - `6` = Very influential
+  - `7` = Extremely influential
+
+### Items:
+- `hood_city_town`: Your neighborhood, city, or town
+- `state_region`: Your state or region of the country
+- `nation`: The nation or country you live in or are from
+- `continent`: The continent you live in or are from
+- `global_citizen`: The whole globe; a citizen of the world
+
+---
+
+## Social Networks Blocks (`Weak Ties` and `Strong Ties`)
+
+### Definition of Weak Ties:
+*"We're now going to ask you some questions about all the people that you are acquainted with, meaning that you know their name and would stop and talk at least for a moment if you ran into the person on the street or in a shopping mall."*
+
+### Definition of Strong Ties:
+*"We're now going to ask you some questions about all the people that you are close with and trust. For example, good friends, people you discuss important matters with, or trust for advice, or trust with money."*
+
+* **Response Scale (1 to 5):**
+  - `1` = None/0 people
+  - `2` = 1 person
+  - `3` = 2 to 5 people
+  - `4` = 6 to 10 people
+  - `5` = more than 10 people
+
+### 18 Network Diversity Categories (for both `_weak` and `_strong` variables):
+- `KnowLGBTQ_weak` / `KnowLGBTQ_strong`: Are gay, lesbian, queer, or transgender
+- `KnowLotsaChurch_weak` / `KnowLotsaChurch_strong`: Attend religious services regularly
+- `KnowLittleChurch_weak` / `KnowLittleChurch_strong`: Attend religious services rarely/never
+- `KnowVeryLib_weak` / `KnowVeryLib_strong`: Are strongly liberal
+- `KnowVeryCons_weak` / `KnowVeryCons_strong`: Are strongly conservative
+- `KnowAsianppl_weak` / `KnowAsianppl_strong`: Are Asian or Asian American
+- `KnowHispanixppl_weak` / `KnowHispanixppl_strong`: Are Hispanic, Latino, or Latinx
+- `KnowBlackppl_weak` / `KnowBlackppl_strong`: Are Black or African American
+- `KnowWhiteppl_weak` / `KnowWhiteppl_strong`: Are White
+- `Know2ndHome_weak` / `Know2ndHome_strong`: Own a second home
+- `KnowBornElsewhere_weak` / `KnowBornElsewhere_strong`: Born in or from a country outside the US
+- `KnowMENAppl_weak` / `KnowMENAppl_strong`: Of Middle Eastern or North African (MENA) descent
+- `KnowHawaiiPI_weak` / `KnowHawaiiPI_strong`: Are Native Hawaiian or Pacific Islander
+- `KnowAmIndianppl_weak` / `KnowAmIndianppl_strong`: Are American Indian or Alaska Native
+- `KnowCityppl_weak` / `KnowCityppl_strong`: Live in a large city (over 250,000)
+- `KnowRuralppl_weak` / `KnowRuralppl_strong`: Live in a rural area or small town (less than 50,000)
+- `Knowwomen_weak` / `Knowwomen_strong`: Are women
+- `Knowmen_weak` / `Knowmen_strong`: Are men
+
+---
+
+## Demographics Block (`Demographics`)
+
+### Core Background Indicators:
+
+- **`gender`**: Respondent's gender identity.
+  - `1` = Woman
+  - `2` = Man
+  - `3` = Non-binary / Trans
+  - *Analytical Recoding:* Transformed to factor level `"gend.f"` with reference group `"Man"`.
+- **`sexuality`**: Sexual orientation.
+  - `0` = Straight (Heterosexual or straight)
+  - `1` = LGBQA (Gay, Lesbian, Bisexual, Queer, or other self-described sexual minority)
+- **`educ`**: Respondent's completed education level.
+  - `1` = Less than 9th grade
+  - `2` = Some high school (no degree)
+  - `3` = High school graduate (or equivalent)
+  - `4` = Some college (no degree)
+  - `5` = Associate's degree
+  - `6` = Bachelor's degree (BA/BS)
+  - `7` = Graduate/Professional degree
+  - *Analytical Recoding:* Grouped into `"educ.f"` (5 broader levels).
+- **`parented`** *(Renamed to `peduc`)*: Highest level of education completed by either parent. Same scale as `educ`.
+- **`child_arts`** *(Renamed to `arts`)*: Childhood exposure to the arts. Rated from `1` (Very Low) to `7` (Very High).
+- **`income`**: Total annual household income.
+  - `1` = Less than $10,000
+  - `2` = $10,000 to $19,999
+  - `3` = $20,000 to $29,999
+  - `4` = $30,000 to $39,999
+  - `5` = $40,000 to $49,999
+  - `6` = $50,000 to $59,999
+  - `7` = $60,000 to $69,999
+  - `8` = $70,000 to $79,999
+  - `9` = $80,000 to $89,999
+  - `10` = $90,000 to $99,999
+  - `11` = $100,000 to $149,999
+  - `12` = $150,000 or more
+  - `13` = Missing / Prefer not to say
+  - *Analytical Recoding:* Grouped into `"inc.f"` (12 categories) and `"inq.f"` (income quintiles).
+- **`social`**: Social issues political ideology. Scale from `1` (Very Liberal) to `7` (Very Conservative).
+- **`economic`**: Economic issues political ideology. Scale from `1` (Very Liberal) to `7` (Very Conservative).
+- **`urban_rural`** *(Renamed to `city`)*: Description of residential location.
+  - `1` = Open country
+  - `2` = Farm
+  - `3` = Town to small city
+  - `4` = Medium city
+  - `5` = Suburb of a large city
+  - `6` = Large city
+  - *Analytical Recoding:* Grouped into `"city.f"` (Small Town, Midsized Town, Big City).
+- **`attend_service`** *(Renamed to `relig`)*: Frequency of religious service attendance.
+  - `1` = Never
+  - `2` = Very rarely
+  - `3` = Rarely
+  - `4` = Sometimes
+  - `5` = Somewhat frequently
+  - `6` = Very frequently
+  - `7` = Always
+- **`age2`** *(Renamed to `age`)*: Continuous respondent age calculated from birth year (Q3). Grouped into factor `"age.f"` (8 cohorts).
+- **`race`**: Raw multiple choice race categories (re-categorized to `"race.f"`).
+
+### Additional Background & Institutional Indicators:
+- `zipcode`: Five-digit US zip code of residency.
+- `countries`: Total count of countries visited.
+- `bornagain`: Born-again Christian status (`1` = Yes, `2` = No).
+- `working`: Employment/work status category.
+- `govtorno`: Indicates public/government sector (`1`) vs private/other sector (`2`) employment.
+- `field`: Industry field of employment.
+- `field_20_text`: Open-text entry for write-in occupational fields.

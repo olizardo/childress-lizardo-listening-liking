@@ -4,7 +4,9 @@
       "*.R": "allow",
       "*.md": "allow",
       "*.qmd": "allow",
-      "*.sh": "allow"
+      "*.sh": "allow",
+      "*.bib": "allow",
+      "*/.gitignore": "allow"
     },
     "bash": {
       "Rscript *": "allow",
@@ -14,13 +16,44 @@
       "uniq *": "allow",
       "find *": "allow",
       "xargs *": "allow",
-      "quarto render *": "allow"
+      "quarto render *": "allow",
+      "ssh *": "allow",
+      "scp *": "allow",
+      "nproc *": "allow",
+      "free *": "allow",
+      "true *": "allow",
+      "rsync *": "allow",
+      "pdftotext *": "allow",
+      "head *": "allow",
+      "mkdir *": "allow",
+      "cp *": "allow",
+      "ls *": "allow",
+      "git log *": "allow",
+      "git fetch *": "allow",
+      "git branch *": "allow",
+      "git stash list *": "allow",
+      "git push *": "allow",
+      "git remote *": "allow",
+      "gh auth status *": "allow",
+      "git config --get user.name *": "allow",
+      "git config --get user.email *": "allow",
+      "quarto *": "allow",
+      "echo *": "allow",
+      "history *": "allow",
+      "tail *": "allow"
     },
     "executeCode": {
       "*": "allow"
     },
     "external_directory": {
-      "/home/omarlizardo/.config/agents/*": "allow"
+      "/home/omarlizardo/.config/agents/*": "allow",
+      "/home/omarlizardo/projects/omnivorous-taste-category-mediated-performance/Scripts/Plotting_and_QA/*": "allow",
+      "/home/omarlizardo/projects/omnivorous-taste-category-mediated-performance/Functions/*": "allow",
+      "/home/omarlizardo/projects/cuisine-authenticity-taste/docs/*": "allow",
+      "/home/omarlizardo/.ssh/*": "allow"
+    },
+    "webfetch": {
+      "https://docs.google.com/*": "allow"
     }
   },
   "sandbox": {

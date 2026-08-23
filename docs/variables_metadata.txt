@@ -1,0 +1,345 @@
+Variable: fancy_restaurant 
+  Stata Label: Practice 
+  Categories:
+     1 = not in past year 
+     2 = 1 or 2 past year 
+     3 = 3-5 past year 
+     4 = 6-11 past year 
+     5 = 12-23 past year 
+     6 = 24-51 past year 
+     7 = 52+ past year 
+=========================================
+
+Variable: fast_food 
+  Stata Label: Practice 
+  Categories:
+     1 = not in past year 
+     2 = 1 or 2 past year 
+     3 = 3-5 past year 
+     4 = 6-11 past year 
+     5 = 12-23 past year 
+     6 = 24-51 past year 
+     7 = 52+ past year 
+=========================================
+
+Variable: light 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: rich 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: authentic 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: familiar 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: big 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: small 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: caviar 
+  Stata Label: Types of Food 
+  Categories:
+     1 = Very Much Dislike 
+     2 = Dislike 
+     3 = Somewhat Dislike 
+     4 = Neither Like nor Dislike 
+     5 = Somewhat Like 
+     6 = Like 
+     7 = Very Much Like 
+=========================================
+
+Variable: oysters 
+  Stata Label: Types of Food 
+  Categories:
+     1 = Very Much Dislike 
+     2 = Dislike 
+     3 = Somewhat Dislike 
+     4 = Neither Like nor Dislike 
+     5 = Somewhat Like 
+     6 = Like 
+     7 = Very Much Like 
+=========================================
+
+Variable: nuggets 
+  Stata Label: 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: cheeseburger 
+  Stata Label: Types of Food 
+  Categories:
+     1 = Very Much Dislike 
+     2 = Dislike 
+     3 = Somewhat Dislike 
+     4 = Neither Like nor Dislike 
+     5 = Somewhat Like 
+     6 = Like 
+     7 = Very Much Like 
+=========================================
+
+Variable: sourdough 
+  Stata Label: Types of Food 
+  Categories:
+     1 = Very Much Dislike 
+     2 = Dislike 
+     3 = Somewhat Dislike 
+     4 = Neither Like nor Dislike 
+     5 = Somewhat Like 
+     6 = Like 
+     7 = Very Much Like 
+=========================================
+
+Variable: avocado 
+  Stata Label: Types of Food 
+  Categories:
+     1 = Very Much Dislike 
+     2 = Dislike 
+     3 = Somewhat Dislike 
+     4 = Neither Like nor Dislike 
+     5 = Somewhat Like 
+     6 = Like 
+     7 = Very Much Like 
+=========================================
+
+Variable: japanese 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: french 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: italian 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: mexican 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: moroccan 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: korean 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: peruvian 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: native_american 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: swedish 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: pakistani 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: ethiopian 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: vietnamese 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: nigerian 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: jamaican 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: lebanese 
+  Stata Label: Foodies 
+  Categories:
+     1 = Traditional Recipe by Elder at Home 
+     4 = Equal/One not better than other 
+     7 = Developed by Chef at Restaurant 
+=========================================
+
+Variable: age2 
+  Stata Label: age in years 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: income 
+  Stata Label: income 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: educ 
+  Stata Label: education 
+  Categories:
+     1 = lt 9th grade 
+     2 = some hs 
+     3 = hs grad 
+     4 = some coll 
+     5 = associates 
+     6 = BA 
+     7 = grad deg 
+=========================================
+
+Variable: parented 
+  Stata Label: parent highest ed level 
+  Categories:
+     1 = lt 9th grade 
+     2 = some hs 
+     3 = hs grad 
+     4 = some coll 
+     5 = associates 
+     6 = BA 
+     7 = grad deg 
+=========================================
+
+Variable: child_arts 
+  Stata Label: childhood arts exposure 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: urban_rural 
+  Stata Label: Rural to Urban 
+  Categories:
+     1 = open country 
+     2 = farm 
+     3 = town to small city 
+     4 = medium city 
+     5 = suburb of large city 
+     6 = large city 
+=========================================
+
+Variable: attend_service 
+  Stata Label: attend services 
+  Categories:
+     1 = never 
+     2 = very rarely 
+     3 = rarely 
+     4 = sometimes 
+     5 = somewhat freq 
+     6 = very freq 
+     7 = always 
+=========================================
+
+Variable: race 
+  Stata Label: Q4 
+  Categories: Numeric / Continuous / Character
+=========================================
+
+Variable: sexuality 
+  Stata Label: sexuality cleaned 
+  Categories:
+     0 = Straight 
+     1 = LGBQA 
+=========================================
+
+Variable: gender 
+  Stata Label: woman/man/trans 
+  Categories:
+     1 = Woman 
+     2 = Man 
+     3 = Non-binary/Trans 
+=========================================
+
+Variable: social 
+  Stata Label: social issues 
+  Categories:
+     1 = very liberal 
+     2 = liberal 
+     3 = slight liberal 
+     4 = centrist 
+     5 = slight conserv 
+     6 = conserv 
+     7 = very conserv 
+=========================================
+
+Variable: economic 
+  Stata Label: economic issues 
+  Categories:
+     1 = very liberal 
+     2 = liberal 
+     3 = slight liberal 
+     4 = centrist 
+     5 = slight conserv 
+     6 = conserv 
+     7 = very conserv 
+=========================================
+

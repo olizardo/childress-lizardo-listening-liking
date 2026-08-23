@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Omar Lizardo">
+<meta name="dcterms.date" content="2026-06-24">
+
+<title>Data Codebook &amp; Reference Manual</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="codebook_files/libs/clipboard/clipboard.min.js"></script>
+<script src="codebook_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="codebook_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="codebook_files/libs/quarto-html/popper.min.js"></script>
+<script src="codebook_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="codebook_files/libs/quarto-html/anchor.min.js"></script>
+<link href="codebook_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="codebook_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="codebook_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="codebook_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="codebook_files/libs/bootstrap/bootstrap-67270d1595a62d14f123c043d4fb2f18.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction-data-cleaning-audit" id="toc-introduction-data-cleaning-audit" class="nav-link active" data-scroll-target="#introduction-data-cleaning-audit"><span class="header-section-number">1</span> Introduction &amp; Data Cleaning Audit</a>
+  <ul class="collapse">
+  <li><a href="#data-cleaning-hygiene-audit" id="toc-data-cleaning-hygiene-audit" class="nav-link" data-scroll-target="#data-cleaning-hygiene-audit"><span class="header-section-number">1.1</span> Data Cleaning &amp; Hygiene Audit</a></li>
+  </ul></li>
+  <li><a href="#data-loading-reference" id="toc-data-loading-reference" class="nav-link" data-scroll-target="#data-loading-reference"><span class="header-section-number">2</span> Data Loading Reference</a>
+  <ul class="collapse">
+  <li><a href="#loading-in-r" id="toc-loading-in-r" class="nav-link" data-scroll-target="#loading-in-r"><span class="header-section-number">2.1</span> Loading in R</a></li>
+  <li><a href="#loading-in-python" id="toc-loading-in-python" class="nav-link" data-scroll-target="#loading-in-python"><span class="header-section-number">2.2</span> Loading in Python</a></li>
+  </ul></li>
+  <li><a href="#global-variables-directory-table" id="toc-global-variables-directory-table" class="nav-link" data-scroll-target="#global-variables-directory-table"><span class="header-section-number">3</span> Global Variables Directory Table</a></li>
+  <li><a href="#detailed-survey-blocks-variable-specifications" id="toc-detailed-survey-blocks-variable-specifications" class="nav-link" data-scroll-target="#detailed-survey-blocks-variable-specifications"><span class="header-section-number">4</span> Detailed Survey Blocks &amp; Variable Specifications</a>
+  <ul class="collapse">
+  <li><a href="#art-judgments-block-isitart" id="toc-art-judgments-block-isitart" class="nav-link" data-scroll-target="#art-judgments-block-isitart"><span class="header-section-number">4.1</span> Art Judgments Block (<code>IsItArt</code>)</a>
+  <ul class="collapse">
+  <li><a href="#items" id="toc-items" class="nav-link" data-scroll-target="#items"><span class="header-section-number">4.1.1</span> Items:</a></li>
+  </ul></li>
+  <li><a href="#aesthetic-judgments-block-photo" id="toc-aesthetic-judgments-block-photo" class="nav-link" data-scroll-target="#aesthetic-judgments-block-photo"><span class="header-section-number">4.2</span> Aesthetic Judgments Block (<code>Photo</code>)</a>
+  <ul class="collapse">
+  <li><a href="#photographic-items" id="toc-photographic-items" class="nav-link" data-scroll-target="#photographic-items"><span class="header-section-number">4.2.1</span> 20 Photographic Items:</a></li>
+  </ul></li>
+  <li><a href="#self-presentation-block-fashion" id="toc-self-presentation-block-fashion" class="nav-link" data-scroll-target="#self-presentation-block-fashion"><span class="header-section-number">4.3</span> Self-Presentation Block (<code>Fashion</code>)</a>
+  <ul class="collapse">
+  <li><a href="#aesthetic-descriptors" id="toc-aesthetic-descriptors" class="nav-link" data-scroll-target="#aesthetic-descriptors"><span class="header-section-number">4.3.1</span> 10 Aesthetic Descriptors:</a></li>
+  </ul></li>
+  <li><a href="#cultural-practices-block-practice" id="toc-cultural-practices-block-practice" class="nav-link" data-scroll-target="#cultural-practices-block-practice"><span class="header-section-number">4.4</span> Cultural Practices Block (<code>Practice</code>)</a>
+  <ul class="collapse">
+  <li><a href="#practice-activities" id="toc-practice-activities" class="nav-link" data-scroll-target="#practice-activities"><span class="header-section-number">4.4.1</span> 21 Practice Activities:</a></li>
+  </ul></li>
+  <li><a href="#bourdieu-food-block-types-of-food" id="toc-bourdieu-food-block-types-of-food" class="nav-link" data-scroll-target="#bourdieu-food-block-types-of-food"><span class="header-section-number">4.5</span> Bourdieu Food Block (<code>Types of Food</code>)</a>
+  <ul class="collapse">
+  <li><a href="#items-1" id="toc-items-1" class="nav-link" data-scroll-target="#items-1"><span class="header-section-number">4.5.1</span> Items:</a></li>
+  </ul></li>
+  <li><a href="#foodies-cuisine-authenticity-block-cuisine-authenticity" id="toc-foodies-cuisine-authenticity-block-cuisine-authenticity" class="nav-link" data-scroll-target="#foodies-cuisine-authenticity-block-cuisine-authenticity"><span class="header-section-number">4.6</span> Foodies Cuisine Authenticity Block (<code>Cuisine Authenticity</code>)</a>
+  <ul class="collapse">
+  <li><a href="#cuisines-rated" id="toc-cuisines-rated" class="nav-link" data-scroll-target="#cuisines-rated"><span class="header-section-number">4.6.1</span> 15 Cuisines Rated:</a></li>
+  <li><a href="#analytical-recoding" id="toc-analytical-recoding" class="nav-link" data-scroll-target="#analytical-recoding"><span class="header-section-number">4.6.2</span> Analytical Recoding:</a></li>
+  </ul></li>
+  <li><a href="#attitudes-ideology-block-fields" id="toc-attitudes-ideology-block-fields" class="nav-link" data-scroll-target="#attitudes-ideology-block-fields"><span class="header-section-number">4.7</span> Attitudes &amp; Ideology Block (<code>Fields</code>)</a>
+  <ul class="collapse">
+  <li><a href="#items-renamed-formats" id="toc-items-renamed-formats" class="nav-link" data-scroll-target="#items-renamed-formats"><span class="header-section-number">4.7.1</span> Items &amp; Renamed Formats:</a></li>
+  </ul></li>
+  <li><a href="#political-animus-block-animus" id="toc-political-animus-block-animus" class="nav-link" data-scroll-target="#political-animus-block-animus"><span class="header-section-number">4.8</span> Political Animus Block (<code>Animus</code>)</a>
+  <ul class="collapse">
+  <li><a href="#items-2" id="toc-items-2" class="nav-link" data-scroll-target="#items-2"><span class="header-section-number">4.8.1</span> Items:</a></li>
+  </ul></li>
+  <li><a href="#identity-cosmopolitanism-block-cosmo" id="toc-identity-cosmopolitanism-block-cosmo" class="nav-link" data-scroll-target="#identity-cosmopolitanism-block-cosmo"><span class="header-section-number">4.9</span> Identity &amp; Cosmopolitanism Block (<code>cosmo</code>)</a>
+  <ul class="collapse">
+  <li><a href="#items-3" id="toc-items-3" class="nav-link" data-scroll-target="#items-3"><span class="header-section-number">4.9.1</span> Items:</a></li>
+  </ul></li>
+  <li><a href="#social-networks-blocks-weak-ties-and-strong-ties" id="toc-social-networks-blocks-weak-ties-and-strong-ties" class="nav-link" data-scroll-target="#social-networks-blocks-weak-ties-and-strong-ties"><span class="header-section-number">4.10</span> Social Networks Blocks (<code>Weak Ties</code> and <code>Strong Ties</code>)</a>
+  <ul class="collapse">
+  <li><a href="#definition-of-weak-ties" id="toc-definition-of-weak-ties" class="nav-link" data-scroll-target="#definition-of-weak-ties"><span class="header-section-number">4.10.1</span> Definition of Weak Ties:</a></li>
+  <li><a href="#definition-of-strong-ties" id="toc-definition-of-strong-ties" class="nav-link" data-scroll-target="#definition-of-strong-ties"><span class="header-section-number">4.10.2</span> Definition of Strong Ties:</a></li>
+  <li><a href="#network-diversity-categories-for-both-_weak-and-_strong-variables" id="toc-network-diversity-categories-for-both-_weak-and-_strong-variables" class="nav-link" data-scroll-target="#network-diversity-categories-for-both-_weak-and-_strong-variables"><span class="header-section-number">4.10.3</span> 18 Network Diversity Categories (for both <code>_weak</code> and <code>_strong</code> variables):</a></li>
+  </ul></li>
+  <li><a href="#demographics-block-demographics" id="toc-demographics-block-demographics" class="nav-link" data-scroll-target="#demographics-block-demographics"><span class="header-section-number">4.11</span> Demographics Block (<code>Demographics</code>)</a>
+  <ul class="collapse">
+  <li><a href="#core-background-indicators" id="toc-core-background-indicators" class="nav-link" data-scroll-target="#core-background-indicators"><span class="header-section-number">4.11.1</span> Core Background Indicators:</a></li>
+  <li><a href="#additional-background-institutional-indicators" id="toc-additional-background-institutional-indicators" class="nav-link" data-scroll-target="#additional-background-institutional-indicators"><span class="header-section-number">4.11.2</span> Additional Background &amp; Institutional Indicators:</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Codebook &amp; Reference Manual</h1>
+<p class="subtitle lead">Cuisine Authenticity, Culinary Tastes, and Social Distinction Study</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Omar Lizardo </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 24, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This codebook serves as the definitive reference manual for the cleaned dataset <code>cultdat.dta</code> used in the study of culinary tastes, authenticity, and social distinction.</p>
+</div>
+</div>
+<section id="introduction-data-cleaning-audit" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction &amp; Data Cleaning Audit</h1>
+<p>This dataset was collected via an online survey administered to United States respondents using the Prolific platform. It contains detailed assessments of cultural tastes, aesthetic preferences, daily practices, cuisine judgments, and socioeconomic background indicators.</p>
+<section id="data-cleaning-hygiene-audit" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="data-cleaning-hygiene-audit"><span class="header-section-number">1.1</span> Data Cleaning &amp; Hygiene Audit</h2>
+<p>Following a rigorous hygiene audit, several columns that were merely <strong>derivatives of other variables or the products of previous statistical analyses</strong> (e.g., pre-calculated index averages, latent classes, and redundant reverse-codings) were systematically eliminated from the primary data file. This ensures that the dataset contains only primary raw measurements and prevents data duplication.</p>
+<p>The following <strong>12 derived variables</strong> were eliminated from the dataset:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable Name</th>
+<th style="text-align: left;">Stata Label</th>
+<th style="text-align: left;">Type of Derivative</th>
+<th style="text-align: left;">Original Sources / Components</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>photo_lca_class</code></td>
+<td style="text-align: left;">LCA Classes from R</td>
+<td style="text-align: left;">Previous statistical model output</td>
+<td style="text-align: left;">Latent Class Analysis (LCA) classes fitted on <code>landscape:snake</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>home_count</code></td>
+<td style="text-align: left;">Foodies</td>
+<td style="text-align: left;">Aggregate summary count</td>
+<td style="text-align: left;">Number of cuisines rated as “Traditional Elder” (1–2)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>chef_count</code></td>
+<td style="text-align: left;">Foodies</td>
+<td style="text-align: left;">Aggregate summary count</td>
+<td style="text-align: left;">Number of cuisines rated as “Professional Chef” (6–7)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>r_hood_city_town</code></td>
+<td style="text-align: left;">Reverse-coded Cosmo</td>
+<td style="text-align: left;">Direct linear transformation</td>
+<td style="text-align: left;"><code>8 - hood_city_town</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>r_state_region</code></td>
+<td style="text-align: left;">Reverse-coded Cosmo</td>
+<td style="text-align: left;">Direct linear transformation</td>
+<td style="text-align: left;"><code>8 - state_region</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>r_nation</code></td>
+<td style="text-align: left;">Reverse-coded Cosmo</td>
+<td style="text-align: left;">Direct linear transformation</td>
+<td style="text-align: left;"><code>8 - nation</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>cosmopolitanism</code></td>
+<td style="text-align: left;">Cosmo Index</td>
+<td style="text-align: left;">Multi-item average index</td>
+<td style="text-align: left;">Mean of <code>hood_city_town</code>, <code>state_region</code>, <code>nation</code>, <code>continent</code>, <code>global_citizen</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>poli</code></td>
+<td style="text-align: left;">Econ + Social/2</td>
+<td style="text-align: left;">Multi-item average index</td>
+<td style="text-align: left;">Mean of <code>social</code> and <code>economic</code> political ideology</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>educ2</code></td>
+<td style="text-align: left;">educ 4 categories</td>
+<td style="text-align: left;">Collapsed categorical variable</td>
+<td style="text-align: left;">Grouping of <code>educ</code> into 4 categories</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>race2</code></td>
+<td style="text-align: left;">race cleaned</td>
+<td style="text-align: left;">Grouping and categorization</td>
+<td style="text-align: left;">Cleaned ethnoracial categories</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>race3</code></td>
+<td style="text-align: left;">race trimmed</td>
+<td style="text-align: left;">Grouping and categorization</td>
+<td style="text-align: left;">Cleaned ethnoracial categories (trimmed)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>religion2</code></td>
+<td style="text-align: left;">religion cleaned</td>
+<td style="text-align: left;">Grouping and categorization</td>
+<td style="text-align: left;">Cleaned religious affiliations</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To support downstream analyses that rely on these index values (such as <code>poli</code> for political classification), the recoding script <code>[recode.dat.R](recode.dat.R)</code> has been optimized to compute these indices <strong>on the fly</strong> during the data-loading phase, preserving full compatibility without cluttering the primary dataset.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="data-loading-reference" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data Loading Reference</h1>
+<p>The cleaned dataset is stored as a Stata dataset (<code>.dta</code> format) at <code>[dat/cultdat.dta](dat/cultdat.dta)</code>.</p>
+<section id="loading-in-r" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="loading-in-r"><span class="header-section-number">2.1</span> Loading in R</h2>
+<p>To load the cleaned dataset and apply the optimized recoding workflow in R, use the following code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Source the optimized recoding function</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">here</span>(<span class="st">"recode.dat.R"</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Load and recode the dataset</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">recode.dat</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="loading-in-python" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="loading-in-python"><span class="header-section-number">2.2</span> Loading in Python</h2>
+<p>To load the cleaned dataset in Python using Pandas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the Stata dataset</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_stata(<span class="st">'dat/cultdat.dta'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview the dimensions</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Loaded </span><span class="sc">{</span>df<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> rows and </span><span class="sc">{</span>df<span class="sc">.</span>shape[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> columns."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="global-variables-directory-table" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Global Variables Directory Table</h1>
+<p>The table below lists all 168 primary variables currently stored in the cleaned <code>cultdat.dta</code> dataset.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable Name</th>
+<th style="text-align: left;">Survey Block</th>
+<th style="text-align: left;">Stata Label / Concept</th>
+<th style="text-align: left;">Response Scale / Type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>crayon</code></td>
+<td style="text-align: left;">IsItArt</td>
+<td style="text-align: left;">Is image of a crayon art?</td>
+<td style="text-align: left;">1 (Definitely not) to 7 (Definitely yes)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>pawpatrok</code></td>
+<td style="text-align: left;">IsItArt</td>
+<td style="text-align: left;">Is image of Paw Patrol art?</td>
+<td style="text-align: left;">1 (Definitely not) to 7 (Definitely yes)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>rorshach</code></td>
+<td style="text-align: left;">IsItArt</td>
+<td style="text-align: left;">Is image of a Rorschach blot art?</td>
+<td style="text-align: left;">1 (Definitely not) to 7 (Definitely yes)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>lastsupper</code></td>
+<td style="text-align: left;">IsItArt</td>
+<td style="text-align: left;">Is image of the Last Supper art?</td>
+<td style="text-align: left;">1 (Definitely not) to 7 (Definitely yes)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>landscape</code> to <code>snake</code> <em>(20 items)</em></td>
+<td style="text-align: left;">Photo</td>
+<td style="text-align: left;">Photo items aesthetic judgment</td>
+<td style="text-align: left;">1 (Beautiful), 2 (Interesting), 3 (Meaningless), 4 (Ugly)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>comfortable</code> to <code>edgy</code> <em>(10 items)</em></td>
+<td style="text-align: left;">Fashion</td>
+<td style="text-align: left;">Style of dress terms self-description</td>
+<td style="text-align: left;">1 (Not at all like me) to 5 (Very much like me)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>museum</code> to <code>go_to_festival</code> <em>(21 items)</em></td>
+<td style="text-align: left;">Practice</td>
+<td style="text-align: left;">Cultural participation and practices</td>
+<td style="text-align: left;">1 (0 times/not in past year) to 7 (52 or more times)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>light_airy_fresh_delicate</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Taste preference: Light/airy/fresh/delicate</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>rich_hearty_filling_savory</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Taste preference: Rich/hearty/filling/savory</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>exotic_authentic</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Taste preference: Exotic/authentic</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>conventional_familiar</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Taste preference: Conventional/familiar</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>too_large_portion</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Taste preference: Too large portion</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>too_small_portion</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Taste preference: Too small portion</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>caviar</code>, <code>oysters</code>, <code>chicken_nuggets</code>, <code>cheeseburger</code>, <code>sourdough</code>, <code>avocado</code></td>
+<td style="text-align: left;">Bourdieu Food</td>
+<td style="text-align: left;">Individual food preferences</td>
+<td style="text-align: left;">1 (Extremely Dislike) to 7 (Extremely Like)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>japanese</code> to <code>lebanese</code> <em>(15 items)</em></td>
+<td style="text-align: left;">Foodies</td>
+<td style="text-align: left;">Best prepared: home vs chef-restaurant</td>
+<td style="text-align: left;">1 (Traditional Elder at Home) to 7 (Professional Chef)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>uniquetastes</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“I like it when my tastes are different”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bestartpolitical</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“The best art has a clear political view”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bestartmoral</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“The best art has a clear moral view”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bestartnotmoral</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“The best art makes us think about right/wrong”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bestartnotpolitical</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“The best art doesn’t pick political sides”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>cancelledartists</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“It’s wrong to appreciate art by bad actors”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>polarized</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">“I avoid art/music from opposing political views”</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>enjoyabledifficult</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">Art style preference: entertaining vs difficult</td>
+<td style="text-align: left;">1 (Entirely entertaining) to 7 (Entirely difficult)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ironic</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">Frequency of ironic media consumption</td>
+<td style="text-align: left;">1 (Never at all) to 7 (All the time)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>comedy</code></td>
+<td style="text-align: left;">Fields</td>
+<td style="text-align: left;">Goal of best comedy: laughter vs statement</td>
+<td style="text-align: left;">1 (Only create laughter) to 7 (Only say something)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>democrats_1</code> to <code>democrats_6</code></td>
+<td style="text-align: left;">Animus</td>
+<td style="text-align: left;">Democrat character traits evaluations</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>republicans_1</code> to <code>republicans_6</code></td>
+<td style="text-align: left;">Animus</td>
+<td style="text-align: left;">Republican character traits evaluations</td>
+<td style="text-align: left;">1 (Strongly disagree) to 7 (Strongly agree)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hood_city_town</code> to <code>global_citizen</code></td>
+<td style="text-align: left;">Cosmo</td>
+<td style="text-align: left;">Influence of local vs global on identity</td>
+<td style="text-align: left;">1 (Not at all influential) to 7 (Extremely influential)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Know..._weak</code> <em>(18 items)</em></td>
+<td style="text-align: left;">Weak Ties</td>
+<td style="text-align: left;">Number of acquaintances in specific categories</td>
+<td style="text-align: left;">1 (None/0 people) to 5 (More than 10 people)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Know..._strong</code> <em>(18 items)</em></td>
+<td style="text-align: left;">Strong Ties</td>
+<td style="text-align: left;">Number of close/trusted ties in specific categories</td>
+<td style="text-align: left;">1 (None/0 people) to 5 (More than 10 people)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>gender</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Gender identity (raw)</td>
+<td style="text-align: left;">1 (Woman), 2 (Man), 3 (Non-binary/Trans)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sexuality</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Sexual orientation (raw)</td>
+<td style="text-align: left;">0 (Straight), 1 (LGBQA)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>educ</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Highest completed level of education</td>
+<td style="text-align: left;">1 (lt 9th grade) to 7 (grad deg)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>degreee</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Broad field/area of respondent’s degree</td>
+<td style="text-align: left;">Text/Categorical</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>parented</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Parental highest level of education completed</td>
+<td style="text-align: left;">1 (lt 9th grade) to 7 (grad deg)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>child_arts</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Childhood arts exposure rating</td>
+<td style="text-align: left;">1 (Very Low) to 7 (Very High)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>income</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Household income brackets</td>
+<td style="text-align: left;">1 (Less than $10K) to 12 (More than $150K)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>social</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Political stance on social issues</td>
+<td style="text-align: left;">1 (Very Liberal) to 7 (Very Conservative)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>economic</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Political stance on economic issues</td>
+<td style="text-align: left;">1 (Very Liberal) to 7 (Very Conservative)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>urban_rural</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Rural to Urban residency scale</td>
+<td style="text-align: left;">1 (Open country) to 6 (Large city)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>zipcode</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">US Zip Code of residency</td>
+<td style="text-align: left;">Text / Five-digit code</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>countries</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Total number of countries visited</td>
+<td style="text-align: left;">Numeric / Continuous</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bornagain</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Born-again Christian indicator</td>
+<td style="text-align: left;">1 (Yes), 2 (No)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>attend_service</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Religious services attendance frequency</td>
+<td style="text-align: left;">1 (Never) to 7 (Always)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>working</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Employment status</td>
+<td style="text-align: left;">Categorical</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>govtorno</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Government or non-government sector employment</td>
+<td style="text-align: left;">Categorical</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>field</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Standard occupational classification field</td>
+<td style="text-align: left;">Categorical / Text</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>age2</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Calculated age in years</td>
+<td style="text-align: left;">Numeric / Continuous</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>race</code></td>
+<td style="text-align: left;">Demographics</td>
+<td style="text-align: left;">Ethnoracial identification (raw multiple check)</td>
+<td style="text-align: left;">Categorical / Multiple Codes</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="detailed-survey-blocks-variable-specifications" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Detailed Survey Blocks &amp; Variable Specifications</h1>
+<section id="art-judgments-block-isitart" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="art-judgments-block-isitart"><span class="header-section-number">4.1</span> Art Judgments Block (<code>IsItArt</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“Is this image art?”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = Definitely not</li>
+<li><code>2</code> = Probably not</li>
+<li><code>3</code> = Maybe not</li>
+<li><code>4</code> = May or may not be</li>
+<li><code>5</code> = Maybe yes</li>
+<li><code>6</code> = Probably yes</li>
+<li><code>7</code> = Definitely yes</li>
+</ul></li>
+</ul>
+<section id="items" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="items"><span class="header-section-number">4.1.1</span> Items:</h3>
+<ul>
+<li><strong><code>crayon</code></strong>: Image of a crayon drawing/crayon box.</li>
+<li><strong><code>pawpatrok</code></strong>: Image of Paw Patrol characters (Note: variable name contains a typo <code>pawpatrok</code>).</li>
+<li><strong><code>rorshach</code></strong>: Image of a Rorschach inkblot.</li>
+<li><strong><code>lastsupper</code></strong>: Image of Leonardo da Vinci’s <em>The Last Supper</em>.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="aesthetic-judgments-block-photo" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="aesthetic-judgments-block-photo"><span class="header-section-number">4.2</span> Aesthetic Judgments Block (<code>Photo</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“PhotoItems: For each of the following items is a photographer more likely to produce a photo that is ‘beautiful,’ ‘interesting,’ ‘meaningless,’ or ‘ugly’?”</em></li>
+<li><strong>Response Scale (1 to 4):</strong>
+<ul>
+<li><code>1</code> = Beautiful</li>
+<li><code>2</code> = Interesting</li>
+<li><code>3</code> = Meaningless</li>
+<li><code>4</code> = Ugly</li>
+</ul></li>
+<li><strong>R Factor Labels:</strong> In <code>[recode.dat.R](recode.dat.R)</code>, these are converted to factors with labels <code>c("Be", "In", "Me", "Ug")</code>.</li>
+</ul>
+<section id="photographic-items" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="photographic-items"><span class="header-section-number">4.2.1</span> 20 Photographic Items:</h3>
+<ol type="1">
+<li><code>landscape</code>: A landscape</li>
+<li><code>car_crash</code>: A car crash</li>
+<li><code>girl_with_cat</code>: A little girl playing with a cat</li>
+<li><code>pregnant_woman</code>: A pregnant woman</li>
+<li><code>vase</code>: A flower vase</li>
+<li><code>woman_breastfeeding</code>: A woman breastfeeding</li>
+<li><code>metal_structure</code>: A metal structure</li>
+<li><code>homeless_arguing</code>: Homeless men arguing</li>
+<li><code>fruits_vegetables</code>: Fruits and vegetables</li>
+<li><code>sunset_over_sea</code>: A sunset over the sea</li>
+<li><code>weaver_at_loom</code>: A weaver at his loom</li>
+<li><code>folk_dance</code>: A folk dance</li>
+<li><code>rope</code>: A rope</li>
+<li><code>butcher</code>: A butcher</li>
+<li><code>bark_of_tree</code>: The bark of a tree</li>
+<li><code>famous_monument</code>: A famous monument</li>
+<li><code>scrapyard</code>: A scrapyard</li>
+<li><code>first_communion</code>: A first communion</li>
+<li><code>wounded_man</code>: A wounded man</li>
+<li><code>snake</code>: A snake</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="self-presentation-block-fashion" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="self-presentation-block-fashion"><span class="header-section-number">4.3</span> Self-Presentation Block (<code>Fashion</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“From ‘not at all like me’ to ‘very much like me’ how much do each of these terms describe your style of dress?”</em></li>
+<li><strong>Response Scale (1 to 5):</strong>
+<ul>
+<li><code>1</code> = Not at all like me</li>
+<li><code>2</code> = Slightly like me</li>
+<li><code>3</code> = Somewhat like me</li>
+<li><code>4</code> = Like me</li>
+<li><code>5</code> = Very much like me</li>
+</ul></li>
+</ul>
+<section id="aesthetic-descriptors" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="aesthetic-descriptors"><span class="header-section-number">4.3.1</span> 10 Aesthetic Descriptors:</h3>
+<ul>
+<li><code>comfortable</code>: Comfortable style</li>
+<li><code>casual</code>: Casual style</li>
+<li><code>smart</code>: Smart style</li>
+<li><code>inexpensive</code>: Inexpensive style</li>
+<li><code>sophisticated</code>: Sophisticated style</li>
+<li><code>designer_brands</code>: Designer brands style</li>
+<li><code>trendy</code>: Trendy style</li>
+<li><code>unique</code>: Unique style</li>
+<li><code>sporty</code>: Sporty style</li>
+<li><code>edgy</code>: Edgy style</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="cultural-practices-block-practice" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="cultural-practices-block-practice"><span class="header-section-number">4.4</span> Cultural Practices Block (<code>Practice</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“How many times in the past 12 months have you engaged in the following activities?”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = 0 times/not in the past year</li>
+<li><code>2</code> = 1 to 2 times in the past year</li>
+<li><code>3</code> = 3-5 times (every few months or so)</li>
+<li><code>4</code> = 6-11 times (every other month or more)</li>
+<li><code>5</code> = 12-23 times (once or twice a month)</li>
+<li><code>6</code> = 24-51 times (every other week to almost every week)</li>
+<li><code>7</code> = 52 or more (once a week or more)</li>
+</ul></li>
+</ul>
+<section id="practice-activities" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="practice-activities"><span class="header-section-number">4.4.1</span> 21 Practice Activities:</h3>
+<ul>
+<li><code>museum</code>: Go to a museum</li>
+<li><code>art_gallery</code>: Go to an art gallery</li>
+<li><code>symphony_orchestra_opera</code>: Go to the symphony, orchestra, or opera</li>
+<li><code>gardening</code>: Gardening or planting</li>
+<li><code>carnival_fair_amusement_park</code>: Go to a carnival, county fair, or amusement park</li>
+<li><code>music_concert_festival</code>: Go to a music concert or festival</li>
+<li><code>play_or_musical</code>: Go to a play, musical, or performance in a theater</li>
+<li><code>library</code>: Go to the library</li>
+<li><code>fancy_restaurant</code>: Go to a fancy restaurant</li>
+<li><code>fast_food</code>: Eat fast food</li>
+<li><code>go_for_walk</code>: Go for a walk</li>
+<li><code>exercise_or_yoga</code>: Go to the gym, to exercise, or do yoga</li>
+<li><code>dance_performance</code>: Go to the ballet or a dance performance</li>
+<li><code>movie_theater</code>: Go to see a movie in the theater</li>
+<li><code>read_novel_poem_or_play</code>: Reading a novel, poem, or play</li>
+<li><code>attend_sports</code>: Attend a sports game or match</li>
+<li><code>home_auto_repair</code>: Do home or auto repair</li>
+<li><code>hiking_camping_boating</code>: Go hiking, camping, or boating</li>
+<li><code>historic_site</code>: Visit a historic site or landmark</li>
+<li><code>go_to_festival</code>: Go to a cultural, artistic, food, or neighborhood festival</li>
+<li><em>Note:</em> The 16th item in the raw survey practice list (<em>Mark “12-23 times”</em>) was an attention-check question and is excluded from statistical analysis.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="bourdieu-food-block-types-of-food" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="bourdieu-food-block-types-of-food"><span class="header-section-number">4.5</span> Bourdieu Food Block (<code>Types of Food</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“On a scale from ‘extremely dislike’ to ‘extremely like’ how much do you dislike or like food that is / [Item]”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = Extremely Dislike (Stata: <em>Very Much Dislike</em>)</li>
+<li><code>2</code> = Very Much Dislike (Stata: <em>Dislike</em>)</li>
+<li><code>3</code> = Somewhat Dislike</li>
+<li><code>4</code> = Neither Like Nor Dislike</li>
+<li><code>5</code> = Somewhat Like</li>
+<li><code>6</code> = Very Much Like (Stata: <em>Like</em>)</li>
+<li><code>7</code> = Extremely Like (Stata: <em>Very Much Like</em>)</li>
+</ul></li>
+</ul>
+<section id="items-1" class="level3" data-number="4.5.1">
+<h3 data-number="4.5.1" class="anchored" data-anchor-id="items-1"><span class="header-section-number">4.5.1</span> Items:</h3>
+<ul>
+<li><strong><code>light_airy_fresh_delicate</code></strong> <em>(Renamed to <code>light</code>)</em>: “Light, airy, fresh, delicate”</li>
+<li><strong><code>rich_hearty_filling_savory</code></strong> <em>(Renamed to <code>rich</code>)</em>: “Rich, hearty, filling, savory”</li>
+<li><strong><code>exotic_authentic</code></strong> <em>(Renamed to <code>authentic</code>)</em>: “Exotic and authentic”</li>
+<li><strong><code>conventional_familiar</code></strong> <em>(Renamed to <code>familiar</code>)</em>: “Conventional and familiar”</li>
+<li><strong><code>too_large_portion</code></strong> <em>(Renamed to <code>big</code>)</em>: “Too large of a portion”</li>
+<li><strong><code>too_small_portion</code></strong> <em>(Renamed to <code>small</code>)</em>: “Too small of a portion”</li>
+<li><strong><code>caviar</code></strong>: Caviar</li>
+<li><strong><code>oysters</code></strong>: Oysters</li>
+<li><strong><code>chicken_nuggets</code></strong> <em>(Renamed to <code>nuggets</code>)</em>: Chicken Nuggets</li>
+<li><strong><code>cheeseburger</code></strong>: Cheeseburger</li>
+<li><strong><code>sourdough</code></strong>: Sourdough Bread</li>
+<li><strong><code>avocado</code></strong>: Avocado</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="foodies-cuisine-authenticity-block-cuisine-authenticity" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="foodies-cuisine-authenticity-block-cuisine-authenticity"><span class="header-section-number">4.6</span> Foodies Cuisine Authenticity Block (<code>Cuisine Authenticity</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“Is each type of cuisine below best prepared using ‘a traditional family recipe cooked by an elder at home’ or ‘a developed recipe by a professional chef cooked at a high-end restaurant’?”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = A Traditional Family Recipe Cooked by an Elder at Home</li>
+<li><code>2</code> = Lean more to this side</li>
+<li><code>3</code> = Lean somewhat to this side</li>
+<li><code>4</code> = Equal/One not better than the other</li>
+<li><code>5</code> = Lean somewhat to this side</li>
+<li><code>6</code> = Lean more to this side</li>
+<li><code>7</code> = A Developed Recipe by a Professional Chef at a High-End Restaurant</li>
+</ul></li>
+</ul>
+<section id="cuisines-rated" class="level3" data-number="4.6.1">
+<h3 data-number="4.6.1" class="anchored" data-anchor-id="cuisines-rated"><span class="header-section-number">4.6.1</span> 15 Cuisines Rated:</h3>
+<p><code>japanese</code>, <code>french</code>, <code>italian</code>, <code>mexican</code>, <code>moroccan</code>, <code>korean</code>, <code>peruvian</code>, <code>native_american</code> (Stata: <em>american Indian/Native American</em>), <code>swedish</code>, <code>pakistani</code>, <code>ethiopian</code>, <code>vietnamese</code>, <code>nigerian</code>, <code>jamaican</code>, <code>lebanese</code>.</p>
+</section>
+<section id="analytical-recoding" class="level3" data-number="4.6.2">
+<h3 data-number="4.6.2" class="anchored" data-anchor-id="analytical-recoding"><span class="header-section-number">4.6.2</span> Analytical Recoding:</h3>
+<p>In <code>recode.dat.R</code>, these 15 variables are transformed into factors with <code>.f</code> suffixes: - <strong><code>"Trad"</code> (Traditional Elder)</strong>: Score <code>&lt; 3</code> - <strong><code>"Not Sure"</code> (Indifferent)</strong>: Score <code>3</code> to <code>5</code> - <strong><code>"High-End"</code> (Professional Chef)</strong>: Score <code>&gt; 5</code></p>
+<hr>
+</section>
+</section>
+<section id="attitudes-ideology-block-fields" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="attitudes-ideology-block-fields"><span class="header-section-number">4.7</span> Attitudes &amp; Ideology Block (<code>Fields</code>)</h2>
+<ul>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = Strongly disagree</li>
+<li><code>2</code> = Disagree</li>
+<li><code>3</code> = Somewhat disagree</li>
+<li><code>4</code> = Neither agree nor disagree</li>
+<li><code>5</code> = Somewhat agree</li>
+<li><code>6</code> = Agree</li>
+<li><code>7</code> = Strongly agree</li>
+</ul></li>
+</ul>
+<section id="items-renamed-formats" class="level3" data-number="4.7.1">
+<h3 data-number="4.7.1" class="anchored" data-anchor-id="items-renamed-formats"><span class="header-section-number">4.7.1</span> Items &amp; Renamed Formats:</h3>
+<ul>
+<li><strong><code>uniquetastes</code></strong> <em>(Renamed to <code>distinction_y</code>)</em>: <em>“I like it when my tastes are different or unique from other people”</em></li>
+<li><strong><code>bestartpolitical</code></strong> <em>(Renamed to <code>artpol_y</code>)</em>: <em>“The best art has a clear political point of view.”</em></li>
+<li><strong><code>bestartmoral</code></strong> <em>(Renamed to <code>artmoral_y</code>)</em>: <em>“The best art has a clear moral point of view.”</em></li>
+<li><strong><code>bestartnotmoral</code></strong> <em>(Renamed to <code>artmoral_n</code>)</em>: <em>“The best art makes us think about what is right and wrong in new ways.”</em></li>
+<li><strong><code>bestartnotpolitical</code></strong> <em>(Renamed to <code>artpol_n</code>)</em>: <em>“The best art doesn’t pick political sides and makes us think about politics in new ways.”</em></li>
+<li><strong><code>cancelledartists</code></strong> <em>(Renamed to <code>cancel_y</code>)</em>: <em>“It’s wrong to appreciate music or art created by people who act poorly or hold objectionable beliefs.”</em></li>
+<li><strong><code>polarized</code></strong> <em>(Renamed to <code>avoidpol_y</code>)</em>: <em>“I avoid engaging with art and music created by those who publicly endorse political candidates and policies that I do not support.”</em></li>
+<li><strong><code>enjoyabledifficult</code></strong> <em>(Renamed to <code>aesthetic_y</code>)</em>: <em>“On a scale from ‘entirely entertaining and enjoyable’ to ‘entirely difficult and challenging’ what kind of art and media do you like?”</em></li>
+<li><strong><code>ironic</code></strong> <em>(Renamed to <code>ironic_y</code>)</em>: <em>“How frequently do you ironically consume music, TV shows, or movies?”</em></li>
+<li><strong><code>comedy</code></strong> <em>(Renamed to <code>serious_y</code>)</em>: <em>“Thinking about comedy, on a scale from ‘The only goal is to create laughter’ to ‘The only goal is to say something’ what do you think the goal is for the best comedy?”</em></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="political-animus-block-animus" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="political-animus-block-animus"><span class="header-section-number">4.8</span> Political Animus Block (<code>Animus</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“Please read the following statements and indicate your agreement or disagreement about [Democrats / Republicans].”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = Strongly disagree</li>
+<li><code>2</code> = Moderately disagree</li>
+<li><code>3</code> = Slightly disagree</li>
+<li><code>4</code> = Neither Agree/Disagree</li>
+<li><code>5</code> = Slightly Agree</li>
+<li><code>6</code> = Moderately Agree</li>
+<li><code>7</code> = Strongly Agree</li>
+</ul></li>
+</ul>
+<section id="items-2" class="level3" data-number="4.8.1">
+<h3 data-number="4.8.1" class="anchored" data-anchor-id="items-2"><span class="header-section-number">4.8.1</span> Items:</h3>
+<ul>
+<li><strong><code>democrats_1</code> to <code>democrats_6</code></strong> (Democrats are…):
+<ul>
+<li><code>democrats_1</code>: Intelligent</li>
+<li><code>democrats_2</code>: Open-minded</li>
+<li><code>democrats_3</code>: Generous</li>
+<li><code>democrats_4</code>: Hypocritical</li>
+<li><code>democrats_5</code>: Selfish</li>
+<li><code>democrats_6</code>: Mean</li>
+</ul></li>
+<li><strong><code>republicans_1</code> to <code>republicans_6</code></strong> (Republicans are…):
+<ul>
+<li><code>republicans_1</code>: Intelligent</li>
+<li><code>republicans_2</code>: Open-minded</li>
+<li><code>republicans_3</code>: Generous</li>
+<li><code>republicans_4</code>: Hypocritical</li>
+<li><code>republicans_5</code>: Selfish</li>
+<li><code>republicans_6</code>: Mean</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="identity-cosmopolitanism-block-cosmo" class="level2" data-number="4.9">
+<h2 data-number="4.9" class="anchored" data-anchor-id="identity-cosmopolitanism-block-cosmo"><span class="header-section-number">4.9</span> Identity &amp; Cosmopolitanism Block (<code>cosmo</code>)</h2>
+<ul>
+<li><strong>Question Text:</strong> <em>“How much do you think your identity and sense of self are influenced by:”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = Not at all influential</li>
+<li><code>2</code> = Slightly influential</li>
+<li><code>3</code> = Somewhat influential</li>
+<li><code>4</code> = Moderately influential</li>
+<li><code>5</code> = Quite influential</li>
+<li><code>6</code> = Very influential</li>
+<li><code>7</code> = Extremely influential</li>
+</ul></li>
+</ul>
+<section id="items-3" class="level3" data-number="4.9.1">
+<h3 data-number="4.9.1" class="anchored" data-anchor-id="items-3"><span class="header-section-number">4.9.1</span> Items:</h3>
+<ul>
+<li><code>hood_city_town</code>: Your neighborhood, city, or town</li>
+<li><code>state_region</code>: Your state or region of the country</li>
+<li><code>nation</code>: The nation or country you live in or are from</li>
+<li><code>continent</code>: The continent you live in or are from</li>
+<li><code>global_citizen</code>: The whole globe; a citizen of the world</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="social-networks-blocks-weak-ties-and-strong-ties" class="level2" data-number="4.10">
+<h2 data-number="4.10" class="anchored" data-anchor-id="social-networks-blocks-weak-ties-and-strong-ties"><span class="header-section-number">4.10</span> Social Networks Blocks (<code>Weak Ties</code> and <code>Strong Ties</code>)</h2>
+<section id="definition-of-weak-ties" class="level3" data-number="4.10.1">
+<h3 data-number="4.10.1" class="anchored" data-anchor-id="definition-of-weak-ties"><span class="header-section-number">4.10.1</span> Definition of Weak Ties:</h3>
+<p><em>“We’re now going to ask you some questions about all the people that you are acquainted with, meaning that you know their name and would stop and talk at least for a moment if you ran into the person on the street or in a shopping mall.”</em></p>
+</section>
+<section id="definition-of-strong-ties" class="level3" data-number="4.10.2">
+<h3 data-number="4.10.2" class="anchored" data-anchor-id="definition-of-strong-ties"><span class="header-section-number">4.10.2</span> Definition of Strong Ties:</h3>
+<p><em>“We’re now going to ask you some questions about all the people that you are close with and trust. For example, good friends, people you discuss important matters with, or trust for advice, or trust with money.”</em></p>
+<ul>
+<li><strong>Response Scale (1 to 5):</strong>
+<ul>
+<li><code>1</code> = None/0 people</li>
+<li><code>2</code> = 1 person</li>
+<li><code>3</code> = 2 to 5 people</li>
+<li><code>4</code> = 6 to 10 people</li>
+<li><code>5</code> = more than 10 people</li>
+</ul></li>
+</ul>
+</section>
+<section id="network-diversity-categories-for-both-_weak-and-_strong-variables" class="level3" data-number="4.10.3">
+<h3 data-number="4.10.3" class="anchored" data-anchor-id="network-diversity-categories-for-both-_weak-and-_strong-variables"><span class="header-section-number">4.10.3</span> 18 Network Diversity Categories (for both <code>_weak</code> and <code>_strong</code> variables):</h3>
+<ul>
+<li><code>KnowLGBTQ_weak</code> / <code>KnowLGBTQ_strong</code>: Are gay, lesbian, queer, or transgender</li>
+<li><code>KnowLotsaChurch_weak</code> / <code>KnowLotsaChurch_strong</code>: Attend religious services regularly</li>
+<li><code>KnowLittleChurch_weak</code> / <code>KnowLittleChurch_strong</code>: Attend religious services rarely/never</li>
+<li><code>KnowVeryLib_weak</code> / <code>KnowVeryLib_strong</code>: Are strongly liberal</li>
+<li><code>KnowVeryCons_weak</code> / <code>KnowVeryCons_strong</code>: Are strongly conservative</li>
+<li><code>KnowAsianppl_weak</code> / <code>KnowAsianppl_strong</code>: Are Asian or Asian American</li>
+<li><code>KnowHispanixppl_weak</code> / <code>KnowHispanixppl_strong</code>: Are Hispanic, Latino, or Latinx</li>
+<li><code>KnowBlackppl_weak</code> / <code>KnowBlackppl_strong</code>: Are Black or African American</li>
+<li><code>KnowWhiteppl_weak</code> / <code>KnowWhiteppl_strong</code>: Are White</li>
+<li><code>Know2ndHome_weak</code> / <code>Know2ndHome_strong</code>: Own a second home</li>
+<li><code>KnowBornElsewhere_weak</code> / <code>KnowBornElsewhere_strong</code>: Born in or from a country outside the US</li>
+<li><code>KnowMENAppl_weak</code> / <code>KnowMENAppl_strong</code>: Of Middle Eastern or North African (MENA) descent</li>
+<li><code>KnowHawaiiPI_weak</code> / <code>KnowHawaiiPI_strong</code>: Are Native Hawaiian or Pacific Islander</li>
+<li><code>KnowAmIndianppl_weak</code> / <code>KnowAmIndianppl_strong</code>: Are American Indian or Alaska Native</li>
+<li><code>KnowCityppl_weak</code> / <code>KnowCityppl_strong</code>: Live in a large city (over 250,000)</li>
+<li><code>KnowRuralppl_weak</code> / <code>KnowRuralppl_strong</code>: Live in a rural area or small town (less than 50,000)</li>
+<li><code>Knowwomen_weak</code> / <code>Knowwomen_strong</code>: Are women</li>
+<li><code>Knowmen_weak</code> / <code>Knowmen_strong</code>: Are men</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="demographics-block-demographics" class="level2" data-number="4.11">
+<h2 data-number="4.11" class="anchored" data-anchor-id="demographics-block-demographics"><span class="header-section-number">4.11</span> Demographics Block (<code>Demographics</code>)</h2>
+<section id="core-background-indicators" class="level3" data-number="4.11.1">
+<h3 data-number="4.11.1" class="anchored" data-anchor-id="core-background-indicators"><span class="header-section-number">4.11.1</span> Core Background Indicators:</h3>
+<ul>
+<li><strong><code>gender</code></strong>: Respondent’s gender identity.
+<ul>
+<li><code>1</code> = Woman</li>
+<li><code>2</code> = Man</li>
+<li><code>3</code> = Non-binary / Trans</li>
+<li><em>Analytical Recoding:</em> Transformed to factor level <code>"gend.f"</code> with reference group <code>"Man"</code>.</li>
+</ul></li>
+<li><strong><code>sexuality</code></strong>: Sexual orientation.
+<ul>
+<li><code>0</code> = Straight (Heterosexual or straight)</li>
+<li><code>1</code> = LGBQA (Gay, Lesbian, Bisexual, Queer, or other self-described sexual minority)</li>
+</ul></li>
+<li><strong><code>educ</code></strong>: Respondent’s completed education level.
+<ul>
+<li><code>1</code> = Less than 9th grade</li>
+<li><code>2</code> = Some high school (no degree)</li>
+<li><code>3</code> = High school graduate (or equivalent)</li>
+<li><code>4</code> = Some college (no degree)</li>
+<li><code>5</code> = Associate’s degree</li>
+<li><code>6</code> = Bachelor’s degree (BA/BS)</li>
+<li><code>7</code> = Graduate/Professional degree</li>
+<li><em>Analytical Recoding:</em> Grouped into <code>"educ.f"</code> (5 broader levels).</li>
+</ul></li>
+<li><strong><code>parented</code></strong> <em>(Renamed to <code>peduc</code>)</em>: Highest level of education completed by either parent. Same scale as <code>educ</code>.</li>
+<li><strong><code>child_arts</code></strong> <em>(Renamed to <code>arts</code>)</em>: Childhood exposure to the arts. Rated from <code>1</code> (Very Low) to <code>7</code> (Very High).</li>
+<li><strong><code>income</code></strong>: Total annual household income.
+<ul>
+<li><code>1</code> = Less than $10,000</li>
+<li><code>2</code> = $10,000 to $19,999</li>
+<li><code>3</code> = $20,000 to $29,999</li>
+<li><code>4</code> = $30,000 to $39,999</li>
+<li><code>5</code> = $40,000 to $49,999</li>
+<li><code>6</code> = $50,000 to $59,999</li>
+<li><code>7</code> = $60,000 to $69,999</li>
+<li><code>8</code> = $70,000 to $79,999</li>
+<li><code>9</code> = $80,000 to $89,999</li>
+<li><code>10</code> = $90,000 to $99,999</li>
+<li><code>11</code> = $100,000 to $149,999</li>
+<li><code>12</code> = $150,000 or more</li>
+<li><code>13</code> = Missing / Prefer not to say</li>
+<li><em>Analytical Recoding:</em> Grouped into <code>"inc.f"</code> (12 categories) and <code>"inq.f"</code> (income quintiles).</li>
+</ul></li>
+<li><strong><code>social</code></strong>: Social issues political ideology. Scale from <code>1</code> (Very Liberal) to <code>7</code> (Very Conservative).</li>
+<li><strong><code>economic</code></strong>: Economic issues political ideology. Scale from <code>1</code> (Very Liberal) to <code>7</code> (Very Conservative).</li>
+<li><strong><code>urban_rural</code></strong> <em>(Renamed to <code>city</code>)</em>: Description of residential location.
+<ul>
+<li><code>1</code> = Open country</li>
+<li><code>2</code> = Farm</li>
+<li><code>3</code> = Town to small city</li>
+<li><code>4</code> = Medium city</li>
+<li><code>5</code> = Suburb of a large city</li>
+<li><code>6</code> = Large city</li>
+<li><em>Analytical Recoding:</em> Grouped into <code>"city.f"</code> (Small Town, Midsized Town, Big City).</li>
+</ul></li>
+<li><strong><code>attend_service</code></strong> <em>(Renamed to <code>relig</code>)</em>: Frequency of religious service attendance.
+<ul>
+<li><code>1</code> = Never</li>
+<li><code>2</code> = Very rarely</li>
+<li><code>3</code> = Rarely</li>
+<li><code>4</code> = Sometimes</li>
+<li><code>5</code> = Somewhat frequently</li>
+<li><code>6</code> = Very frequently</li>
+<li><code>7</code> = Always</li>
+</ul></li>
+<li><strong><code>age2</code></strong> <em>(Renamed to <code>age</code>)</em>: Continuous respondent age calculated from birth year (Q3). Grouped into factor <code>"age.f"</code> (8 cohorts).</li>
+<li><strong><code>race</code></strong>: Raw multiple choice race categories (re-categorized to <code>"race.f"</code>).</li>
+</ul>
+</section>
+<section id="additional-background-institutional-indicators" class="level3" data-number="4.11.2">
+<h3 data-number="4.11.2" class="anchored" data-anchor-id="additional-background-institutional-indicators"><span class="header-section-number">4.11.2</span> Additional Background &amp; Institutional Indicators:</h3>
+<ul>
+<li><code>zipcode</code>: Five-digit US zip code of residency.</li>
+<li><code>countries</code>: Total count of countries visited.</li>
+<li><code>bornagain</code>: Born-again Christian status (<code>1</code> = Yes, <code>2</code> = No).</li>
+<li><code>working</code>: Employment/work status category.</li>
+<li><code>govtorno</code>: Indicates public/government sector (<code>1</code>) vs private/other sector (<code>2</code>) employment.</li>
+<li><code>field</code>: Industry field of employment.</li>
+<li><code>field_20_text</code>: Open-text entry for write-in occupational fields.</li>
+</ul>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
