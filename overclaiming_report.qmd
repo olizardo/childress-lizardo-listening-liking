@@ -611,6 +611,31 @@ p_margins_bayes
 
 As Figure 2 illustrates, as childhood arts socialization shifts from minimal ($1$) to extensive ($7$), the predicted probability of overclaiming increases from 19.4% (95% CrI: [13.4%, 27.0%]) to 45.7% (95% CrI: [33.7%, 57.6%]), representing an increase of over 26 percentage points across the range of arts exposure. Over the same interval, the predicted probability of consistent engagement increases modestly from 9.0% (95% CrI: [4.4%, 18.7%]) to 12.5% (95% CrI: [6.0%, 25.3%]), while underclaiming declines from 11.1% to 6.0% and the probability of remaining unengaged (*Neither*) drops by more than half from 59.5% to 34.9%. Consequently, respondents with low exposure exhibit a markedly higher probability of complete non-engagement than overclaiming, whereas the reverse holds for respondents with extensive arts socialization. These divergent trajectories demonstrate that early cultural exposure exerts its primary substantive influence on expanding individuals' propensity to trade non-engagement for symbolic overclaiming across unlistened genres.
 
+### Methodological Note: The Divergence of Omnivorousness and Cap Constraints
+
+When respondents are allowed to rate 20 genres on a Likert scale but can only list up to 10 artists in regular rotation, it is reasonable to hypothesize whether a forced "ceiling effect" artifactually produces overclaiming among high-cultural-capital (CC) individuals. Specifically, if early socialization increases omnivorousness (the number of genres *liked*), high-CC respondents might simply run out of room in their top 10 artist slots, forcing them to mechanically overclaim on whatever genres didn't make the cut.
+
+However, the survey data refutes this mechanical constraint argument. As Figure 5 below illustrates, while childhood arts exposure sharply increases the volume of genres respondents *like* (from 5.7 genres at level 1, to 11.0 genres at level 7), their concrete behavioral listening footprint remains virtually flat (hovering between 3.4 and 3.8 genres on average). 
+
+```{r}
+#| label: omnivorousness-capacity-plot
+#| fig-width: 8.5
+#| fig-height: 6.5
+#| warning: false
+#| message: false
+
+#' @title Display Omnivorousness Capacity Plot
+#' @description Load and display pre-rendered plot showing divergence between abstract liking and concrete listening capacity.
+if (!file.exists("Plots/ChildArts_Omnivorousness_Capacity.png")) {
+  source("Scripts/plot_omnivorousness_capacity.R")
+}
+knitr::include_graphics("Plots/ChildArts_Omnivorousness_Capacity.png")
+```
+
+The median respondent only clusters their top 10 most-played artists into 3 distinct genres, and fewer than 1.1% of respondents list artists spanning exactly 10 distinct genres. High-CC respondents are not running out of room; they have ample "slack" to list artists from Opera or Classical music if they actively listened to them. Instead, they choose to allocate their 10 artists within the same few core popular genres (e.g., Rock or Pop) while leaving their highbrow, prestige tastes entirely in the abstract. 
+
+Furthermore, if the effect were purely a random mathematical artifact of the 10-artist cap, we would expect high-CC individuals to arbitrarily drop genres from their top 10 proportionally to baseline popularity. Instead, the Bayesian Crossed Random Slopes model confirms that the effect is highly structured and genre-specific: cultural capital drastically inflates overclaiming for high-prestige institutionalized genres (like Opera) while having no effect whatsoever on genres like Country (OR = 1.07). The "cap" is thus not a methodological flaw, but the exact mechanism that forces respondents to reveal which of their stated abstract tastes are deeply integrated into their active behavioral lives, and which serve as purely symbolic boundary markers.
+
 ## Step 3: Bayesian Model Comparison
 
 Having established that early arts exposure is the primary cultural capital predictor of complex tastes and is disproportionately tilted toward overclaiming, we next determine the optimal hierarchical structure for modeling multinomial taste engagement across respondents ($N = 1,574$) and genres ($J = 20$) when the returns to cultural capital are permitted to vary across musical genres. To do so, we evaluate five competing crossed mixed-effects specifications.
