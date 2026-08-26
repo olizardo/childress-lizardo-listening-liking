@@ -105,13 +105,29 @@ extract_eq <- function(draws, state) {
     q97.5 <- quantile(d, 0.975)
     pd_val <- max(mean(d > 0), mean(d < 0))
     
+    # Statistical significance based on pd
+    stars <- if (pd_val >= 0.999) {
+      "***"
+    } else if (pd_val >= 0.99) {
+      "**"
+    } else if (pd_val >= 0.975) {
+      "*"
+    } else {
+      ""
+    }
+    
+    formatted_mean <- sprintf("%.3f", mean_val)
+    if (stars != "") {
+      formatted_mean <- paste0("<b>", formatted_mean, stars, "</b>")
+    }
+    
     data.frame(
       Col = c,
-      Mean = round(mean_val, 3),
-      Median = round(med_val, 3),
-      SD = round(sd_val, 3),
-      `CrI_2.5` = round(q2.5, 3),
-      `CrI_97.5` = round(q97.5, 3),
+      Mean = formatted_mean,
+      Median = sprintf("%.3f", med_val),
+      SD = sprintf("%.3f", sd_val),
+      `CrI_2.5` = sprintf("%.3f", q2.5),
+      `CrI_97.5` = sprintf("%.3f", q97.5),
       pd = sprintf("%.3f", pd_val),
       stringsAsFactors = FALSE
     )
@@ -138,7 +154,7 @@ cat("**Table 4: Predictors of Consistent Engagement (Both)**\n\n")
 print(kable(extract_eq(draws, "Both"), format = "pipe"))
 sink()
 
-# Fit Comparison
+# Fit Comparison (Streamlined ultra-concise column headers)
 fit_table_bayes <- data.frame(
   Model = c(
     "1. Crossed Random Intercepts (Baseline)",
@@ -147,15 +163,13 @@ fit_table_bayes <- data.frame(
     "4. Constrained Slopes (Overclaiming & Consistent)",
     "5. Full Crossed Random Slopes (Preferred)"
   ),
-  ListenOnly = c("—", "—", "Yes", "—", "Yes"),
-  LikeOnly = c("—", "Yes", "Yes", "Yes", "Yes"),
-  Both = c("—", "—", "—", "Yes", "Yes"),
-  Params = c(4820, 4840, 4860, 4860, 4880),
-  ELPD = c(-24458.7, -24412.0, -24411.0, -24367.5, -24366.2),
-  ELPD_SE = c(115.2, 114.8, 114.7, 114.7, 114.3),
-  WAIC = c(48917.4, 48823.9, 48822.1, 48735.1, 48732.4),
-  WAIC_SE = c(230.4, 229.6, 229.5, 229.5, 228.6),
-  Delta_WAIC = c(0.0, -93.5, -95.3, -182.3, -185.0),
+  Under = c("—", "—", "✓", "—", "✓"),
+  Over = c("—", "✓", "✓", "✓", "✓"),
+  Both = c("—", "—", "—", "✓", "✓"),
+  Par = c("4,820", "4,840", "4,860", "4,860", "4,880"),
+  `WAIC (SE)` = c("48,917.4<br>(230.4)", "48,823.9<br>(229.6)", "48,822.1<br>(229.5)", "48,735.1<br>(229.5)", "48,732.4<br>(228.6)"),
+  `Delta_WAIC` = c("0.0", "-93.5", "-95.3", "-182.3", "-185.0"),
+  check.names = FALSE,
   stringsAsFactors = FALSE
 )
 
