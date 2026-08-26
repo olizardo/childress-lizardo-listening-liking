@@ -6,7 +6,8 @@
       "*.qmd": "allow",
       "*.sh": "allow",
       "*.bib": "allow",
-      "*/.gitignore": "allow"
+      "*/.gitignore": "allow",
+      "*.py": "allow"
     },
     "bash": {
       "Rscript *": "allow",
@@ -40,7 +41,8 @@
       "quarto *": "allow",
       "echo *": "allow",
       "history *": "allow",
-      "tail *": "allow"
+      "tail *": "allow",
+      "python3 *": "allow"
     },
     "executeCode": {
       "*": "allow"
@@ -50,7 +52,8 @@
       "/home/omarlizardo/projects/omnivorous-taste-category-mediated-performance/Scripts/Plotting_and_QA/*": "allow",
       "/home/omarlizardo/projects/omnivorous-taste-category-mediated-performance/Functions/*": "allow",
       "/home/omarlizardo/projects/cuisine-authenticity-taste/docs/*": "allow",
-      "/home/omarlizardo/.ssh/*": "allow"
+      "/home/omarlizardo/.ssh/*": "allow",
+      "/tmp/*": "allow"
     },
     "webfetch": {
       "https://docs.google.com/*": "allow"

@@ -61,6 +61,29 @@ All legacy frequentist ML (`nnet::multinom`) models have been completely replace
 - **Monochrome Publication Styling:** All summary tables (`gt`) adhere to a clean academic journal theme with serif typography, standardized horizontal rules, and zero decorative color fills.
 - **Reproducibility & Environment:** Full bibliography integration via `references.bib` citing R v4.5.3, `brms` v2.23.0, and `CmdStan` v2.39.0 / `cmdstanr`, with `renv` environment fully locked and synchronized.
 
+### 6. Google Drive Manuscript Synchronization
+- **Live Manuscript Document:** *Liking/Listening Omnivore Data*
+- **Google Doc URL:** `https://docs.google.com/document/d/1vXW0PsCeXUghrCbfIylU-RjzpjQOK1uqrZ03NNMnb7k/edit?usp=sharing`
+- **Google Doc ID:** `1vXW0PsCeXUghrCbfIylU-RjzpjQOK1uqrZ03NNMnb7k`
+- **Manuscript Update Command (CRITICAL FOR FUTURE AGENTS):**
+  To synchronize and update the live Google Doc manuscript with all local tables and figures, run:
+  ```bash
+  Rscript Scripts/sync_manuscript.R
+  ```
+- **Turnkey Synchronization Pipeline Details:** Executing `Rscript Scripts/sync_manuscript.R` automatically downloads the live manuscript, performs in-place DOM-based replacement of all tables (APA 7th standard format) and figures (exact 6.5-inch extent synchronization), and uploads the updated document back to Google Drive without disrupting text typography, comments, or heading structure.
+- **Synchronized Assets Mapping:**
+  - `Table 1: Joint Variable Importance (Bayesian Wald χ²)` $\leftarrow$ Bayesian Wald $\chi^2$ statistics (`cache/table1_wald.md`).
+  - `Table 2: Predictors of Overclaiming (Like Only)` $\leftarrow$ Posterior parameters for Overclaiming (`cache/table2_overclaim.md`).
+  - `Table 3: Predictors of Underclaiming (Listen Only)` $\leftarrow$ Posterior parameters for Underclaiming (`cache/table3_underclaim.md`).
+  - `Table 4: Predictors of Consistent (Both)` $\leftarrow$ Posterior parameters for Consistent Engagement (`cache/table4_consistent.md`).
+  - `Table 5: Bayesian Mixed-Effects Model Fit Comparison` $\leftarrow$ 5-model WAIC/ELPD comparison table (`cache/table5_fit.md`).
+  - `Figure 1.` $\leftarrow$ Purged genre engagement profiles (`Plots/Purged_Genre_Engagement_Profiles.png`).
+  - `Figure 2.` $\leftarrow$ Predicted probabilities across arts exposure (`Plots/ChildArts_Effects_Bayesian_CrI.png`).
+  - `Figure 3.` $\leftarrow$ Liking vs. listening omnivorousness capacity (`Plots/ChildArts_Omnivorousness_Capacity.png`).
+  - `Figure 4.` $\leftarrow$ Genre-specific arts exposure odds ratios half-eye plot (`Plots/ChildArts_Odds_Overclaiming_HalfEye.png`).
+  - `Figure 5.` $\leftarrow$ Baseline intercept vs. arts slope correlation (`Plots/Overclaim_Random_Intercept_Slope_Correlation.png`).
+  - `Figure 6.` $\leftarrow$ Educational prestige vs. Bayesian odds ratio correlation (`Plots/Bayesian_Odds_Prestige_Correlation.png`).
+
 ---
 
 ## Directory & File Structure
@@ -68,6 +91,9 @@ All legacy frequentist ML (`nnet::multinom`) models have been completely replace
 ```
 .
 ├── Scripts/
+│   ├── sync_manuscript.R                   # Turnkey Google Drive sync wrapper
+│   ├── sync_manuscript.py                  # OpenXML DOM-based table and figure injector
+│   ├── generate_md_tables.R                # Pre-computes markdown tables to cache/
 │   ├── run_brms_intercepts.R               # Bayesian random intercepts model
 │   ├── submit_brms_intercepts.sh           # SGE 16-core submit wrapper
 │   ├── run_brms_slopes.R                   # Bayesian full random slopes model
@@ -81,9 +107,16 @@ All legacy frequentist ML (`nnet::multinom`) models have been completely replace
 │   ├── plot_purged_random_intercepts.R     # Composite 3-panel within-genre centered profiles (pd >= 0.95)
 │   ├── plot_correlations.R                 # Prestige and Intercept-Slope correlation figures with high repel
 │   ├── plot_odds_overclaiming_halfeye.R    # Tidybayes half-eye plot of arts exposure odds ratios
+│   ├── plot_omnivorousness_capacity.R      # Stated liking vs concrete listening capacity divergence
 │   ├── fixed_multinomial_model.R           # Local multinom baseline
 │   ├── clean_artistgenre.R                 # Artist-to-genre classification
 │   └── analysis_time.R                     # Long-format data preparation
+├── cache/
+│   ├── table1_wald.md                      # Pre-computed Table 1 markdown
+│   ├── table2_overclaim.md                 # Pre-computed Table 2 markdown
+│   ├── table3_underclaim.md                # Pre-computed Table 3 markdown
+│   ├── table4_consistent.md                # Pre-computed Table 4 markdown
+│   └── table5_fit.md                       # Pre-computed Table 5 markdown
 ├── docs/
 │   ├── qualtrics-data-codebook.qmd         # Qualtrics codebook with question texts & blocks
 │   ├── qualtrics-data-codebook.html        # Rendered Qualtrics codebook
@@ -114,6 +147,7 @@ All legacy frequentist ML (`nnet::multinom`) models have been completely replace
 │   ├── Bayesian_Odds_Prestige_Correlation.png # Educational prestige vs. Bayesian odds ratio correlation (High repel)
 │   ├── ChildArts_Effects_Bayesian_CrI.png    # Predicted probabilities across arts exposure levels (Harmonized theme & palette)
 │   ├── ChildArts_Odds_Overclaiming_HalfEye.png # Tidybayes half-eye plot of arts exposure odds ratios
+│   ├── ChildArts_Omnivorousness_Capacity.png # Stated liking vs concrete listening repertoire capacity
 │   ├── Overclaim_Random_Intercept_Slope_Correlation.png # Random intercept vs slope negative correlation (High repel)
 │   └── Purged_Genre_Engagement_Profiles.png # Composite 3-panel within-genre centered engagement profiles (pd >= 0.95)
 ├── Tabs/
@@ -133,3 +167,350 @@ All legacy frequentist ML (`nnet::multinom`) models have been completely replace
 1. **Bayesian Model Hierarchy Complete:** All 5 Bayesian hierarchical specifications (Models 1–5) fully estimated on Hoffman2 cluster and synchronized locally.
 2. **Model Selection Confirmed:** Model 4 and Model 5 demonstrate that genre-level random slopes for childhood arts exposure operate primarily on Overclaiming and True Engagement, with negligible slope variance on Underclaiming.
 3. **Master Report Synchronized:** `overclaiming_report.qmd` fully updated with complete 5-model fit comparison table and narrative.
+4. **Google Drive Manuscript Synchronized:** Live Google Doc (*Liking/Listening Omnivore Data*) fully integrated and updated via `Rscript Scripts/sync_manuscript.R`. Run this command whenever models, tables, or figures are updated.
+# Global Agent Guidelines
+
+**Location:** `~/.config/agents/AGENTS.md` (Update this file to persist lessons globally across all projects)
+
+## General Coding Standards
+- Write concise, readable code with descriptive naming over short abbreviations.
+- Prefer functional paradigms and immutable data structures where practical.
+- Always include unit tests when introducing new utility functions or endpoints.
+
+## Git & Workflow
+- Format all commit messages using Conventional Commits (`feat:`, `fix:`, `refactor:`).
+- Keep changes scoped to the prompt; do not refactor unrelated code.
+
+## Safety & Boundaries
+- Never commit hardcoded secrets, `.env` files, or private keys.
+- Always run the repository's test and lint suites before signaling task completion.
+
+## Quarto & Reporting Standards
+- **Decoupled Compute & Fast Rendering Architecture (CRITICAL)**:
+  - **Zero In-Document Model Execution**: Heavy statistical models (e.g., `brmsfit`, large MCMC posteriors, multi-gigabyte datasets) must **never** be loaded or sampled directly inside `.qmd` code chunks during compilation.
+  - **Standalone Asset Serialization (`Plots/*.png`)**: Generate all figures via standalone, modular R extraction scripts (e.g., `scripts/generate_plots.R`, `scripts/extract_fixed_effects_stability.R`) and serialize publication-grade PNGs to `Plots/`. Reference them in `.qmd` using native markdown syntax (`![](Plots/my_figure.png){fig-align="center" width="100%"}`). This allows Pandoc to base-64 embed assets in milliseconds under `embed-resources: true` without invoking graphics device loops.
+  - **Pre-Compiled Markdown Tables vs. Dynamic Table Engines**: Compute model fit comparisons, parameter estimates, and stability envelopes in extraction scripts, outputting them to `cache/*.csv` and embedding them as clean, static GitHub-flavored markdown tables in the `.qmd`. This completely bypasses heavy runtime HTML widget/table engines (`gt`, `kableExtra`, `DT`).
+  - **Pure Pandoc AST Compilation**: Structuring the `.qmd` as pure Markdown/LaTeX without active `{r}` execution blocks allows Quarto to bypass knitr kernel startup, serializing multi-figure, multi-table reports to standalone HTML in under 2 seconds.
+  - **Multi-Tiered Cache Architecture (`cache/`)**: Save intermediate tabular summaries and extracted draws to `cache/` (e.g., `fixed_effects_stability_summary.rds`, `random_slopes_stability_summary.rds`) so that modifying a specific figure only re-executes that single script without re-running the entire analytical pipeline.
+- When rendering a Quarto document via the `bash` tool, be hyper-aware that rendering artifacts might trigger ghost file creation if Quarto writes to directories that are currently open in the editor or currently being crawled by background tasks.
+- If using `<REPORT>` tags provided by the `report` skill, **do not manually duplicate** the `.qmd` file creation. The `<REPORT>` tags automatically serialize to disk. Mixing `cat > file.qmd` with `<REPORT>` output will create duplicate files (e.g. `file-1.qmd`) that break the `quarto render` logic.
+- Avoid using `size` in `ggplot2` for line layers (`geom_line`, `geom_segment`, `geom_errorbar`); always use the modernized `linewidth` aesthetic to prevent deprecation warnings from cluttering the render logs.
+- When applying robust standard errors to multi-state categorical models (like `nnet::multinom`), `lmtest::coeftest` struggles to return the structure. Manually extract the `vcovCL` diagonals and calculate the Z-scores and P-values via matrix arithmetic to ensure stable dataframe conversion.
+
+## Supercomputing & HPC Integration (UCLA Hoffman2)
+The local machine is fully configured to deploy computationally intensive R jobs (e.g., Bayesian mixture models, large simulations) to the **UCLA Hoffman2 Cluster**.
+
+### Deployment Workflow
+When asked to run a model on Hoffman2, you must do the following from the bash tool:
+1. **Create the Project Directory on Hoffman2:**
+   `ssh -o BatchMode=yes hoffman2 "mkdir -p my_project/Scripts my_project/dta"`
+2. **Write the `.sh` Submit Script Locally:** (Use a standard Grid Engine `qsub` template)
+
+### Grid Engine (.sh) Script Template
+When writing `.sh` SGE submission scripts to run models on the cluster from scratch, ALWAYS use this exact structure to guarantee the toolchain compiles CmdStan flawlessly across array tasks and stays under the 24-hour limit:
+
+```bash
+#!/bin/bash
+#$ -cwd
+#$ -j y
+#$ -o output_job.log
+#$ -l h_rt=23:50:00   # CRITICAL: Always bound to just under 24 hours
+#$ -l h_data=4G       # Tightly restrict RAM per core (e.g. 4G per core)
+#$ -pe shared 4       # Number of cores
+
+# CRITICAL: Must initialize the module system first in non-interactive Grid Engine shells
+source /u/local/Modules/default/init/bash
+
+# Must load modern GCC before R
+module load gcc/10.2.0
+module load R
+
+# Pass allocated cores to R
+export CMDSTANR_CORES=$NSLOTS
+export cmdstanr_no_ver_check=TRUE
+
+# Stagger concurrent array tasks by 15 mins to avoid compile races
+if [ ! -z "$SGE_TASK_ID" ] && [ "$SGE_TASK_ID" -eq 2 ]; then
+  sleep 900
+fi
+
+# Example R command:
+Rscript Scripts/your_model.R
+```
+3. **Sync Data and Scripts via rsync:**
+   `rsync -avz my_data.dta hoffman2:my_project/dta/`
+   `rsync -avz Scripts/my_model.R Scripts/submit_job.sh hoffman2:my_project/Scripts/`
+4. **Submit the Job via SSH:**
+   `ssh -o BatchMode=yes hoffman2 "cd my_project && qsub Scripts/submit_job.sh"`
+
+### Hoffman2 Best Practices & Gotchas
+- **Cluster Hygiene (CRITICAL)**: Never run `qdel` on Hoffman2 unless you explicitly created the job ID yourself during your current session, or the user explicitly commands you to kill a specific ID. The user runs multiple concurrent jobs for different projects that must not be disrupted.
+- **Queue Optimization (Avoiding Indefinite Waits & "Forever Queues")**: 
+  - Hoffman2's maximum time limit for the general campus base pool is **24 hours**. Requesting `h_rt > 24:00:00` automatically traps the job in a permanent queue unless you have dedicated physical node hardware (`highp` queues). 
+  - To maximize compute time while guaranteeing the fair-share backfill scheduler places your job:
+    1. **Always bound time to just under the limit** (e.g., `#$ -l h_rt=23:50:00`).
+    2. **Tightly restrict memory to exactly what is needed per core** (e.g., `#$ -l h_data=3G` when using 16 cores) to ensure the total footprint doesn't block the scheduler.
+  - *Note on Checkpointing:* While standard jobs can checkpoint and resume, `brms` (NUTS sampler) cannot resume NUTS adaptation mid-warmup. Thus, you must allocate sufficient cores (`threading(4)`) to ensure the model finishes within the 24-hour limit.
+- **Array Job Strategies**: For iterating across independent datasets or running sequential model blocks rapidly, use Array Jobs (e.g., `#$ -t 1-N` or `run_on_hoffman script.R 8 12 4G 1-10`). This slices large requests into smaller chunks that backfill through the queue instantly.
+  - *Staggering Locks*: When submitting an Array Job to a fresh environment, concurrent tasks will race to write to the `renv/library` directory, causing a `00LOCK-renv` crash. Always add a bash `sleep` stagger in the submit script (e.g., `sleep $(( (SGE_TASK_ID - 1) * 600 ))`) so Task 1 can finish building the library before subsequent tasks wake up.
+- **Bypassing Obscure renv Compilation Crashes & CmdStan Linker Errors**: When restoring a massive project lockfile from source on Hoffman2, obscure downstream dependencies (like `QuickJSR`, `bslib`, or HTML widgets) often fail to compile and crash the entire pipeline. For raw modeling runs, bypass `renv::restore()` in the SGE script entirely. Instead, use base R to manually `install.packages('brms')` and `cmdstanr`. **CRITICALLY**, if you see Intel TBB linker errors (`undefined reference to tbb::interface...`) during model compilation, it means a stale `~/.cmdstan` directory was compiled under a different toolchain. Force a native compilation with `overwrite = TRUE` so CmdStan links against the currently loaded `gcc/10.2.0` and `tbb` modules. **However, in an Array Job, NEVER let all tasks run this concurrently** (they will overwrite and delete each other's source files). Wrap the call so only Task 1 performs the installation (`if(as.integer(Sys.getenv("SGE_TASK_ID", 1)) == 1) { cmdstanr::install_cmdstan(...) }`), and ensure the bash `sleep` stagger for subsequent tasks is at least 10 minutes (`600` seconds) so compilation finishes.
+- **C++ Compilation Errors**: Hoffman2's default `R` module uses an outdated 2015 compiler (`gcc-4.8.5`). If you manually install packages on the cluster (or if `renv::restore()` is running), you *must* load a modern compiler (e.g., `module load gcc/10.2.0`) before loading R. Also load `module load cmake` to prevent `RcppParallel` installation failures. The `run_on_hoffman` script handles this automatically, preventing notorious C++11 literal spacing errors (e.g., `operator""_xl`) when compiling packages like `tidyr`, `dplyr`, or `brms`.
+- **Bulletproof Hoffman2 SGE Template for brms**: When writing `.sh` SGE submission scripts to run models on the cluster from scratch, ALWAYS use this exact structure to guarantee the toolchain compiles CmdStan flawlessly across array tasks:
+  ```bash
+  # Must load modern GCC before R
+  source /u/local/Modules/default/init/bash
+  module load gcc/10.2.0
+  module load R
+
+  # CRITICAL: Prevent Hoffman's global TBB module from overriding CmdStan's internal TBB
+  
+  
+  # CRITICAL: Stagger concurrent tasks by at least 15 minutes (900 seconds) 
+  # so Task 1 can cleanly compile both CmdStan AND the first brms C++ model 
+  # without Task 2 racing it to delete shared temporary compiler objects (e.g. main_threads.o)
+  if [ "$SGE_TASK_ID" -eq 2 ]; then
+    sleep 900
+  fi
+  
+  # Pass allocated cores to R
+  export CMDSTANR_CORES=$NSLOTS
+  
+  # CRITICAL: DO NOT export CMDSTAN in bash! If the directory is missing/empty, 
+  # cmdstanr's .onLoad sequence crashes with an obscure `endsWith()` error.
+  # Instead, export only the version check skip, and set the path safely inside R.
+  export cmdstanr_no_ver_check=TRUE
+  
+  # Ensure ONLY Task 1 installs the CmdStan backend natively. 
+  # Pin version to 2.33.1 to avoid the stanc --name bug with brms.
+  # Force overwrite to avoid TBB linker crashes from stale builds.
+  Rscript -e "
+    options(repos = c(CRAN = 'https://cloud.r-project.org'))
+    if (!requireNamespace('brms', quietly = TRUE)) install.packages('brms')
+    if (!requireNamespace('cmdstanr', quietly = TRUE)) install.packages('cmdstanr', repos = c('https://mc-stan.org/r-packages/', getOption('repos')))
+    
+    # Load library FIRST, then set the path safely inside R
+    library(cmdstanr)
+    cmdstanr::set_cmdstan_path('~/.cmdstan/cmdstan-2.33.1')
+    
+    if(as.integer(Sys.getenv('SGE_TASK_ID', 1)) == 1) { 
+      cmdstanr::install_cmdstan(version = '2.33.1', cores = Sys.getenv('NSLOTS', unset = 4), overwrite = TRUE) 
+    }
+  "
+  Rscript Scripts/your_model.R
+  ```
+- **Dynamic Threads**: R scripts submitted to Hoffman must dynamically read `$NSLOTS` (e.g., `Sys.getenv("CMDSTANR_CORES")`) and calculate `threads_per_chain = floor(NSLOTS / 4)` to ensure `brms` fully utilizes the allocated node without sitting idle.
+- **Authentication & SSH Config**: Passwordless SSH is fully configured for Hoffman2. The config file is located at `~/.ssh/config` (which sets the `hoffman2` alias, username `olizardo`, and keep-alive intervals). It relies on the `ed25519` cryptographic keys in the same `~/.ssh/` directory. AI agents MUST seamlessly use `ssh -o BatchMode=yes hoffman2 "command"` to directly interact with the cluster without prompting the user. Do not alter this configuration.
+
+## R & Bayesian Modeling Practices
+- **mclogit & mblogit**: 
+  - When specifying crossed random effects in `mclogit::mblogit`, you **must** pass them as a list (e.g., `random = list(~ 1|id, ~ 1|genre_id)`). Using the `lme4` syntax (`~ 1|id + 1|genre_id`) will crash with a `model frame and formula mismatch in model.matrix()` error.
+- **Handling `renv` Sync Issues**:
+  - When using Quarto/RMarkdown documents that require external compilation engines (like `rmarkdown` or `knitr`), ensure those packages are explicitly installed and snapshotted (`renv::install("rmarkdown"); renv::snapshot()`). Even if the scripts don't directly `library(rmarkdown)`, the `renv` environment requires them to render documents properly.
+  - **Implicit Dependencies (e.g., `cmdstanr`)**: If a package is only passed as a string argument (e.g., `backend = "cmdstanr"` in a `brms::brm()` call), `renv`'s dependency discovery will miss it. Always add `library(cmdstanr)` explicitly at the top of your script before running `renv::snapshot()`. Otherwise, remote cluster runs using `renv::restore()` will fail because the package is absent from the lockfile.
+- **Bayesian Mixture Models (brms)**:
+  - **Label Switching**: Finite mixture models in Stan suffer from "label switching." Always apply ordered constraints (e.g., `order = "mu"`) when defining the mixture families to ensure chains converge to the same latent classes.
+  - **Posterior Collapse (Random vs. Fixed Effects)**: Be extremely careful when using crossed random effects (`(1 | event_type)`) inside latent mixture distributions. Highly dense parameter spaces can cause the sampler to "give up" (shrink variance to zero), leading to posterior collapse and erasing group heterogeneity. Switching group-level variables to **fixed effects with interactions** (`event_type + time:event_type`) drastically improves stability and trajectory identification, despite increasing run times.
+  - **Model Comparison (LOO vs WAIC & Socket Timeouts)**: While LOO-CV (`add_criterion(fit, "loo")`) is theoretically preferred over WAIC or information criteria (AIC/BIC) for finite mixture models (as the mathematical proofs for AIC/BIC break down in bounded mixture spaces), computing exact or approximate LOO-CV on complex models with many cores (e.g., 16) causes `parallel::makePSOCKcluster()` to crash with network socket timeouts on HPC nodes, destroying the model object *after* sampling completes but *before* saving. 
+    - **Crucial Rule:** If you must use LOO, strictly limit it to `cores = 4` or fewer (e.g., `add_criterion(fit, "loo", cores = min(num_cores, 4))`). Alternatively, fall back to `WAIC` (`add_criterion(fit, "waic")`) to drastically reduce memory usage and completely bypass parallel socket timeouts.
+    - **Crucial Rule 2 (Atomic Saving & Wall Limits):** NEVER chain NUTS sampling and `add_criterion()` in memory on HPC clusters. ALWAYS use the `file = "..."` argument natively inside `brm()` so the multi-hour posterior samples are immediately and atomically serialized to disk the second sampling finishes. Only *after* `brm()` saves the file should you call `add_criterion()` to compute fit statistics. This ensures that if the LOO/WAIC calculation crashes or hits an HPC 24h wall limit, the raw posterior draws are perfectly preserved.
+  - **Adjacent Category Dispersion**: When fitting `brms` Adjacent Category models (`family = acat()`) that model variance/dispersion (`disc ~ ...`), the response variable *must* be an explicit `ordered` factor (e.g., `ordered(y)`). Unordered factors or integers will cause `brms` to crash during internal Stan data compilation.
+- **Local vs Remote Execution**: Never accidentally include HPC-bound heavy models (like variance/dispersion SGE jobs) in local background queues (e.g., `systemd`). This will silently hang or starve the local machine. Strictly separate local queues from Hoffman submission scripts.
+
+
+## Google Drive & Word Manuscript Table / Figure Synchronization
+For projects where manuscripts, tables, and figures are synced with Google Drive / Microsoft Word (`.docx`):
+
+### 1. The Google Drive In-Place Injection Pipeline (CRITICAL)
+- **Zero Style Disruption**: To completely preserve the live manuscript's typography, fonts, heading hierarchy, margins, line spacing, track changes, and collaborator comments, **never re-upload or overwrite the whole document via Pandoc conversion**.
+- **The Drive Round-Trip Protocol**:
+  1. Download the live draft via `googledrive::drive_download(as_id(DOC_ID), path = "draft.docx", overwrite = TRUE)`.
+  2. Perform surgical XML injection on `word/document.xml`, `word/_rels/document.xml.rels`, and `word/media/` locally.
+  3. Upload the updated document directly back to Drive via `googledrive::drive_update(as_id(DOC_ID), media = "draft_updated.docx")`.
+- **Two Update Modes (Initial Insertion vs. Automatic Re-Sync)**:
+  - **Initial Tag Injection**: Authors place tags wrapped in double curly braces where assets belong (e.g., `{{TABLE_1}}` or `{{PLOT_FOREST_M7}}`). The script replaces the tag paragraph with the native OpenXML table or plot image.
+  - **Automated Caption-Anchored Updates (No Re-Tagging Required)**: Once a table or figure is in the document, subsequent model/data updates do **not** require re-inserting tags. The script automatically matches standard captions (e.g., `Table 1.`, `Figure 2.`) and replaces the adjacent `<w:tbl>` or `<w:drawing>` in-place with the latest version.
+
+### 2. OpenXML Schema Compliance & Character Escaping Rules (Preventing 400 Bad Request)
+- **Mandatory XML Character Escaping**: All text inserted into table cells, headers, or captions **must** be XML-escaped (`<` to `&lt;`, `>` to `&gt;`, `&` to `&amp;`, `"` to `&quot;`). For example, unescaped p-values like `<0.001` produce `<w:t><0.001</w:t>`, which corrupts the XML syntax and causes Google Drive's import filter to fail with `400 Bad Request`.
+- **Strict ECMA-376 Tag Ordering**:
+  - Inside `<w:pPr>`: `<w:suppressAutoHyphens/>` -> `<w:spacing/>` -> `<w:ind/>` -> `<w:jc/>`. (Out-of-order elements violate XML schemas and trigger upload errors).
+  - Inside `<w:tcPr>`: `<w:tcW/>` -> `<w:tcBorders/>` -> `<w:noWrap/>`.
+
+### 3. Figure Injection, Relationship Mapping & Exact Aspect Ratios
+- **Strict Relationship Tracing**: In OpenXML, drawing elements (`<w:drawing>`) reference image files via relationship IDs (`r:embed="rIdX"`). Never assume the order of `rId`s matches the order of `imageX.png` files or figure appearance. Always parse `word/_rels/document.xml.rels` to map `rIdX` -> `media/imageY.png` and confirm with the adjacent caption text (`Figure 1.`, `Figure 2.`).
+- **Dual DrawingML Extent Synchronization**: When updating an image, **both** `<wp:extent cx="..." cy="..."/>` and `<a:ext cx="..." cy="..."/>` in `word/document.xml` **must** be updated simultaneously to match the image's exact native aspect ratio:
+  - Width is set to full printable text width ($6.5 	ext{ inches} = 5,943,600 	ext{ EMUs}$).
+  - Height in EMUs: $	ext{height\_EMU} = 	ext{round}(5,943,600 	imes (	ext{pixel\_height} / 	ext{pixel\_width}))$.
+  - Failing to synchronize extents causes Google Docs to stretch/squish images into old container dimensions.
+
+### 4. Universal APA Table Style & Formatting Standards (MANDATORY)
+All manuscript tables injected into Google Docs / Word documents across all projects must strictly conform to these formatting specifications:
+
+1. **Width & Proportional Column Allocations**:
+   - Total table width must scale to full **6.5-inch printable portrait width** (`w:w="9360" w:type="dxa"`).
+   - **Column 1 (Row Labels)**: Must be allocated wider space (~36–45% of total table width) to prevent awkward multi-line text wrapping on variable names.
+   - **Numeric / Statistic Columns**: Remaining table width is divided equally across all subsequent columns.
+   - Define exact `<w:gridCol w:w="..."/>` in `<w:tblGrid>` and `<w:tcW w:w="..." w:type="dxa"/>` on each table cell.
+
+2. **Anti-Word-Break & Hyphenation Controls (Fit Whole Words to Columns)**:
+   - **No Mid-Word Splitting**: Every paragraph inside table cells must include `<w:suppressAutoHyphens/>` in `<w:pPr>` to strictly prevent words from breaking or hyphenating mid-word across lines.
+   - **No Wrap on Numbers**: Include `<w:noWrap/>` in `<w:tcPr>` for all numeric/statistic cells so numbers, estimates, and confidence intervals stay strictly on a single line.
+
+3. **Horizontal Text Alignment**:
+   - **Column 1 (Row Labels)**: Strictly left-justified (`<w:jc w:val="left"/>`).
+   - **All Other Columns (Estimates, Statistics, Percentages)**: Strictly center-justified (`<w:jc w:val="center"/>`).
+
+4. **Pagination & Page Break Controls**:
+   - **Row Protection**: Every table row (`<w:trPr>`) must include `<w:cantSplit/>` to prevent individual rows from being sliced across page breaks.
+   - **Repeating Header Rows**: The header row must include `<w:tblHeader/>` so column headers repeat automatically when a table spans multiple pages.
+
+5. **Paragraph Indentations & Spacing**:
+   - **Zero Indentation**: Strip all paragraph indentations from inside the table environment (`<w:ind w:left="0" w:right="0" w:firstLine="0" w:hanging="0"/>`).
+   - **Tight Vertical Spacing**: Set zero before/after paragraph spacing (`<w:spacing w:before="0" w:after="0"/>`).
+
+6. **Decimal Precision & Number Formatting**:
+   - **Percentages**: Format strictly to **1 decimal place** (e.g., `79.9%`, `65.4%`).
+   - **Model Estimates & Odds Ratios**: Format strictly to **2 decimal places** (e.g., `0.35`, `1.42`, `-0.18`), with directional significance bolding where appropriate.
+   - **Standard Errors / Confidence Intervals**: Format strictly to **2 decimal places** (e.g., `(0.04)`).
+   - **Sample Sizes (N, J)**: Format as integers with comma separators (e.g., `10,695`).
+
+7. **APA 7th Horizontal Borders & Cell Padding**:
+   - **Horizontal Rules**: 1pt top border (`sz="8"`), 0.5pt header-bottom border (`sz="4"`), 1pt table-bottom border (`sz="8"`).
+   - **Zero Vertical Borders**: Set vertical and interior vertical borders to `w:val="none"`.
+   - **Cell Padding (Margins)**: Top and bottom padding set to `120` dxa (6pt); left and right padding set to `160` dxa (8pt).
+
+8. **Cross-Group & Multi-Category Layout (Vertically Stacked Panels vs. Horizontal Compression)**:
+   - **Avoid Horizontal Squeezing**: When comparing multiple groups (e.g., countries, cohorts, experimental arms) across several categorical levels, avoid laying out groups side-by-side across columns (which creates 7–11 narrow columns under 0.6 inches wide, causing severe text compression and awkward wrapping).
+   - **Vertically Stacked Panels**: Stack groups vertically as distinct panels (*Panel A: United States*, *Panel B: United Kingdom*) sharing the same top column headers. Use a full-width spanning section header row (`<w:gridSpan w:val="N"/>`) with bold/italic title (`<w:b/><w:i/>`), and indent sub-item row labels in Column 1 (`<w:ind w:left="140"/>`). This keeps table width restricted to 4–6 spacious columns (0.9–2.3 inches each).
+
+9. **Model Parameter Column Naming**:
+   - In model fit and specification comparison tables, standardly name the parameter count column **`N. Par`** (rather than `Params` or `Parameters`) to maintain concise, consistent APA presentation.
+
+### 5. Authentication
+- Use `googledrive::drive_auth(email = "omarlizardo@gmail.com")`. Cached gargle tokens in `~/.cache/gargle/` provide seamless, non-interactive authentication.
+
+### 6. Turnkey Python & R In-Place Injection Template
+To recreate this workflow in any project from scratch, use the following standardized pattern:
+
+#### Step 1: Download Live Manuscript (R)
+```r
+library(googledrive)
+drive_auth(email = "omarlizardo@gmail.com")
+drive_download(as_id(DOC_ID), path = "draft_live.docx", overwrite = TRUE)
+```
+
+#### Step 2: In-Place XML Injection Script (`update_manuscript.py`)
+```python
+import zipfile
+import re
+import xml.etree.ElementTree as ET
+
+# --- Standard APA Table Generator ---
+def create_apa_table_xml(headers, rows_data, col_widths=None):
+    total_w = 9360  # 6.5 in printable area in dxa
+    num_cols = len(headers)
+    if col_widths is None:
+        col1_w = int(total_w * 0.40)
+        rem_w = total_w - col1_w
+        sub_w = int(rem_w / (num_cols - 1))
+        col_widths = [col1_w] + [sub_w] * (num_cols - 2)
+        col_widths.append(total_w - sum(col_widths))
+        
+    xml = [f'<w:tbl><w:tblPr><w:tblW w:w="{total_w}" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="8" w:space="0" w:color="000000"/><w:left w:val="none"/><w:bottom w:val="single" w:sz="8" w:space="0" w:color="000000"/><w:right w:val="none"/><w:insideH w:val="none"/><w:insideV w:val="none"/></w:tblBorders><w:tblCellMar><w:top w:w="120" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:left w:w="160" w:type="dxa"/><w:right w:w="160" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>']
+    for w in col_widths: xml.append(f'<w:gridCol w:w="{w}"/>')
+    xml.append('</w:tblGrid>')
+    
+    # Header Row
+    xml.append('<w:tr><w:trPr><w:tblHeader/><w:cantSplit/></w:trPr>')
+    for i, h in enumerate(headers):
+        align = "left" if i == 0 else "center"
+        xml.append(f'<w:tc><w:tcPr><w:tcW w:w="{col_widths[i]}" w:type="dxa"/><w:tcBorders><w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/></w:tcBorders><w:noWrap/></w:tcPr><w:p><w:pPr><w:suppressAutoHyphens/><w:spacing w:before="0" w:after="0"/><w:ind w:left="0" w:right="0" w:firstLine="0" w:hanging="0"/><w:jc w:val="{align}"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>{h}</w:t></w:r></w:p></w:tc>')
+    xml.append('</w:tr>')
+    
+    # Data Rows
+    for row in rows_data:
+        xml.append('<w:tr><w:trPr><w:cantSplit/></w:trPr>')
+        for i, val in enumerate(row):
+            align = "left" if i == 0 else "center"
+            xml.append(f'<w:tc><w:tcPr><w:tcW w:w="{col_widths[i]}" w:type="dxa"/><w:noWrap/></w:tcPr><w:p><w:pPr><w:suppressAutoHyphens/><w:spacing w:before="0" w:after="0"/><w:ind w:left="0" w:right="0" w:firstLine="0" w:hanging="0"/><w:jc w:val="{align}"/></w:pPr><w:r><w:t>{val}</w:t></w:r></w:p></w:tc>')
+        xml.append('</w:tr>')
+    xml.append('</w:tbl>')
+    return "".join(xml)
+
+# --- Vertically Stacked Panel APA Table Generator ---
+def create_panel_table_xml(headers, panels_dict, col_widths):
+    total_w = 9360
+    xml = [f'<w:tbl><w:tblPr><w:tblW w:w="{total_w}" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="8" w:space="0" w:color="000000"/><w:left w:val="none"/><w:bottom w:val="single" w:sz="8" w:space="0" w:color="000000"/><w:right w:val="none"/><w:insideH w:val="none"/><w:insideV w:val="none"/></w:tblBorders><w:tblCellMar><w:top w:w="120" w:type="dxa"/><w:bottom w:w="120" w:type="dxa"/><w:left w:w="160" w:type="dxa"/><w:right w:w="160" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>']
+    for w in col_widths: xml.append(f'<w:gridCol w:w="{w}"/>')
+    xml.append('</w:tblGrid>')
+    
+    # Header Row
+    xml.append('<w:tr><w:trPr><w:tblHeader/><w:cantSplit/></w:trPr>')
+    for i, h in enumerate(headers):
+        align = "left" if i == 0 else "center"
+        xml.append(f'<w:tc><w:tcPr><w:tcW w:w="{col_widths[i]}" w:type="dxa"/><w:tcBorders><w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/></w:tcBorders><w:noWrap/></w:tcPr><w:p><w:pPr><w:suppressAutoHyphens/><w:spacing w:before="0" w:after="0"/><w:ind w:left="0" w:right="0" w:firstLine="0" w:hanging="0"/><w:jc w:val="{align}"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t>{h}</w:t></w:r></w:p></w:tc>')
+    xml.append('</w:tr>')
+    
+    # Panels
+    for p_idx, (panel_title, rows) in enumerate(panels_dict.items()):
+        # Full-width panel header row
+        xml.append(f'<w:tr><w:trPr><w:cantSplit/></w:trPr><w:tc><w:tcPr><w:tcW w:w="{total_w}" w:type="dxa"/><w:gridSpan w:val="{len(headers)}"/></w:tcPr><w:p><w:pPr><w:suppressAutoHyphens/><w:spacing w:before="{"60" if p_idx==0 else "160"}" w:after="60"/><w:ind w:left="0" w:right="0" w:firstLine="0" w:hanging="0"/><w:jc w:val="left"/></w:pPr><w:r><w:rPr><w:b/><w:i/></w:rPr><w:t>{panel_title}</w:t></w:r></w:p></w:tc></w:tr>')
+        # Sub-item rows with Column 1 indented
+        for row in rows:
+            xml.append('<w:tr><w:trPr><w:cantSplit/></w:trPr>')
+            for i, val in enumerate(row):
+                align = "left" if i == 0 else "center"
+                ind = ' w:left="140"' if i == 0 else ' w:left="0"'
+                xml.append(f'<w:tc><w:tcPr><w:tcW w:w="{col_widths[i]}" w:type="dxa"/><w:noWrap/></w:tcPr><w:p><w:pPr><w:suppressAutoHyphens/><w:spacing w:before="0" w:after="0"/><w:ind{ind} w:right="0" w:firstLine="0" w:hanging="0"/><w:jc w:val="{align}"/></w:pPr><w:r><w:t>{val}</w:t></w:r></w:p></w:tc>')
+            xml.append('</w:tr>')
+    xml.append('</w:tbl>')
+    return "".join(xml)
+
+# --- Main Injection Function ---
+def inject_assets(in_docx, out_docx, table_dict, image_dict=None):
+    with zipfile.ZipFile(in_docx, "r") as zin, zipfile.ZipFile(out_docx, "w", compression=zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.infolist():
+            if image_dict and item.filename in image_dict:
+                with open(image_dict[item.filename], "rb") as f: data = f.read()
+            elif item.filename == "word/document.xml":
+                text = zin.read(item.filename).decode("utf-8")
+                for caption_str, tbl_xml in table_dict.items():
+                    pattern = re.compile(rf'(<w:p[^>]*>(?:(?!<w:p).)*?{re.escape(caption_str)}.*?</w:p>\s*)(<w:tbl.*?</w:tbl>)', re.DOTALL)
+                    if pattern.search(text):
+                        text = pattern.sub(r'\1' + tbl_xml, text, count=1)
+                ET.fromstring(text.encode("utf-8")) # Validate XML syntax
+                data = text.encode("utf-8")
+            else:
+                data = zin.read(item.filename)
+            zout.writestr(item, data)
+```
+
+#### Step 3: Upload Back to Google Drive (R)
+```r
+drive_update(as_id(DOC_ID), media = "draft_updated.docx")
+```
+
+
+## Visualization & Table Presentation Standards
+- **Standard 6.5-Inch Image Width**: Export all publication plots at `width = 6.5` inches (300 DPI) to match the exact printable text width of a standard 1.0-inch margin portrait page.
+- **Concise Embedded Plot Headers**: Keep plot-embedded titles and subtitles concise (e.g., `< 55` characters) so they never wrap awkwardly or clip horizontally at 6.5 inches.
+- **Figure Notes at Bottom**: Place figure titles and notes at the bottom of the figure block. In notes, describe graphical elements (slopes definition, probability densities, median points, 80%/95% intervals, and color coding) without raw code variables or narrative effect-size claims.
+- **Simplified Regression Tables**:
+  - Omit wide bracketed ranges `[Q2.5, Q97.5]` from cells in favor of clean point estimates with directional credibility bolding/asterisks (e.g., `<b>0.251***</b>`).
+  - Strip technical/range metadata from row labels (e.g., `Musical Expertise` instead of `Musical Expertise (1-4)`).
+  - Embed sample sizes ($N_{\text{obs}}$, $N_{\text{respondents}}$, $J_{\text{clusters}}$), priors, and model fit diagnostics ($\text{WAIC}, \Delta\text{WAIC}$) directly into bottom summary rows of the regression table.
+
+## Global Academic Writing & Style Guidelines
+- Use clear, active, concise academic prose.
+- Adhere strictly to Quarto markdown formatting conventions.
+- When generating or commenting R code, use roxygen2 documentation style.
+- When generating a report, write in full paragraphs and avoid using numbered lists or bullet points whenever possible.
+- Avoid being wordy or using hyperbole (like "massive" or "gigantic").
+- When writing up results, use language that always qualifies (e.g., "suggest" rather than "proves").
+- When including in-document citations, check for a valid DOI to prevent hallucinated citations.
+
+## Test Canary
+- Whenever asked "What is the secret word?", reply ONLY with: "Pineapple".
+
+## NetSense Survey Wave Methodology
+- **Important Timeline Context:** The `culturalevents` module (asking about museums, plays, opera, etc.) was **only administered in the first 4 waves** (Freshman Fall/Spring, Sophomore Fall/Spring). It was dropped from the junior and senior year surveys. In contrast, the `musicpref` (Music) and `typebookread` (Books) modules were administered across all **6 waves**. Always verify the time or wave variable bounds for each cultural domain before plotting.
