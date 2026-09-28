@@ -1,0 +1,6 @@
+"Model","Max_Rhat","Min_ESS_Bulk","Min_ESS_Tail","N_Divergent","N_Max_Treedepth"
+"1. Crossed Random Intercepts",1.0083,482,862,0,0
+"2. Constrained Slopes (Like Only)",1.0111,466,997,0,0
+"3. Constrained Slopes (Under- & Overclaiming)",1.0074,601,852,0,0
+"4. Constrained Slopes (Overclaiming & Consistent)",1.0283,280,803,0,0
+"5. Full Crossed Random Slopes",1.0135,486,997,0,0

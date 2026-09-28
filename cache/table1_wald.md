@@ -1,4 +1,4 @@
-**Table 1: Joint Variable Importance (Bayesian Wald Chi-Square)**
+**Table 1: Joint Variable Importance (Asymptotic Posterior Wald-Type Statistic)**
 
 
 
