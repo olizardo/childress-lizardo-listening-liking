@@ -1,10 +1,16 @@
 #' @title Plot Purged Genre Random Intercepts (3-Panel Engagement Profiles)
 #' @description Extracts posterior draws for genre random intercepts (u0) across all three
-#'   active engagement states from the preferred Bayesian crossed random slopes model,
-#'   centers them within-genre across states to purge the shared baseline popularity effect,
-#'   and renders a composite 3-panel tidybayes half-eye distribution plot.
+#'   active engagement states from Model 1 (Crossed Random Intercepts -- the baseline
+#'   specification with NO genre-level slopes, matching Equation 3 / "the baseline
+#'   Bayesian crossed random intercepts model" as described in the manuscript's Step 1),
+#'   centers them within-genre across states to purge the shared baseline popularity
+#'   effect, and renders a composite 3-panel tidybayes half-eye distribution plot.
 #' @details Uses a directional credibility threshold where >= 95% of posterior draws
 #'   fall on one side of zero (pd >= 0.95).
+#'   CORRECTNESS NOTE: this script previously loaded the random-SLOPES model
+#'   (model_brms_slopes.rds / Model 5), which never matched the manuscript's own
+#'   text and equation, both of which describe the pure-intercepts baseline (Model 1).
+#'   Fixed to load Model 1 directly so code and prose agree.
 #'   Generates: Plots/Purged_Genre_Engagement_Profiles.png
 
 library(brms)
@@ -15,13 +21,13 @@ library(dplyr)
 library(tibble)
 library(tidyr)
 
-cat("Loading Bayesian Random Slopes Model...\n")
-if (exists("m_slopes")) {
-  model_fit <- m_slopes
-} else if (file.exists("rds/model_brms_slopes.rds")) {
-  model_fit <- readRDS("rds/model_brms_slopes.rds")
+cat("Loading Bayesian Model 1 (Crossed Random Intercepts -- baseline specification)...\n")
+if (exists("m_intercepts")) {
+  model_fit <- m_intercepts
+} else if (file.exists("rds/model_brms_intercepts.rds")) {
+  model_fit <- readRDS("rds/model_brms_intercepts.rds")
 } else {
-  stop("Model file rds/model_brms_slopes.rds not found.")
+  stop("Model file rds/model_brms_intercepts.rds not found.")
 }
 
 draws_df <- as_draws_df(model_fit)
@@ -143,6 +149,9 @@ p_purged_combined <- ggplot(tb_wide, aes(x = purged_u0, y = genre_name, fill = c
   )
 
 dir.create("Plots", showWarnings = FALSE)
+dir.create("cache", showWarnings = FALSE)
 ggsave("Plots/Purged_Genre_Engagement_Profiles.png", p_purged_combined, width = 13, height = 8, dpi = 300)
+write.csv(cred_summary, "cache/purged_genre_profiles_credsummary.csv", row.names = FALSE)
 
 cat("Successfully generated Plots/Purged_Genre_Engagement_Profiles.png with 95% directional credibility rule!\n")
+cat("Saved per-genre-per-state credibility classifications to cache/purged_genre_profiles_credsummary.csv\n")

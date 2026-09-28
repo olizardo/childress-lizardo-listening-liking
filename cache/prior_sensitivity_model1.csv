@@ -1,0 +1,7 @@
+"Specification","State","Mean","SD","CrI_2.5","CrI_97.5"
+"Original: normal(0, 1.5)","ListenOnly",-0.014,0.024,-0.062,0.033
+"Original: normal(0, 1.5)","LikeOnly",0.231,0.022,0.188,0.274
+"Original: normal(0, 1.5)","Both",0.141,0.026,0.091,0.191
+"Wider prior: normal(0, 3)","ListenOnly",-0.015,0.025,-0.063,0.033
+"Wider prior: normal(0, 3)","LikeOnly",0.23,0.021,0.188,0.273
+"Wider prior: normal(0, 3)","Both",0.142,0.025,0.093,0.192

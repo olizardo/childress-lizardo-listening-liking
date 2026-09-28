@@ -1,6 +1,9 @@
 # plot_odds_overclaiming_halfeye.R
 # Visualizes the marginal effect of moving from lowest to highest arts exposure
-# on genre-specific odds of overclaiming using tidybayes + ggdist::stat_halfeye
+# on genre-specific odds of overclaiming using tidybayes + ggdist::stat_halfeye.
+# Sourced from the preferred Bayesian model (Model 4: Constrained Slopes on
+# Overclaiming & Consistent Engagement, refit) -- see Scripts/finish_loo_compare.R
+# for the corrected paired-WAIC comparison that selected Model 4 over Model 5.
 # Colored by 3-tier Educational Preference Ratio (College Grad / High School Liking Ratio)
 # Outputs to Plots/ChildArts_Odds_Overclaiming_HalfEye.png
 
@@ -12,13 +15,13 @@ library(tidyr)
 library(ggplot2)
 library(ggdist)
 
-cat("Loading Bayesian Random Slopes Model...\n")
-if (exists("fit_brms_slopes")) {
-  model_fit <- fit_brms_slopes
-} else if (file.exists("rds/model_brms_slopes.rds")) {
-  model_fit <- readRDS("rds/model_brms_slopes.rds")
+cat("Loading Bayesian Model 4 (Constrained Over/True Slopes, REFIT -- preferred specification)...\n")
+if (exists("m_preferred")) {
+  model_fit <- m_preferred
+} else if (file.exists("rds/model_brms_constrained_over_true_refit.rds")) {
+  model_fit <- readRDS("rds/model_brms_constrained_over_true_refit.rds")
 } else {
-  stop("Model file rds/model_brms_slopes.rds not found.")
+  stop("Model file rds/model_brms_constrained_over_true_refit.rds not found.")
 }
 
 # Genre name mapping
@@ -68,6 +71,10 @@ cred_summary <- tb_draws %>%
     mean = mean(odds_ratio),
     .groups = "drop"
   )
+
+dir.create("cache", showWarnings = FALSE)
+write.csv(cred_summary %>% arrange(median), "cache/odds_overclaiming_by_genre.csv", row.names = FALSE)
+cat("Saved per-genre overclaiming odds ratio summary to cache/odds_overclaiming_by_genre.csv\n")
 
 genre_levels <- cred_summary %>% arrange(median) %>% pull(genre_name)
 tb_draws$genre_name <- factor(tb_draws$genre_name, levels = genre_levels)

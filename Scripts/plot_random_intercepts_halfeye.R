@@ -1,12 +1,14 @@
 #' @title Plot Genre Random Intercepts via Tidybayes Half-Eye Plots
 #' @description Extracts posterior draws for genre-specific random intercepts (u0)
-#'   across all three active engagement states from the preferred Bayesian crossed
-#'   random slopes model (model_brms_slopes.rds) and renders half-eye density distributions
-#'   colored by 95% Credible Interval status.
+#'   across all three active engagement states from Model 1 (Crossed Random
+#'   Intercepts -- the baseline, no-slopes specification) and renders half-eye
+#'   density distributions colored by 95% Credible Interval status.
 #' @details Produces three high-resolution figures:
 #'   - Plots/Random_Intercepts_Overclaiming.png
 #'   - Plots/Random_Intercepts_Underclaiming.png
 #'   - Plots/Random_Intercepts_True_Engagement.png
+#'   CORRECTNESS NOTE: previously loaded model_brms_slopes.rds (Model 5); fixed
+#'   to Model 1 to match this figure's "random intercepts" framing.
 
 library(brms)
 library(tidybayes)
@@ -15,13 +17,13 @@ library(ggplot2)
 library(dplyr)
 library(tibble)
 
-cat("Loading Bayesian Random Slopes Model...\n")
-if (exists("m_slopes")) {
-  model_fit <- m_slopes
-} else if (file.exists("rds/model_brms_slopes.rds")) {
-  model_fit <- readRDS("rds/model_brms_slopes.rds")
+cat("Loading Bayesian Model 1 (Crossed Random Intercepts -- baseline specification)...\n")
+if (exists("m_intercepts")) {
+  model_fit <- m_intercepts
+} else if (file.exists("rds/model_brms_intercepts.rds")) {
+  model_fit <- readRDS("rds/model_brms_intercepts.rds")
 } else {
-  stop("Model file rds/model_brms_slopes.rds not found.")
+  stop("Model file rds/model_brms_intercepts.rds not found.")
 }
 
 draws_df <- as_draws_df(model_fit)
@@ -107,7 +109,7 @@ plot_random_intercept_clean <- function(draws_df, state_var, title, xlab = "Genr
     ) +
     labs(
       title = title,
-      subtitle = "Posterior Random Intercept Deviations (u0) from Bayesian Crossed Random Slopes Model",
+      subtitle = "Posterior Random Intercept Deviations (u0) from Bayesian Crossed Random Intercepts Model",
       x = xlab
     )
   

@@ -1,8 +1,15 @@
 #' @title Plot Correlation Figures for Bayesian Overclaiming Analysis
-#' @description Generates two publication-grade correlation figures:
+#' @description Generates two publication-grade correlation figures, sourced from
+#'   the preferred Bayesian model (Model 4: Constrained Slopes on Overclaiming &
+#'   Consistent Engagement, refit -- see Scripts/finish_loo_compare.R for the
+#'   corrected paired-WAIC comparison that selected Model 4 over Model 5):
 #'   1. Plots/Overclaim_Random_Intercept_Slope_Correlation.png: Random Intercept vs. Random Slope
 #'   2. Plots/Bayesian_Odds_Prestige_Correlation.png: Educational Prestige vs. Bayesian Odds Ratios
-#'   Uses high ggrepel repulsion to prevent label collisions.
+#'   Uses high ggrepel repulsion to prevent label collisions. Also computes the
+#'   posterior draw-wise (not just posterior-median) Pearson/Spearman correlation
+#'   between genre-specific overclaiming odds ratios and both the educational
+#'   Class Prestige ratio and the Black-to-White racial preference ratio, saving
+#'   the full distributional summary to cache/correlation_draws_summary.csv.
 
 library(brms)
 library(tidybayes)
@@ -10,14 +17,15 @@ library(ggplot2)
 library(ggrepel)
 library(dplyr)
 library(tibble)
+library(tidyr)
 
-cat("Loading Bayesian Random Slopes Model...\n")
-if (exists("m_slopes")) {
-  model_fit <- m_slopes
-} else if (file.exists("rds/model_brms_slopes.rds")) {
-  model_fit <- readRDS("rds/model_brms_slopes.rds")
+cat("Loading Bayesian Model 4 (Constrained Over/True Slopes, REFIT -- preferred specification)...\n")
+if (exists("m_preferred")) {
+  model_fit <- m_preferred
+} else if (file.exists("rds/model_brms_constrained_over_true_refit.rds")) {
+  model_fit <- readRDS("rds/model_brms_constrained_over_true_refit.rds")
 } else {
-  stop("Model file rds/model_brms_slopes.rds not found.")
+  stop("Model file rds/model_brms_constrained_over_true_refit.rds not found.")
 }
 
 genre_names <- c(
@@ -52,6 +60,51 @@ tb_wide_effects <- tb_draws %>%
     odds_ratio = exp(total_slope * 6)
   )
 
+# -------------------------------------------------------------
+# Posterior draw-wise correlations (not just a single point estimate from
+# genre-level medians): for each of the ~4,000 post-warmup draws, correlate
+# the 20 genre-specific overclaiming odds ratios against (a) the Class
+# Prestige ratio and (b) the Black-to-White racial preference ratio, then
+# summarize the resulting distribution of correlation coefficients.
+# -------------------------------------------------------------
+draw_level <- tb_wide_effects %>%
+  left_join(ame_df %>% select(genre_name, ratio_col, ratio_black), by = "genre_name")
+
+cor_draws_summary <- draw_level %>%
+  group_by(.draw) %>%
+  summarise(
+    pearson_prestige = cor(odds_ratio, ratio_col, method = "pearson"),
+    spearman_prestige = cor(odds_ratio, ratio_col, method = "spearman"),
+    spearman_racial = cor(odds_ratio, ratio_black, method = "spearman"),
+    .groups = "drop"
+  )
+
+cor_draws_report <- tibble::tibble(
+  Statistic = c("Pearson r (Class Prestige)", "Spearman rho (Class Prestige)", "Spearman rho (Racial Preference)"),
+  Median = c(
+    median(cor_draws_summary$pearson_prestige),
+    median(cor_draws_summary$spearman_prestige),
+    median(cor_draws_summary$spearman_racial)
+  ),
+  CrI_2.5 = c(
+    quantile(cor_draws_summary$pearson_prestige, 0.025),
+    quantile(cor_draws_summary$spearman_prestige, 0.025),
+    quantile(cor_draws_summary$spearman_racial, 0.025)
+  ),
+  CrI_97.5 = c(
+    quantile(cor_draws_summary$pearson_prestige, 0.975),
+    quantile(cor_draws_summary$spearman_prestige, 0.975),
+    quantile(cor_draws_summary$spearman_racial, 0.975)
+  )
+) %>%
+  mutate(across(c(Median, CrI_2.5, CrI_97.5), ~round(., 3)))
+
+dir.create("cache", showWarnings = FALSE)
+write.csv(cor_draws_report, "cache/correlation_draws_summary.csv", row.names = FALSE)
+cat("\n===== POSTERIOR DRAW-WISE CORRELATION SUMMARY (Model 4) =====\n")
+print(cor_draws_report)
+cat("Saved to cache/correlation_draws_summary.csv\n")
+
 genre_summary <- tb_wide_effects %>%
   group_by(genre_name) %>%
   summarise(
@@ -85,6 +138,8 @@ pref_colors <- c(
 # -------------------------------------------------------------
 r_u0_u1 <- cor(genre_summary$u0_med, genre_summary$u1_med, method = "pearson")
 rho_u0_u1 <- cor(genre_summary$u0_med, genre_summary$u1_med, method = "spearman")
+
+write.csv(genre_summary, "cache/genre_summary_correlations.csv", row.names = FALSE)
 
 p_int_slope_corr <- ggplot(genre_summary, aes(x = u0_med, y = u1_med)) +
   geom_smooth(method = "lm", color = "#e41a1c", fill = "#fcae91", alpha = 0.25, linewidth = 1.1) +
@@ -140,6 +195,14 @@ p_int_slope_corr <- ggplot(genre_summary, aes(x = u0_med, y = u1_med)) +
 # -------------------------------------------------------------
 r_prestige_or <- cor(genre_summary$ratio_col, genre_summary$or_med, method = "pearson")
 rho_prestige_or <- cor(genre_summary$ratio_col, genre_summary$or_med, method = "spearman")
+
+write.csv(
+  data.frame(
+    Statistic = c("Pearson r (u0 vs u1)", "Spearman rho (u0 vs u1)", "Pearson r (Prestige vs OR, medians)", "Spearman rho (Prestige vs OR, medians)"),
+    Value = round(c(r_u0_u1, rho_u0_u1, r_prestige_or, rho_prestige_or), 3)
+  ),
+  "cache/correlation_point_estimates.csv", row.names = FALSE
+)
 
 p_prestige_corr <- ggplot(genre_summary, aes(x = ratio_col, y = or_med)) +
   geom_smooth(method = "lm", color = "#2b8cbe", fill = "#a6bddb", alpha = 0.25, linewidth = 1.1) +
