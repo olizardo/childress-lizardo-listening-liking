@@ -227,26 +227,11 @@ cat("**Table 4: Predictors of Consistent Engagement (Both)**\n\n")
 print(kable(extract_eq(draws, "Both"), format = "pipe"))
 sink()
 
-# Fit Comparison (Streamlined ultra-concise column headers)
-fit_table_bayes <- data.frame(
-  Model = c(
-    "1. Crossed Random Intercepts (Baseline)",
-    "2. Constrained Slopes (Like Only)",
-    "3. Constrained Slopes (Under- & Overclaiming)",
-    "4. Constrained Slopes (Overclaiming & Consistent)",
-    "5. Full Crossed Random Slopes (Preferred)"
-  ),
-  Under = c("—", "—", "✓", "—", "✓"),
-  Over = c("—", "✓", "✓", "✓", "✓"),
-  Both = c("—", "—", "—", "✓", "✓"),
-  Par = c("4,820", "4,840", "4,860", "4,860", "4,880"),
-  `WAIC (SE)` = c("48,917.4<br>(230.4)", "48,823.9<br>(229.6)", "48,822.1<br>(229.5)", "48,735.1<br>(229.5)", "48,732.4<br>(228.6)"),
-  `Delta_WAIC` = c("0.0", "-93.5", "-95.3", "-182.3", "-185.0"),
-  check.names = FALSE,
-  stringsAsFactors = FALSE
-)
-
-sink("cache/table5_fit.md")
-cat("**Table 5: Bayesian Mixed-Effects Model Fit Comparison**\n\n")
-print(kable(fit_table_bayes, format = "pipe"))
-sink()
+# NOTE: Table 5 (Bayesian Mixed-Effects Model Fit Comparison) is NO LONGER
+# generated here. The block that used to hand-type WAIC point estimates and
+# marginal (not paired) standard errors was statistically invalid -- see
+# Scripts/finish_loo_compare.R, which computes the correct PAIRED elpd_diff
+# and se_diff via loo::loo_compare() across the final model set (Models 2,
+# 4, and 5 use their Phase-1 convergence refits) and writes
+# cache/table5_fit.md directly. Re-run that script (on Hoffman2) if any of
+# the underlying model fits change; do not regenerate Table 5 here.

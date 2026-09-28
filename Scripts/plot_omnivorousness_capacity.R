@@ -2,13 +2,17 @@
 # Visualizes the divergence between Abstract Liking (Omnivorousness) 
 # and Concrete Listening across levels of Cultural Capital
 # Outputs to Plots/ChildArts_Omnivorousness_Capacity.png
+# NOTE: only the fitted model's stored $data (identical analysis data frame
+# across all 5 specifications) is used here -- no random effects are pulled
+# from the model itself -- but the source is kept aligned with the preferred
+# specification (Model 4: Constrained Over/True Slopes, refit) for consistency.
 
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 
 cat("Loading dataset...\n")
-df <- readRDS("rds/model_brms_slopes.rds")$data
+df <- readRDS("rds/model_brms_constrained_over_true_refit.rds")$data
 
 cat("Calculating person-level statistics...\n")
 person_stats <- df %>%

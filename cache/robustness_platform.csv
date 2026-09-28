@@ -1,0 +1,10 @@
+"Specification","State","Mean","SD","CrI_2.5","CrI_97.5"
+"Original (Winamp included, N=10)","ListenOnly",-0.014,0.024,-0.062,0.033
+"Original (Winamp included, N=10)","LikeOnly",0.231,0.022,0.188,0.274
+"Original (Winamp included, N=10)","Both",0.141,0.026,0.091,0.191
+"Winamp dropped","ListenOnly",-0.013,0.025,-0.062,0.036
+"Winamp dropped","LikeOnly",0.231,0.022,0.188,0.274
+"Winamp dropped","Both",0.144,0.026,0.095,0.194
+"Winamp collapsed into Other","ListenOnly",-0.015,0.024,-0.063,0.032
+"Winamp collapsed into Other","LikeOnly",0.232,0.021,0.191,0.274
+"Winamp collapsed into Other","Both",0.142,0.026,0.091,0.194

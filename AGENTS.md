@@ -30,93 +30,114 @@ Instead of a simple binary, we model the data as four competing, mutually exclus
 
 ### 3. Comprehensive Modeling Strategy: Pure Bayesian Hierarchical Framework
 All legacy frequentist ML (`nnet::multinom`) models have been completely replaced by **Bayesian Crossed Random-Effects Multinomial Logistic Regressions** (`brms` + `cmdstanr`), providing exact posterior inference that fully respects person-level clustering, genre-level variation, and regularized shrinkage:
-1. **Model 1 (Crossed Random Intercepts):** `(1 | id) + (1 | genre_id)` across all logits $\rightarrow$ `rds/model_brms_intercepts.rds` (WAIC = 48,917.4, df = 4,820). Serves as the baseline model for omnibus Joint Wald test statistics, fixed-effect parameter tables, and predicted probability plots.
-2. **Model 2 (Constrained Slopes — Like Only):** Random slopes `(1 + child_arts | genre_id)` strictly on `muLikeOnly`, with random intercepts on `muListenOnly` and `muBoth` $\rightarrow$ `rds/model_brms_constrained_likeonly.rds` (WAIC = 48,823.9, df = 4,840).
-3. **Model 3 (Constrained Slopes — Under- & Overclaim):** Random slopes `(1 + child_arts | genre_id)` on `muListenOnly` and `muLikeOnly`, with random intercepts strictly on `muBoth` $\rightarrow$ `rds/model_brms_constrained_under_over.rds` (WAIC = 48,822.1, df = 4,860).
-4. **Model 4 (Constrained Slopes — Overclaiming & Consistent):** Random slopes `(1 + child_arts | genre_id)` on `muLikeOnly` and `muBoth`, with random intercepts strictly on `muListenOnly` $\rightarrow$ `rds/model_brms_constrained_over_true.rds` (WAIC = 48,735.1, df = 4,860).
-5. **Model 5 (Full Crossed Random Slopes — Preferred):** `(1 | id) + (1 + child_arts | genre_id)` across all logits $\rightarrow$ `rds/model_brms_slopes.rds` (WAIC = **48,732.4**, df = 4,880). Preferred model for genre-level slope variance and counterfactual predictions.
+1. **Model 1 (Crossed Random Intercepts):** `(1 | id) + (1 | genre_id)` across all logits $\rightarrow$ `rds/model_brms_intercepts.rds` (WAIC = 48,917.4). Baseline model for the joint importance tests (Table 1), fixed-effect parameter tables (Tables 2–4), predicted probability plots, and the genre-level "purged engagement profile" figure (Figure 1) since it has no genre-level slopes.
+2. **Model 2 (Constrained Slopes — Like Only):** Random slopes `(1 + child_arts | genre_id)` strictly on `muLikeOnly` $\rightarrow$ **refit** `rds/model_brms_constrained_likeonly_refit.rds` (original fit failed convergence check, see §3a).
+3. **Model 3 (Constrained Slopes — Under- & Overclaim):** Random slopes `(1 + child_arts | genre_id)` on `muListenOnly` and `muLikeOnly` $\rightarrow$ `rds/model_brms_constrained_under_over.rds` (original fit passed convergence, no refit needed).
+4. **Model 4 (Constrained Slopes — Overclaiming & Consistent, PREFERRED):** Random slopes `(1 + child_arts | genre_id)` on `muLikeOnly` and `muBoth` only $\rightarrow$ **refit** `rds/model_brms_constrained_over_true_refit.rds`. This is now the preferred specification for all genre-level analyses (see §4).
+5. **Model 5 (Full Crossed Random Slopes):** `(1 | id) + (1 + child_arts | genre_id)` across all logits $\rightarrow$ **refit** `rds/model_brms_slopes_refit.rds`. Statistically indistinguishable from Model 4 (see §4) — no longer treated as the preferred model.
 
-### 4. Bayesian Model Selection & Fit Hierarchy
+**3a. Convergence refits (2026-09-28 session).** `Scripts/check_convergence.R` found Models 2, 4, and 5 exceeded $\hat{R} < 1.01$ (max $\hat{R}$ up to 1.028 in Model 4), though none had divergences or treedepth issues. All three were refit with `iter = 4000, warmup = 1500, adapt_delta = 0.97` (`Scripts/run_brms_*_refit.R`, submitted via the matching `submit_brms_*_refit.sh`), after which all 5 specifications pass standard diagnostics (max $\hat{R} = 1.008$, min bulk ESS $= 482$, zero divergences — see `cache/table_diagnostics_final.md`). **Always use the `_refit` versions of Models 2, 4, and 5** for any new analysis; the original (non-refit) `.rds` files are kept only for provenance.
 
-| Model Specification | Underclaim (Listen Only) | Overclaim (Like Only) | Consistent (Both) | Parameters ($df$) | $\text{elpd}_{\text{waic}}$ ($SE$) | WAIC ($SE$) | $\Delta$WAIC (vs. Baseline) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **1. Crossed Random Intercepts** | — | — | — | 4,820 | -24,458.7 (115.2) | 48,917.4 (230.4) | 0.0 |
-| **2. Constrained Slopes (Like Only)** | — | ✓ | — | 4,840 | -24,412.0 (114.8) | 48,823.9 (229.6) | -93.5 |
-| **3. Constrained Slopes (Under- & Overclaim)** | ✓ | ✓ | — | 4,860 | -24,411.0 (114.7) | 48,822.1 (229.5) | -95.3 |
-| **4. Constrained Slopes (Overclaiming & Consistent)** | — | ✓ | ✓ | 4,860 | -24,367.5 (114.7) | 48,735.1 (229.5) | -182.3 |
-| **5. Full Crossed Random Slopes (Preferred)** | ✓ | ✓ | ✓ | 4,880 | -24,366.2 (114.3) | **48,732.4** (228.6) | **-185.0** |
+### 4. Corrected Bayesian Model Selection (paired `loo_compare`, not raw ΔWAIC)
 
-- **Optimal Predictive Fit:** Model 5 (Full Crossed Random Slopes) achieves the greatest predictive improvement ($\Delta\text{WAIC} = -185.0$ vs. the random intercepts baseline), demonstrating that early arts exposure exerts distinct, genre-specific slopes across complex tastes.
-- **Substantive Hierarchy:** Adding slopes on `LikeOnly` accounts for roughly half of the total fit gain ($\Delta\text{WAIC} = -93.5$), while adding slopes to `ListenOnly` in Model 3 adds almost nothing ($\Delta = -1.8$). Model 4 (slopes on both `LikeOnly` and `Both`) captures virtually the entire remaining gain ($\Delta\text{WAIC} = -182.3$), confirming that cultural capital slopes matter profoundly for consistent consumption (`Both`) alongside overclaiming (`LikeOnly`), with minimal variation on ambient listening (`ListenOnly`).
+The original 5-model comparison table compared models using *independently computed* WAIC standard errors (~229 for every model), which made every ΔWAIC look large relative to noise. This was **statistically invalid** — the correct comparison uses `loo::loo_compare()`'s *paired* pointwise `elpd_diff`/`se_diff`, computed in `Scripts/finish_loo_compare.R`:
 
-### 5. Key Empirical Findings
-- **Highbrow Concentration:** Immersion in childhood arts increases the odds of overclaiming Opera by **15.2-fold** (95% CrI: [8.46, 28.25]) and Classical music by **12.0-fold** (95% CrI: [7.07, 20.18]). In contrast, Country is the only genre where the 95% credible interval crosses unity ($\text{OR} = 1.07$, 95% CrI: [0.61, 1.82]).
-- **Educational Prestige Governs Overclaiming:** Bayesian overclaiming odds ratios correlate exceptionally strongly with Class Prestige (the College/HS liking ratio; $r = 0.79$, Spearman $\rho = 0.70$).
-- **Negative Intercept-Slope Correlation:** Genre random intercepts ($u_0$) and arts random slopes ($u_1$) for overclaiming correlate at $r = -0.83$ ($\rho = -0.82$). Lower-popularity highbrow genres experience the steepest positive boost from cultural capital.
-- **Corrected Genre Profiles:** Within-genre centered random intercepts ($\Delta u_{0jk} = u_{0jk} - \bar{u}_{0j}$) cancel the baseline popularity artifact ($P(\text{Neither})$ denominator effect), revealing clear qualitative clusters using the directional credibility rule ($\text{pd} \ge 0.95$):
-  - *Overclaiming Tilt:* Bluegrass, Oldies, Musicals, Easy Listening, Jazz, Swing/Big Band, Opera.
-  - *Consistent Tilt:* Classic Rock, Country, Contemporary Rock, Contemporary Pop, Oldies.
-  - *Underclaiming Tilt:* Latin, Rap/Hip Hop, Heavy Metal, Contemporary Pop.
-- **Predicted Probability Shift (Baseline Model):** Moving from childhood arts exposure level 1 to 7 increases the predicted probability of Overclaiming from **19.4%** to **45.7%** (+26.3 pp), while Consistent Engagement rises modestly from **9.0%** to **12.5%** (+3.5 pp), Underclaiming declines from **11.1%** to **6.0%**, and non-engagement (*Neither*) drops from **59.5%** to **34.9%**.
-- **Monochrome Publication Styling:** All summary tables (`gt`) adhere to a clean academic journal theme with serif typography, standardized horizontal rules, and zero decorative color fills.
-- **Reproducibility & Environment:** Full bibliography integration via `references.bib` citing R v4.5.3, `brms` v2.23.0, and `CmdStan` v2.39.0 / `cmdstanr`, with `renv` environment fully locked and synchronized.
+| Model Specification | WAIC (SE) | elpd_diff | se_diff | ratio |
+| :--- | :---: | :---: | :---: | :---: |
+| 1. Crossed Random Intercepts | 48,917.4 (228.9) | -93.2 | 13.5 | -6.90 |
+| 2. Constrained Slopes (Like Only) [REFIT] | 48,828.1 (229.5) | -48.6 | 9.5 | -5.13 |
+| 3. Constrained Slopes (Under- & Overclaiming) | 48,822.1 (229.5) | -45.6 | 9.1 | -5.00 |
+| **4. Constrained Slopes (Overclaiming & Consistent) [REFIT] — PREFERRED** | **48,730.9 (229.5)** | **0.0** | — | — |
+| 5. Full Crossed Random Slopes [REFIT] | 48,731.4 (229.5) | -0.2 | 1.3 | -0.20 |
 
-### 6. Google Drive Manuscript Synchronization
+- **Models 1–3 are decisively worse** than 4/5 (paired ratios −5.0 to −6.9): allowing genre-varying returns to childhood arts exposure materially improves fit, but only once both `LikeOnly` *and* `Both` get genre-specific slopes (Model 3, which only adds a `ListenOnly` slope on top of Model 2, barely moves the needle).
+- **Models 4 and 5 are statistically indistinguishable** (elpd_diff = −0.2, se_diff = 1.3, ratio = −0.20 — a fifth of one standard error). Model 4 achieves this with 20 fewer parameters (no genre-specific `ListenOnly` slope), so **parsimony now favors Model 4**, reversing the project's earlier working conclusion that Model 5 was preferred. All genre-level figures/analyses should be regenerated from Model 4 going forward.
+- **Caveat:** Models 1–3 show 2.8–3.0% of observations with $p_{\text{waic}} > 0.4$, the standard flag that WAIC may be unstable for those pointwise contributions (PSIS-LOO preferred in principle, but full LOO with many cores previously caused socket timeouts on this cluster — see HPC section below). Unlikely to change the ranking given the size of the gaps, but the Models 1–3 WAIC values should be read as approximate.
+
+### 5. Key Empirical Findings (updated to Model 4, the preferred specification)
+- **Highbrow Concentration:** Immersion in childhood arts increases the odds of overclaiming Opera by **15.2-fold** (95% CrI: [8.38, 28.04]) and Classical music by **12.2-fold** (95% CrI: [7.31, 20.57]). Country is the only genre whose 95% credible interval crosses unity ($\text{OR} = 1.03$, 95% CrI: [0.60, 1.76]). These are nearly identical to the old Model-5-based estimates, as expected given Models 4/5 are statistically tied.
+- **Educational Prestige Governs Overclaiming:** Bayesian overclaiming odds ratios correlate strongly with Class Prestige (the College/HS liking ratio; posterior-median point estimate $r = 0.78$, Spearman $\rho = 0.70$; full posterior draw-wise median $r = 0.74$, 95% CrI [0.60, 0.83], median $\rho = 0.66$, 95% CrI [0.52, 0.77]). The racial preference ratio (Black-to-White liking) correlation is markedly weaker but not negligible (draw-wise median $\rho = 0.44$, 95% CrI [0.28, 0.58]).
+- **Negative Intercept-Slope Correlation:** Genre random intercepts ($u_0$) and arts random slopes ($u_1$) for overclaiming correlate at $r = -0.83$ ($\rho = -0.82$, from Model 4). **Sensitivity caveat:** with only $J=20$ genre clusters, this correlation is sensitive to the LKJ prior's concentration — it ranges from $-0.65$ (LKJ(4)) to $-0.77$ (LKJ(1)) across three prior settings tested in `Scripts/sensitivity_lkj_prior.R` (all exclude zero, so the *direction* is robust, but not the exact magnitude).
+- **Corrected Genre Profiles (from Model 1, the true no-slopes baseline — see note below):** Within-genre centered random intercepts ($\Delta u_{0jk} = u_{0jk} - \bar{u}_{0j}$) cancel the baseline popularity artifact, revealing qualitative clusters at the directional credibility rule ($\text{pd} \ge 0.95$):
+  - *Overclaiming Tilt:* Bluegrass, Classical, Jazz, Musicals, Oldies, Opera, Swing/Big Band.
+  - *Consistent Tilt:* Classic Rock, Contemporary Pop, Contemporary Rock, Country, Oldies, Rap/Hip Hop.
+  - *Underclaiming Tilt:* Only Rap/Hip Hop reaches $\text{pd} \ge 0.95$ (Heavy Metal falls just short at $\text{pd} = 0.949$) — a much narrower signal than earlier reported.
+  - **Bug fixed (2026-09-28):** `Scripts/plot_purged_random_intercepts.R` (Figure 1) and `Scripts/plot_random_intercepts_halfeye.R` had been silently loading the random-**slopes** model even though the manuscript's own text/equation describe this figure as coming from the pure-intercepts baseline (Model 1). Fixed to load Model 1 directly; the genre classification above reflects the corrected, model-1-based estimates and differs from what was previously reported (which had actually come from the slopes model despite the text's claim otherwise).
+- **Predicted Probability Shift (Baseline Model):** Moving from childhood arts exposure level 1 to 7 increases the predicted probability of Overclaiming from **19.4%** to **45.7%** (+26.3 pp), while Consistent Engagement rises modestly from **9.0%** to **12.5%** (+3.5 pp), Underclaiming declines from **11.1%** to **6.0%**, and non-engagement (*Neither*) drops from **59.5%** to **34.9%**. (Unaffected by the Model 4/5 correction — sourced from Model 1.)
+- **Robustness checks (all stable, see `cache/robustness_platform.csv`, `cache/prior_sensitivity_model1.csv`):** the `child_arts` coefficients are essentially unchanged whether the small Winamp platform cell ($N=10$) is included, dropped, or collapsed into "Other," and whether the fixed-effect prior is $\mathcal{N}(0,1.5)$ or a wider $\mathcal{N}(0,3)$.
+- **Statistical hygiene notes:** the "Bayesian Wald test" (Table 1) is an *asymptotic* posterior Wald-type statistic (posterior mean/covariance treated as an asymptotically normal sampling distribution, referred to a $\chi^2$ reference distribution) — not a classical frequentist test. A posterior-normality check (`cache/table1b_wald_normality_check.md`) confirms all 39 constituent coefficients fall within conventional skewness/kurtosis bounds, supporting but not proving the approximation. A posterior predictive check on Model 1 (`cache/posterior_predictive_check.csv`, `Plots/PPC_Genre_State_Proportions.png`) found 0 of 80 genre-by-state observed proportions falling outside the model's 95% posterior predictive interval.
+- **Reproducibility & Environment:** Full bibliography integration via `references.bib` citing R v4.5.3, `brms` v2.23.0, and `CmdStan` v2.33.1 / `cmdstanr` (note: model-fitting scripts pin CmdStan 2.33.1 via `cmdstanr::set_cmdstan_path`, distinct from the locally-installed 2.39.0 used for lightweight post-processing), with `renv` environment locked. **Known gap:** `mvtnorm` was missing from the local `renv` library as of 2026-09-28 (fixed via `Rscript -e 'install.packages("mvtnorm")'`, not `renv::install()`, which hung — see HPC/local-execution notes below).
+
+### 6. Google Drive Manuscript Synchronization — Google Doc is now the SOLE manuscript (no local .qmd)
 - **Live Manuscript Document:** *Liking/Listening Omnivore Data*
 - **Google Doc URL:** `https://docs.google.com/document/d/1vXW0PsCeXUghrCbfIylU-RjzpjQOK1uqrZ03NNMnb7k/edit?usp=sharing`
 - **Google Doc ID:** `1vXW0PsCeXUghrCbfIylU-RjzpjQOK1uqrZ03NNMnb7k`
-- **Manuscript Update Command (CRITICAL FOR FUTURE AGENTS):**
-  To synchronize and update the live Google Doc manuscript with all local tables and figures, run:
+- **IMPORTANT (2026-09-28): `overclaiming_report.qmd` and `overclaiming_report.html` have been deleted from this repository at the user's request.** The Google Doc is now the only manuscript; there is no local Quarto source to render or keep in sync with. Any future prose edits (new sections, rewritten paragraphs, a new Limitations section, etc.) must be authored directly against the live Google Doc — either by hand, or via a bespoke OpenXML paragraph-injection script modeled on `Scripts/inject_limitations_section.py` (which inserts a new Heading1 section immediately before an existing Heading1 anchor, idempotently, and validates well-formedness before writing). The existing `Scripts/sync_manuscript.R` / `sync_manuscript.py` pipeline only handles **tables and figures** (via caption-text matching against `cache/*.md` and `Plots/*.png`), not arbitrary prose — it does not need or reference the deleted `.qmd` file.
+- **Manuscript Update Command (CRITICAL FOR FUTURE AGENTS) — tables & figures only:**
   ```bash
   Rscript Scripts/sync_manuscript.R
   ```
-- **Turnkey Synchronization Pipeline Details:** Executing `Rscript Scripts/sync_manuscript.R` automatically downloads the live manuscript, performs in-place DOM-based replacement of all tables (APA 7th standard format) and figures (exact 6.5-inch extent synchronization), and uploads the updated document back to Google Drive without disrupting text typography, comments, or heading structure.
-- **Synchronized Assets Mapping:**
-  - `Table 1: Joint Variable Importance (Bayesian Wald χ²)` $\leftarrow$ Bayesian Wald $\chi^2$ statistics (`cache/table1_wald.md`).
-  - `Table 2: Predictors of Overclaiming (Like Only)` $\leftarrow$ Posterior parameters for Overclaiming (`cache/table2_overclaim.md`).
-  - `Table 3: Predictors of Underclaiming (Listen Only)` $\leftarrow$ Posterior parameters for Underclaiming (`cache/table3_underclaim.md`).
-  - `Table 4: Predictors of Consistent (Both)` $\leftarrow$ Posterior parameters for Consistent Engagement (`cache/table4_consistent.md`).
-  - `Table 5: Bayesian Mixed-Effects Model Fit Comparison` $\leftarrow$ 5-model WAIC/ELPD comparison table (`cache/table5_fit.md`).
-  - `Figure 1.` $\leftarrow$ Purged genre engagement profiles (`Plots/Purged_Genre_Engagement_Profiles.png`).
-  - `Figure 2.` $\leftarrow$ Predicted probabilities across arts exposure (`Plots/ChildArts_Effects_Bayesian_CrI.png`).
+  This downloads the live manuscript, performs in-place DOM-based replacement of all tables (APA 7th standard format) and figures (exact 6.5-inch extent synchronization) by matching existing captions, and uploads the updated document back to Google Drive without disrupting text typography, comments, or heading structure. **Caveat learned 2026-09-28:** if a table's caption text changes (e.g., relabeling "Bayesian Wald Chi-Square" to "Asymptotic Posterior Wald-Type Statistic"), the caption-match will fail and the script falls back to *appending* a new table at the end rather than replacing in place. Verify after running whether this happened (inspect `word/document.xml` inside the downloaded `.docx` for duplicate `<w:tbl>` elements with the same logical content) — in practice this has NOT actually produced duplicates so far (the doc previously had only bracket placeholder text like `[Table 1 about here]`, not real tables, so "append" was really "first insertion"), but always verify with a fresh download + inspection rather than trusting the script's console log alone.
+- **New prose-injection capability:** `Scripts/inject_limitations_section.py <in_docx> <out_docx>` — a template for inserting a brand-new Heading1 section (title + bold-lead body paragraphs) into the live document immediately before another named Heading1 section. Idempotent (checks for the target heading before inserting). Used to add the manuscript's new **Limitations** section (genre-level random-slope identifiability / LKJ sensitivity, small-cell Winamp platform robustness, single-item `child_arts` measurement, WAIC approximation quality, asymptotic Wald-test approximation) directly before "References" in the live Doc on 2026-09-28.
+- **Synchronized Table/Figure Assets Mapping:**
+  - `Table 1` $\leftarrow$ Asymptotic posterior Wald-type statistics (`cache/table1_wald.md`), with companion normality diagnostic `cache/table1b_wald_normality_check.md`.
+  - `Table 2/3/4` $\leftarrow$ Posterior parameters for Overclaiming / Underclaiming / Consistent Engagement, from Model 1 (`cache/table2_overclaim.md`, `table3_underclaim.md`, `table4_consistent.md`).
+  - `Table 5` $\leftarrow$ Corrected paired-`loo_compare` 5-model fit comparison (`cache/table5_fit.md`, generated by `Scripts/finish_loo_compare.R` — **not** `generate_md_tables.R`, which no longer generates Table 5 at all after the invalid-SE bug was found; see script header comment).
+  - `Figure 1.` $\leftarrow$ Purged genre engagement profiles, **from Model 1** (`Plots/Purged_Genre_Engagement_Profiles.png`).
+  - `Figure 2.` $\leftarrow$ Predicted probabilities across arts exposure, from Model 1 (`Plots/ChildArts_Effects_Bayesian_CrI.png` — note: no generating script currently exists in `Scripts/`; this figure was produced ad hoc in a prior session and is a reproducibility gap that should eventually be scripted).
   - `Figure 3.` $\leftarrow$ Liking vs. listening omnivorousness capacity (`Plots/ChildArts_Omnivorousness_Capacity.png`).
-  - `Figure 4.` $\leftarrow$ Genre-specific arts exposure odds ratios half-eye plot (`Plots/ChildArts_Odds_Overclaiming_HalfEye.png`).
-  - `Figure 5.` $\leftarrow$ Baseline intercept vs. arts slope correlation (`Plots/Overclaim_Random_Intercept_Slope_Correlation.png`).
-  - `Figure 6.` $\leftarrow$ Educational prestige vs. Bayesian odds ratio correlation (`Plots/Bayesian_Odds_Prestige_Correlation.png`).
+  - `Figure 4.` $\leftarrow$ Genre-specific arts exposure odds ratios half-eye plot, **from Model 4 (refit)** (`Plots/ChildArts_Odds_Overclaiming_HalfEye.png`), with per-genre CrIs cached to `cache/odds_overclaiming_by_genre.csv`.
+  - `Figure 5.` $\leftarrow$ Baseline intercept vs. arts slope correlation, **from Model 4 (refit)** (`Plots/Overclaim_Random_Intercept_Slope_Correlation.png`), point estimates cached to `cache/correlation_point_estimates.csv` and `cache/genre_summary_correlations.csv`.
+  - `Figure 6.` $\leftarrow$ Educational prestige vs. Bayesian odds ratio correlation, **from Model 4 (refit)** (`Plots/Bayesian_Odds_Prestige_Correlation.png`), with the full posterior draw-wise correlation distribution cached to `cache/correlation_draws_summary.csv`.
 
 ---
 
 ## Directory & File Structure
 
+**Note: there is no local manuscript source file.** `overclaiming_report.qmd` / `.html` were deleted on 2026-09-28; the manuscript lives solely in the Google Doc (§6 above). `Scripts/` and `cache/` still exist purely to feed tables/figures into that Doc.
+
 ```
 .
 ├── Scripts/
-│   ├── sync_manuscript.R                   # Turnkey Google Drive sync wrapper
+│   ├── sync_manuscript.R                   # Turnkey Google Drive sync wrapper (tables + figures only)
 │   ├── sync_manuscript.py                  # OpenXML DOM-based table and figure injector
-│   ├── generate_md_tables.R                # Pre-computes markdown tables to cache/
-│   ├── run_brms_intercepts.R               # Bayesian random intercepts model
+│   ├── inject_limitations_section.py       # OpenXML prose-section injector (Heading1 + body paragraphs, idempotent)
+│   ├── generate_md_tables.R                # Pre-computes Tables 1/1b/2/3/4 to cache/ (NOT Table 5 anymore -- see finish_loo_compare.R)
+│   ├── run_brms_intercepts.R               # Model 1: Bayesian random intercepts
 │   ├── submit_brms_intercepts.sh           # SGE 16-core submit wrapper
-│   ├── run_brms_slopes.R                   # Bayesian full random slopes model
-│   ├── submit_brms_slopes.sh               # SGE 16-core submit wrapper
-│   ├── run_brms_constrained.R              # Bayesian constrained LikeOnly slopes model
-│   ├── submit_brms_constrained.sh          # SGE 16-core submit wrapper
-│   ├── run_brms_constrained_under_over.R   # Bayesian constrained Under/Over slopes model
-│   ├── submit_brms_constrained_under_over.sh # SGE 16-core submit wrapper
-│   ├── run_brms_constrained_over_true.R    # Bayesian constrained Over/True slopes model
-│   ├── submit_brms_constrained_over_true.sh # SGE 16-core submit wrapper
-│   ├── plot_purged_random_intercepts.R     # Composite 3-panel within-genre centered profiles (pd >= 0.95)
-│   ├── plot_correlations.R                 # Prestige and Intercept-Slope correlation figures with high repel
-│   ├── plot_odds_overclaiming_halfeye.R    # Tidybayes half-eye plot of arts exposure odds ratios
-│   ├── plot_omnivorousness_capacity.R      # Stated liking vs concrete listening capacity divergence
+│   ├── run_brms_slopes.R / run_brms_slopes_refit.R           # Model 5 original / convergence refit
+│   ├── submit_brms_slopes.sh / submit_brms_slopes_refit.sh
+│   ├── run_brms_constrained.R / run_brms_constrained_refit.R # Model 2 original / convergence refit
+│   ├── submit_brms_constrained.sh / submit_brms_constrained_refit.sh
+│   ├── run_brms_constrained_under_over.R   # Model 3 (no refit needed)
+│   ├── submit_brms_constrained_under_over.sh
+│   ├── run_brms_constrained_over_true.R / run_brms_constrained_over_true_refit.R # Model 4 (PREFERRED) original / refit
+│   ├── submit_brms_constrained_over_true.sh / submit_brms_constrained_over_true_refit.sh
+│   ├── check_convergence.R / check_convergence_refits.R      # Rhat/ESS/divergence diagnostics (orig 5 models / 3 refits)
+│   ├── compute_loo_compare.R / finish_loo_compare.R          # Paired loo_compare Table 5 builder (finish_* is the one actually used; loads models one-at-a-time to bound memory)
+│   ├── sensitivity_lkj_prior.R / finish_sensitivity_lkj.R    # LKJ(1)/(2)/(4) prior sensitivity refits + comparison extraction
+│   ├── robustness_platform.R / finish_robustness_platform.R # Winamp-cell (N=10) robustness refits + comparison extraction
+│   ├── prior_sensitivity_model1.R / finish_prior_sensitivity_model1.R # Fixed-effect prior width sensitivity (Model 1)
+│   ├── posterior_predictive_check.R        # Model 1 PPC: observed vs. predicted genre x state proportions
+│   ├── extract_waic_only.R                 # Standalone one-shot WAIC extraction subprocess (memory-safe pattern)
+│   ├── plot_purged_random_intercepts.R     # Figure 1: composite 3-panel within-genre centered profiles, FROM MODEL 1 (pd >= 0.95)
+│   ├── plot_random_intercepts_halfeye.R    # Supplementary per-state random-intercept half-eyes, FROM MODEL 1
+│   ├── plot_correlations.R                 # Figures 5/6: prestige & intercept-slope correlations, FROM MODEL 4 (refit); also computes posterior draw-wise correlation stats
+│   ├── plot_odds_overclaiming_halfeye.R    # Figure 4: tidybayes half-eye plot of arts exposure odds ratios, FROM MODEL 4 (refit)
+│   ├── plot_omnivorousness_capacity.R      # Figure 3: stated liking vs concrete listening capacity divergence
 │   ├── fixed_multinomial_model.R           # Local multinom baseline
 │   ├── clean_artistgenre.R                 # Artist-to-genre classification
 │   └── analysis_time.R                     # Long-format data preparation
 ├── cache/
-│   ├── table1_wald.md                      # Pre-computed Table 1 markdown
-│   ├── table2_overclaim.md                 # Pre-computed Table 2 markdown
-│   ├── table3_underclaim.md                # Pre-computed Table 3 markdown
-│   ├── table4_consistent.md                # Pre-computed Table 4 markdown
-│   └── table5_fit.md                       # Pre-computed Table 5 markdown
+│   ├── table1_wald.md / table1b_wald_normality_check.md   # Table 1 + normality diagnostic
+│   ├── table2_overclaim.md / table3_underclaim.md / table4_consistent.md
+│   ├── table5_fit.md / table5_fit_raw.csv                 # Corrected paired loo_compare table (from finish_loo_compare.R)
+│   ├── table_diagnostics.md / table_diagnostics_refits.md / table_diagnostics_final.md  # Convergence diagnostics (orig / refits / combined)
+│   ├── diagnostics_summary.csv / diagnostics_summary_refits.csv
+│   ├── sensitivity_lkj.csv / robustness_platform.csv / prior_sensitivity_model1.csv      # Sensitivity/robustness check results
+│   ├── odds_overclaiming_by_genre.csv / genre_summary_correlations.csv / correlation_point_estimates.csv / correlation_draws_summary.csv
+│   ├── purged_genre_profiles_credsummary.csv               # Model-1-based genre credibility classifications (Figure 1)
+│   └── posterior_predictive_check.csv                      # Model 1 PPC results
 ├── docs/
 │   ├── qualtrics-data-codebook.qmd         # Qualtrics codebook with question texts & blocks
 │   ├── qualtrics-data-codebook.html        # Rendered Qualtrics codebook
@@ -132,42 +153,47 @@ All legacy frequentist ML (`nnet::multinom`) models have been completely replace
 │   ├── analysis_time_R_processed.dta       # Wide processed dataset
 │   └── genresobjects.dta                   # Genre object crosswalk
 ├── rds/
-│   ├── model_brms_intercepts.rds           # Bayesian random intercepts fit (121 MB)
-│   ├── model_brms_slopes.rds               # Bayesian full random slopes fit (123 MB)
-│   ├── model_brms_constrained_likeonly.rds # Bayesian constrained LikeOnly fit (122 MB)
-│   ├── model_brms_constrained_under_over.rds # Bayesian constrained Under/Over fit (118 MB)
-│   ├── model_brms_constrained_over_true.rds # Bayesian constrained Over/True fit (244 MB)
-│   ├── waic_brms_constrained.rds           # WAIC object for LikeOnly constrained model
-│   ├── waic_brms_constrained_under_over.rds # WAIC object for Under/Over constrained model
-│   ├── waic_brms_constrained_over_true.rds # WAIC object for Over/True constrained model
+│   ├── model_brms_intercepts.rds                        # Model 1 (121 MB) -- used as-is, passed convergence
+│   ├── model_brms_slopes.rds / model_brms_slopes_refit.rds                 # Model 5 original / REFIT (use refit)
+│   ├── model_brms_constrained_likeonly.rds / *_refit.rds                   # Model 2 original / REFIT (use refit)
+│   ├── model_brms_constrained_under_over.rds                               # Model 3 -- used as-is, passed convergence
+│   ├── model_brms_constrained_over_true.rds / *_refit.rds                  # Model 4 (PREFERRED) original / REFIT (use refit)
+│   ├── model_brms_slopes_lkj1.rds / model_brms_slopes_lkj4.rds             # LKJ prior sensitivity refits (Model 5 structure)
+│   ├── model_robustness_no_winamp.rds / model_robustness_winamp_collapsed.rds  # Platform robustness refits (Model 1 structure)
+│   ├── model_brms_intercepts_wideprior.rds                                 # Prior-width sensitivity refit (Model 1, normal(0,3))
+│   ├── waic_brms_*.rds                                                     # Small (~550KB) cached WAIC objects per model -- load these, not full fits, when only WAIC is needed
 │   ├── robust_vcov_twoway.rds              # Two-way cluster-robust covariance matrix
 │   ├── ame_genre_fixed.rds                 # AME calculations across all states
-│   └── ame_genre_constrained.rds           # Constrained LikeOnly AME dataframe
+│   └── ame_genre_constrained.rds           # Constrained LikeOnly AME dataframe (educational/racial preference ratios)
 ├── Plots/
-│   ├── Bayesian_Odds_Prestige_Correlation.png # Educational prestige vs. Bayesian odds ratio correlation (High repel)
-│   ├── ChildArts_Effects_Bayesian_CrI.png    # Predicted probabilities across arts exposure levels (Harmonized theme & palette)
-│   ├── ChildArts_Odds_Overclaiming_HalfEye.png # Tidybayes half-eye plot of arts exposure odds ratios
-│   ├── ChildArts_Omnivorousness_Capacity.png # Stated liking vs concrete listening repertoire capacity
-│   ├── Overclaim_Random_Intercept_Slope_Correlation.png # Random intercept vs slope negative correlation (High repel)
-│   └── Purged_Genre_Engagement_Profiles.png # Composite 3-panel within-genre centered engagement profiles (pd >= 0.95)
+│   ├── Bayesian_Odds_Prestige_Correlation.png          # Figure 6, FROM MODEL 4 (refit)
+│   ├── ChildArts_Effects_Bayesian_CrI.png              # Figure 2, from Model 1 (no generating script -- reproducibility gap)
+│   ├── ChildArts_Odds_Overclaiming_HalfEye.png         # Figure 4, FROM MODEL 4 (refit)
+│   ├── ChildArts_Omnivorousness_Capacity.png           # Figure 3
+│   ├── Overclaim_Random_Intercept_Slope_Correlation.png # Figure 5, FROM MODEL 4 (refit)
+│   ├── Purged_Genre_Engagement_Profiles.png            # Figure 1, FROM MODEL 1 (fixed 2026-09-28, was silently Model 5)
+│   ├── Random_Intercepts_Overclaiming/Underclaiming/True_Engagement.png  # Supplementary, FROM MODEL 1
+│   └── PPC_Genre_State_Proportions.png                 # Posterior predictive check (Model 1)
 ├── Tabs/
 │   ├── Table_Model_Fit.html                # Formatted HTML comprehensive model fit table (5 specifications)
 │   ├── Table_Overclaim.html                # Posterior parameter table for Overclaiming
 │   ├── Table_True_Engagement.html          # Posterior parameter table for True Engagement
 │   ├── Table_Underclaim.html               # Posterior parameter table for Underclaiming
 │   └── Table_Wald_Tests.html               # Robust Bayesian Wald test summary
-├── references.bib                         # BibTeX references for R, brms, cmdstanr, Stan, CmdStan
-├── overclaiming_report.qmd                 # Master Quarto report (Full academic prose, 0 bullets/lists)
-└── overclaiming_report.html                # Rendered HTML document (31 chunks, clean build)
+└── references.bib                         # BibTeX references for R, brms, cmdstanr, Stan, CmdStan
 ```
 
 ---
 
 ## Active Tasks & Completed Milestones
 1. **Bayesian Model Hierarchy Complete:** All 5 Bayesian hierarchical specifications (Models 1–5) fully estimated on Hoffman2 cluster and synchronized locally.
-2. **Model Selection Confirmed:** Model 4 and Model 5 demonstrate that genre-level random slopes for childhood arts exposure operate primarily on Overclaiming and True Engagement, with negligible slope variance on Underclaiming.
-3. **Master Report Synchronized:** `overclaiming_report.qmd` fully updated with complete 5-model fit comparison table and narrative.
-4. **Google Drive Manuscript Synchronized:** Live Google Doc (*Liking/Listening Omnivore Data*) fully integrated and updated via `Rscript Scripts/sync_manuscript.R`. Run this command whenever models, tables, or figures are updated.
+2. **Convergence audit & refits complete (2026-09-28):** Models 2, 4, and 5 failed $\hat{R} < 1.01$ as originally sampled; refit with more draws/higher `adapt_delta`; all 5 now pass diagnostics. Always use the `_refit` `.rds` files for Models 2/4/5.
+3. **Model selection corrected (2026-09-28):** The original 5-model comparison used invalid (marginal, not paired) WAIC standard errors. Recomputed via `loo::loo_compare()`: **Model 4 is preferred** (not Model 5 — they are statistically indistinguishable, and Model 4 has 20 fewer parameters). All genre-level figures were regenerated from Model 4.
+4. **Figure 1 sourcing bug fixed (2026-09-28):** `Purged_Genre_Engagement_Profiles.png` had been silently generated from the random-slopes model despite the manuscript text describing it as coming from the pure-intercepts baseline (Model 1). Fixed; genre classification changed as a result (see §5 above).
+5. **Sensitivity & robustness checks complete:** LKJ prior concentration (genre intercept-slope correlation), Winamp small-cell platform robustness, and fixed-effect prior width — all documented in a new **Limitations** section.
+6. **Local manuscript source eliminated (2026-09-28):** `overclaiming_report.qmd` / `.html` deleted at user request. **The Google Doc is now the sole manuscript.** All future prose edits must be made directly against the Doc (see §6 above for the injection-script pattern).
+7. **Google Drive Manuscript Synchronized:** Live Google Doc (*Liking/Listening Omnivore Data*) fully updated — corrected Table 5, Model 4-based Figures 4–6, Model-1-corrected Figure 1, and a new Limitations section (via `Scripts/inject_limitations_section.py`). Run `Rscript Scripts/sync_manuscript.R` whenever cached tables/figures change; use a bespoke injection script (modeled on `inject_limitations_section.py`) for new prose sections.
+8. **Local execution safety lesson (2026-09-28):** loading multiple large (~120–600MB on disk, multi-GB in memory) `brmsfit` objects sequentially in one local R session caused repeated OOM freezes. **Rule going forward: never load more than one full model fit at a time locally; prefer isolated `Rscript` subprocesses (memory freed on exit) or run on Hoffman2 entirely, pulling back only small CSV/PNG artifacts.**
 # Global Agent Guidelines
 
 **Location:** `~/.config/agents/AGENTS.md` (Update this file to persist lessons globally across all projects)

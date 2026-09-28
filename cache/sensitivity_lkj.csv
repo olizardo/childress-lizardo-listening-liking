@@ -1,0 +1,4 @@
+"Prior","Column","Mean","SD","CrI_2.5","CrI_97.5"
+"LKJ(1) - uniform","cor_genre_id__muLikeOnly_Intercept__muLikeOnly_child_arts",-0.77,0.104,-0.918,-0.512
+"LKJ(2) - original","cor_genre_id__muLikeOnly_Intercept__muLikeOnly_child_arts",-0.726,0.12,-0.898,-0.433
+"LKJ(4) - shrink toward 0","cor_genre_id__muLikeOnly_Intercept__muLikeOnly_child_arts",-0.645,0.14,-0.854,-0.309
