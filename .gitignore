@@ -4,4 +4,18 @@
 .RData
 .Ruserdata
 .Rproj.user/
-rds/model_brms_*.rds
+
+# All fitted model objects stay local (too large for a replication repo)
+rds/*.rds
+
+# Manuscript and local-only working files
+AGENTS.md
+references.bib
+Tabs/
+docs/
+.posit/
+Scripts/sync_manuscript.R
+Scripts/sync_manuscript.py
+Scripts/inject_limitations_section.py
+Scripts/fix_font_contamination.py
+Scripts/__pycache__/
