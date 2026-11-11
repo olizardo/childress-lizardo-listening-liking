@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this replication package, please cite it using the metadata below."
+title: "Replication Package for Overclaiming in Musical Tastes: Liking, Listening, and Symbolic Boundaries"
+authors:
+  - family-names: Childress
+    given-names: Clayton
+  - family-names: Lizardo
+    given-names: Omar
+version: 1.0.0
+date-released: "2026-11-11"
+license: CC-BY-4.0
+repository-code: "https://github.com/olizardo/childress-lizardo-listening-liking"
+keywords:
+  - cultural sociology
+  - musical taste
+  - overclaiming
+  - omnivorousness
+  - replication
