@@ -19,3 +19,8 @@ Scripts/sync_manuscript.py
 Scripts/inject_limitations_section.py
 Scripts/fix_font_contamination.py
 Scripts/__pycache__/
+
+# Local working files
+TODO.md
+manuscript/
+data_coding_issue_memo.md
