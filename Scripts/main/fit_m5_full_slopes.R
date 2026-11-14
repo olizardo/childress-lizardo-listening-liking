@@ -2,7 +2,7 @@
 #' @description Model 5 refit on the corrected data.
 #'   Changes relative to run_brms_slopes_refit.R:
 #'   (1) Data from dta/analysis_model_input.dta (rebuilt genre_final, NA-safe
-#'       listening; see Scripts/prep_model_input.R) instead of the corrupt
+#'       listening; see Scripts/main/prep_model_input.R) instead of the corrupt
 #'       analysis_time_CCC.dta.
 #'   (2) Output names carry the _corrected suffix.
 #'   Output: rds/model_brms_m5_corrected.rds + rds/waic_m5_corrected.rds

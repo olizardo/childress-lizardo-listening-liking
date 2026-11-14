@@ -7,7 +7,7 @@
 #
 # Corrections relative to the old inline blocks (2026-11-11 audit):
 #   * genre_final1-10 and stream_source are taken from
-#     dta/genresobjects_processed.dta (rebuild by Scripts/prep_artistgenre.R),
+#     dta/genresobjects_processed.dta (rebuild by Scripts/main/prep_artist_genre.R),
 #     NOT from analysis_time_CCC.dta, whose genre_final values are corrupt
 #     (cross-respondent shuffling; see AGENTS.md).
 #   * Listening is coded NA-safe: listen_g = 1 iff the genre appears among the

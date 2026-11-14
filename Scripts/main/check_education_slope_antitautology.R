@@ -18,7 +18,7 @@
 #'   would carry no weight conditional on the liking gradient. It does.
 #'
 #'   Inputs (both local, no fit required):
-#'     cache/m6_educ_genre_slopes.csv  (from Scripts/m6_educ_prestige_correlations.R)
+#'     cache/m6_educ_genre_slopes.csv  (from Scripts/main/check_education_prestige_correlation.R)
 #'     dta/analysis_model_input.dta
 #'   Output:
 #'     cache/m6_educ_slope_antitautology_checks.csv

@@ -5,7 +5,7 @@
 #'   script loads one saved fit and recomputes WAIC only. It deliberately does
 #'   NOT write back to the fit file, so a kill mid-write cannot damage it.
 #'
-#'   Usage: Rscript Scripts/finish_waic_tag.R <tag>
+#'   Usage: Rscript Scripts/main/post_waic.R <tag>
 #'     reads  rds/model_brms_<tag>.rds
 #'     writes rds/waic_<tag>.rds
 
@@ -17,7 +17,7 @@ suppressMessages({
 cmdstanr::set_cmdstan_path("~/.cmdstan/cmdstan-2.33.1")
 
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 1) stop("Usage: Rscript Scripts/finish_waic_tag.R <tag>")
+if (length(args) != 1) stop("Usage: Rscript Scripts/main/post_waic.R <tag>")
 tag <- args[[1]]
 fit_path <- file.path("rds", paste0("model_brms_", tag, ".rds"))
 out_path <- file.path("rds", paste0("waic_", tag, ".rds"))

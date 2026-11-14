@@ -8,7 +8,7 @@
 #'
 #'   Read from cache, not from the fit: cache/m6_educ_genre_slopes.csv holds the
 #'   posterior medians and 95% bounds produced by
-#'   Scripts/m6_educ_prestige_correlations.R, so this script runs in seconds and
+#'   Scripts/main/check_education_prestige_correlation.R, so this script runs in seconds and
 #'   needs no fit in memory.
 #'
 #'   Note on interpretation: educational prestige is itself built from an

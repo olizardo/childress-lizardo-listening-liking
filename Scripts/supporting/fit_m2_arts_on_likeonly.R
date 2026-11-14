@@ -2,7 +2,7 @@
 #' @description Model 2 refit on the corrected data.
 #'   Changes relative to run_brms_constrained_refit.R:
 #'   (1) Data from dta/analysis_model_input.dta (rebuilt genre_final, NA-safe
-#'       listening; see Scripts/prep_model_input.R) instead of the corrupt
+#'       listening; see Scripts/main/prep_model_input.R) instead of the corrupt
 #'       analysis_time_CCC.dta.
 #'   (2) Sampler settings aligned with the other corrected fits
 #'       (iter 4000, warmup 1500, adapt_delta 0.97, max_treedepth 13).

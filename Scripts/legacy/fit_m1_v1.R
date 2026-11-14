@@ -2,7 +2,7 @@
 #' @description Model 1 refit on the corrected data. Two changes relative to
 #'   run_brms_intercepts.R:
 #'   (1) Data come from dta/analysis_model_input.dta, built by
-#'       Scripts/prep_model_input.R: genre_final1-10 and stream_source come
+#'       Scripts/main/prep_model_input.R: genre_final1-10 and stream_source come
 #'       from the rebuilt (patch-free) genresobjects_processed.dta, and
 #'       listening is coded NA-safe, removing the outcome-dependent sample
 #'       selection in the old inline construction.

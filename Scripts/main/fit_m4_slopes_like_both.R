@@ -2,7 +2,7 @@
 #' @description Model 4 (preferred specification) refit on the corrected data.
 #'   Changes relative to run_brms_constrained_over_true_refit.R:
 #'   (1) Data from dta/analysis_model_input.dta (rebuilt genre_final, NA-safe
-#'       listening; see Scripts/prep_model_input.R).
+#'       listening; see Scripts/main/prep_model_input.R).
 #'   (2) save_pars(all = TRUE) dropped; default pars (fixed effects, random
 #'       effects, correlations) suffice for all downstream table/figure scripts.
 #'   Output: rds/model_brms_m4_corrected.rds + rds/waic_m4_corrected.rds

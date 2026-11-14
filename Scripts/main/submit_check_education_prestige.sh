@@ -16,4 +16,4 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 
 export cmdstanr_no_ver_check=TRUE
 
-Rscript Scripts/m6_educ_prestige_correlations.R
+Rscript Scripts/main/check_education_prestige_correlation.R

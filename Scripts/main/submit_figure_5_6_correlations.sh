@@ -16,4 +16,4 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 
 export cmdstanr_no_ver_check=TRUE
 
-Rscript Scripts/plot_correlations_corrected.R
+Rscript Scripts/main/figure_5_6_correlations.R

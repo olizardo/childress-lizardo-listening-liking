@@ -16,4 +16,4 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 
 export cmdstanr_no_ver_check=TRUE
 
-Rscript Scripts/compare_m6_m5_loo.R
+Rscript Scripts/main/post_m6_vs_m5_loo.R

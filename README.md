@@ -14,8 +14,23 @@ manuscript itself is a Google Doc and is not in this repository.
 - `dta/` — analysis data. `genresobjects.dta` (hand-coded artists) →
   `genresobjects_processed.dta` → `analysis_model_input.dta` (long person-genre
   model input); `analysis_time_CCC.dta` supplies the respondent-level covariates.
-- `Scripts/` — data preparation, model fits, diagnostics, sensitivity checks,
-  and every table and figure script.
+- `Scripts/` — one script per step, named `<stage>_<what it does>.R`:
+  - `Scripts/main/` — everything that reproduces a table or figure in the
+    paper, plus the sensitivity and robustness checks the text cites, and their
+    `submit_*.sh` Slurm wrappers.
+  - `Scripts/supporting/` — fits M2 and M3 (Table 5 comparison rows only) and
+    the diagnostics helpers. Not needed for any other output.
+  - `Scripts/legacy/` — superseded fits, duplicate post-processing scripts, the
+    residualized-intercept analysis removed from the paper, and the
+    doc-shuffling Python tooling. Kept for the record, not part of the pipeline.
+
+  Stage prefixes: `prep_` builds data or derived measures, `fit_mN_` is one
+  model fit, `fit_` is a sensitivity or robustness refit, `post_` processes a
+  saved fit, `make_` writes manuscript tables, `figure_N_` writes a figure,
+  `check_` is a secondary analysis supporting prose or a footnote, and
+  `submit_<stem>.sh` is the cluster wrapper for the R script of the same stem.
+  Scripts resolve paths from the repository root, so run them from there
+  (`Rscript Scripts/main/fit_m4_slopes_like_both.R`).
 - `Tabs/` — manuscript tables, one markdown file each.
 - `Plots/` — manuscript figures, named by figure number (`fig{N}_{topic}.png`).
 - `cache/` — the CSVs and markdown tables the table and figure scripts write;
@@ -43,20 +58,20 @@ Never load two full `brmsfit` objects in one R process.
 
 ## Reproduction order
 
-1. **Genres.** `Scripts/prep_artistgenre.R` rebuilds the artist-to-genre codes
+1. **Genres.** `Scripts/main/prep_artist_genre.R` rebuilds the artist-to-genre codes
    and writes `dta/genresobjects_processed.dta`. It needs `dta/genresobjects.dta`
    and `csv/to inc.csv` (the hand-coded inclusion list), which is **not** in the
    repository; restore it before rerunning this step. Its output is already in
    `dta/`, so every later step runs without it.
-2. **Model input.** `Scripts/prep_model_input.R` splices the rebuilt
+2. **Model input.** `Scripts/main/prep_model_input.R` splices the rebuilt
    `genre_final1-10` and `stream_source` columns into the respondent file and
    writes `dta/analysis_model_input.dta`. The `genre_final*` columns inside
    `analysis_time_CCC.dta` are shuffled across respondents and are always
    overwritten here; never read them from that file.
 3. **Fits.** One script per specification; each writes its fit and a WAIC object
    to `rds/`.
-4. **Tables.** `Scripts/generate_md_tables_corrected.R` writes Tables 1–4 into
-   `cache/`; `Scripts/loo_compare_corrected.R` writes Table 5. The results are
+4. **Tables.** `Scripts/main/make_tables.R` writes Tables 1–4 into
+   `cache/`; `Scripts/main/make_table5_fit_comparison.R` writes Table 5. The results are
    copied into `Tabs/`.
 5. **Figures.** One script per figure, listed below. Each writes to `Plots/` at
    300 dpi and, where relevant, a CSV to `cache/`.
@@ -67,52 +82,53 @@ Never load two full `brmsfit` objects in one R process.
 
 | Model | Specification | Script | Output |
 | :--- | :--- | :--- | :--- |
-| M1 v2 | Crossed random intercepts — the baseline used everywhere | `run_brms_m1_corrected_v2.R` | `rds/model_brms_m1_corrected_v2.rds` |
-| M1 | Same, lower sampling settings (superseded by M1 v2) | `run_brms_m1_corrected.R` | `rds/model_brms_m1_corrected.rds` |
-| M2 | Random slopes on Like Only | `run_brms_m2_corrected.R` | `rds/model_brms_m2_corrected.rds` |
-| M3 | Random slopes on Listen Only and Like Only | `run_brms_m3_corrected.R` | `rds/model_brms_m3_corrected.rds` |
-| M4 | Random slopes on Like Only and Both — preferred for Figs 4–6 | `run_brms_m4_corrected.R` | `rds/model_brms_m4_corrected.rds` |
-| M5 | Full crossed random slopes | `run_brms_m5_corrected.R` | `rds/model_brms_m5_corrected.rds` |
-| M6 | M5 plus education slopes in the genre random effects | `run_brms_m6_educslopes.R` | `rds/model_brms_m6_educslopes.rds` |
-| M7 | M1 plus a centered quadratic arts term (tests the middling peak) | `run_brms_m7_artsquad.R` | `rds/model_brms_m7_artsquad.rds` |
-| M8 | M4/M5 slopes plus a fixed arts-by-prestige interaction | `run_brms_m8_prestigeslopes.R` | `rds/model_brms_m8_prestigeslopes.rds` |
+| M1 v2 | Crossed random intercepts — the baseline used everywhere | `Scripts/main/fit_m1_baseline.R` | `rds/model_brms_m1_corrected_v2.rds` |
+| M1 | Same, lower sampling settings (superseded by M1 v2) | `Scripts/legacy/fit_m1_v1.R` | `rds/model_brms_m1_corrected.rds` |
+| M2 | Random slopes on Like Only | `Scripts/supporting/fit_m2_arts_on_likeonly.R` | `rds/model_brms_m2_corrected.rds` |
+| M3 | Random slopes on Listen Only and Like Only | `Scripts/supporting/fit_m3_arts_on_listen_like.R` | `rds/model_brms_m3_corrected.rds` |
+| M4 | Random slopes on Like Only and Both — preferred for Figs 4–6 | `Scripts/main/fit_m4_slopes_like_both.R` | `rds/model_brms_m4_corrected.rds` |
+| M5 | Full crossed random slopes | `Scripts/main/fit_m5_full_slopes.R` | `rds/model_brms_m5_corrected.rds` |
+| M6 | M5 plus education slopes in the genre random effects | `Scripts/main/fit_m6_education_slopes.R` | `rds/model_brms_m6_educslopes.rds` |
+| M7 | M1 plus a centered quadratic arts term (tests the middling peak) | `Scripts/main/fit_m7_arts_quadratic.R` | `rds/model_brms_m7_artsquad.rds` |
+| M8 | M4/M5 slopes plus a fixed arts-by-prestige interaction | `Scripts/main/fit_m8_arts_by_prestige.R` | `rds/model_brms_m8_prestigeslopes.rds` |
+| M9 | M6 plus a fixed education-by-prestige interaction (Figure 7 as a model test) | `Scripts/main/fit_m9_education_by_prestige.R` | `rds/model_brms_m9_educprestige.rds` |
 
-Slurm wrappers exist for M6–M8 (`Scripts/submit_*.sh`).
+Slurm wrappers sit beside their R scripts (`Scripts/main/submit_<stem>.sh`).
 
 ## Tables
 
 | Table | File | Script | Fits read |
 | :--- | :--- | :--- | :--- |
-| 1 | `Tabs/table1_wald.md` | `generate_md_tables_corrected.R` | M1 v2 |
-| 1b | `Tabs/table1b_wald_normality_check.md` | `generate_md_tables_corrected.R` | M1 v2 |
-| 2 | `Tabs/table2_overclaim.md` | `generate_md_tables_corrected.R` | M1 v2 |
-| 3 | `Tabs/table3_underclaim.md` | `generate_md_tables_corrected.R` | M1 v2 |
-| 4 | `Tabs/table4_consistent.md` | `generate_md_tables_corrected.R` | M1 v2 |
-| 5 | `Tabs/table5_fit.md`, `Tabs/table5_fit_raw.csv` | `loo_compare_corrected.R` | the five `rds/waic_m*_corrected*.rds` objects only (never the full fits) |
+| 1 | `Tabs/table1_wald.md` | `Scripts/main/make_tables.R` | M1 v2 |
+| 1b | `Tabs/table1b_wald_normality_check.md` | `Scripts/main/make_tables.R` | M1 v2 |
+| 2 | `Tabs/table2_overclaim.md` | `Scripts/main/make_tables.R` | M1 v2 |
+| 3 | `Tabs/table3_underclaim.md` | `Scripts/main/make_tables.R` | M1 v2 |
+| 4 | `Tabs/table4_consistent.md` | `Scripts/main/make_tables.R` | M1 v2 |
+| 5 | `Tabs/table5_fit.md`, `Tabs/table5_fit_raw.csv` | `Scripts/main/make_table5_fit_comparison.R` | the five `rds/waic_m*_corrected*.rds` objects only (never the full fits) |
 
 Both table scripts write to `cache/`; their output was copied to `Tabs/`. Table
 5's `cache/` copies are not kept locally, so regenerate them with
-`loo_compare_corrected.R` if needed.
+`Scripts/main/make_table5_fit_comparison.R` if needed.
 
 ## Figures
 
 | Figure | File | Script | Inputs |
 | :--- | :--- | :--- | :--- |
-| 1 | `Plots/fig1_profiles.png` | `plot_purged_corrected.R` | M1 v2 fit; writes `cache/purged_genre_profiles_credsummary.csv` |
-| 2 | `Plots/fig2_predicted_probs.png` | `plot_childarts_effects_corrected.R` | M1 v2 fit; writes `cache/childarts_predicted_probs.csv` |
-| 3 | `Plots/fig3_capacity.png` | `plot_omnivorousness_corrected.R` | `dta/analysis_model_input.dta` only, no fit |
-| 4 | `Plots/fig4_genre_odds.png` | `plot_odds_halfeye_corrected.R` | M4 fit; writes `cache/odds_overclaiming_by_genre.csv` |
-| 5 | `Plots/fig5_intercept_vs_slope.png` | `plot_correlations_corrected.R` | M4 fit + `rds/ame_genre_constrained.rds`; writes `cache/genre_summary_correlations.csv`, `cache/correlation_point_estimates.csv` |
-| 6 | `Plots/fig6_prestige_vs_odds.png` | `plot_correlations_corrected.R` | same as Figure 5; writes `cache/correlation_draws_summary.csv` |
-| 7 | `Plots/fig7_educ_prestige_vs_odds.png` | `plot_educ_slopes_prestige.R` | `cache/m6_educ_genre_slopes.csv` only, rebuilds in seconds; companion to Figure 6, from the education-slopes fit |
+| 1 | `Plots/fig1_profiles.png` | `Scripts/main/figure_1_profiles.R` | M1 v2 fit; writes `cache/purged_genre_profiles_credsummary.csv` |
+| 2 | `Plots/fig2_predicted_probs.png` | `Scripts/main/figure_2_predicted_probs.R` | M1 v2 fit; writes `cache/childarts_predicted_probs.csv` |
+| 3 | `Plots/fig3_capacity.png` | `Scripts/main/figure_3_capacity.R` | `dta/analysis_model_input.dta` only, no fit |
+| 4 | `Plots/fig4_genre_odds.png` | `Scripts/main/figure_4_genre_odds.R` | M4 fit; writes `cache/odds_overclaiming_by_genre.csv` |
+| 5 | `Plots/fig5_intercept_vs_slope.png` | `Scripts/main/figure_5_6_correlations.R` | M4 fit + `rds/ame_genre_constrained.rds`; writes `cache/genre_summary_correlations.csv`, `cache/correlation_point_estimates.csv` |
+| 6 | `Plots/fig6_prestige_vs_odds.png` | `Scripts/main/figure_5_6_correlations.R` | same as Figure 5; writes `cache/correlation_draws_summary.csv` |
+| 7 | `Plots/fig7_educ_prestige_vs_odds.png` | `Scripts/main/figure_7_education_slopes.R` | `cache/m6_educ_genre_slopes.csv` only, rebuilds in seconds; companion to Figure 6, from the education-slopes fit |
 
 Figures 5–7 plot posterior medians with 95% credible intervals and share the
 same regression-line colour and styling.
 
-`Scripts/submit_plot_correlations.sh` rebuilds Figures 5 and 6 on the cluster
+`Scripts/main/submit_figure_5_6_correlations.sh` rebuilds Figures 5 and 6 on the cluster
 (it loads the M4 fit once, about 15 seconds).
 
-`rds/ame_genre_constrained.rds` is produced by `prep_ame_ratios_corrected.R`.
+`rds/ame_genre_constrained.rds` is produced by `Scripts/main/prep_genre_preference_ratios.R`.
 Its College Preference Ratio has mean 1.29 and range 0.72–2.04; the similarly
 named `*_corrected` file on some machines is stale and must not be used.
 
@@ -120,16 +136,18 @@ named `*_corrected` file on some machines is stale and must not be used.
 
 | Check | Script | Output |
 | :--- | :--- | :--- |
-| Wider fixed-effect prior on M1 (`normal(0, 3)`) | `prior_sensitivity_model1.R` + `finish_prior_sensitivity_corrected.R` | `cache/prior_sensitivity_model1.csv` |
-| Winamp cell dropped / collapsed | `robustness_platform.R` (+ `finish_robustness_platform.R`) | `cache/robustness_platform.csv` |
-| LKJ prior on the genre intercept–slope correlation, LKJ(1) and LKJ(4) vs LKJ(2) | `sensitivity_lkj_prior.R` (+ `finish_sensitivity_lkj.R`) | `cache/sensitivity_lkj.csv` |
-| Quadratic arts term (M7) | `run_brms_m7_artsquad.R` (or `finish_m7_artsquad.R` on the saved fit) | `cache/h2b_quadratic_arts.csv` |
-| Education slopes vs prestige (M6) | `m6_educ_prestige_correlations.R` | `cache/m6_educ_prestige_correlations.csv`, `cache/m6_educ_genre_slopes.csv` |
-| Is the Figure 7 correlation mechanical? (slopes vs a race-built ordering; listening vs liking gradient) | `m6_educ_slope_antitautology.R` | `cache/m6_educ_slope_antitautology_checks.csv` |
-| Paired loo comparison of M6 against M5 | `compare_m6_m5_loo.R` | `cache/m6_vs_m5_loo_compare.csv` |
-| Arts-by-prestige interaction (M8) | `run_brms_m8_prestigeslopes.R` | `cache/prestige_slope_test.csv` |
-| WAIC recompute for a saved fit | `finish_waic_tag.R <tag>` | `rds/waic_<tag>.rds` |
-| Fit diagnostics | `diagnose_m1v2_corrected.R`, `diagnose_mN_corrected.R` | `cache/diagnostics_m*.{md,txt}` |
+| Wider fixed-effect prior on M1 (`normal(0, 3)`) | `Scripts/main/fit_prior_sensitivity.R` + `Scripts/main/post_prior_sensitivity.R` | `cache/prior_sensitivity_model1.csv` |
+| Winamp cell dropped / collapsed | `Scripts/main/fit_platform_robustness.R` (+ `Scripts/main/post_platform_robustness.R`) | `cache/robustness_platform.csv` |
+| LKJ prior on the genre intercept–slope correlation, LKJ(1) and LKJ(4) vs LKJ(2) | `Scripts/main/fit_lkj_sensitivity.R` (+ `Scripts/main/post_lkj_sensitivity.R`) | `cache/sensitivity_lkj.csv` |
+| Quadratic arts term (M7) | `Scripts/main/fit_m7_arts_quadratic.R` (or `Scripts/main/post_m7_arts_quadratic.R` on the saved fit) | `cache/h2b_quadratic_arts.csv` |
+| Education slopes vs prestige (M6) | `Scripts/main/check_education_prestige_correlation.R` | `cache/m6_educ_prestige_correlations.csv`, `cache/m6_educ_genre_slopes.csv` |
+| Is the Figure 7 correlation mechanical? (slopes vs a race-built ordering; listening vs liking gradient) | `Scripts/main/check_education_slope_antitautology.R` | `cache/m6_educ_slope_antitautology_checks.csv` |
+| Education × genre prestige interaction as a model-level test of the Figure 7 gradient (M9) | `Scripts/main/fit_m9_education_by_prestige.R` | `cache/educ_prestige_test.csv` |
+| Covariate-averaged prevalence of the four engagement states | `Scripts/main/check_state_prevalences.R` | `cache/state_prevalences_marginal_m1.csv` |
+| Paired loo comparison of M6 against M5 | `Scripts/main/post_m6_vs_m5_loo.R` | `cache/m6_vs_m5_loo_compare.csv` |
+| Arts-by-prestige interaction (M8) | `Scripts/main/fit_m8_arts_by_prestige.R` | `cache/prestige_slope_test.csv` |
+| WAIC recompute for a saved fit | `Scripts/main/post_waic.R <tag>` | `rds/waic_<tag>.rds` |
+| Fit diagnostics | `Scripts/supporting/diagnose_m1_v2.R`, `Scripts/supporting/diagnose_fit.R` | `cache/diagnostics_m*.{md,txt}` |
 
 ## Conventions
 

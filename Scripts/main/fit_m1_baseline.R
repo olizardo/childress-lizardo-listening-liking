@@ -5,7 +5,7 @@
 #'   adapt_delta 0.97) showed thin effective sample sizes: iter 6000,
 #'   warmup 2500, adapt_delta 0.995, max_treedepth 13, seed 6113, 14,000 kept
 #'   draws per chain. Data come from dta/analysis_model_input.dta, built by
-#'   Scripts/prep_model_input.R.
+#'   Scripts/main/prep_model_input.R.
 #'   Output: rds/model_brms_m1_corrected_v2.rds + rds/waic_m1_corrected_v2.rds
 
 library(cmdstanr)

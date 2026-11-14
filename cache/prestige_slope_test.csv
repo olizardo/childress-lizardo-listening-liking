@@ -1,0 +1,4 @@
+"State","arts_at_mean_prestige","interaction","int_CrI_2.5","int_CrI_97.5","p_interaction","OR_per_unit_prestige","OR_full_range"
+"ListenOnly",0.008,0.137,-0.041,0.319,0.129,1.146,1.198
+"LikeOnly",0.22,0.196,0.099,0.288,4e-04,1.216,1.295
+"Both",0.175,0.152,-0.051,0.335,0.1316,1.164,1.222

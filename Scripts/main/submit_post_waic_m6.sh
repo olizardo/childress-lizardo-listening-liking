@@ -17,4 +17,4 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 
 export cmdstanr_no_ver_check=TRUE
 
-Rscript Scripts/finish_waic_tag.R m6_educslopes
+Rscript Scripts/main/post_waic.R m6_educslopes

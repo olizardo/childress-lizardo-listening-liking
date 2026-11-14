@@ -19,4 +19,4 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 export CMDSTANR_CORES=$SLURM_CPUS_PER_TASK
 export cmdstanr_no_ver_check=TRUE
 
-Rscript Scripts/run_brms_m7_artsquad.R
+Rscript Scripts/main/fit_m7_arts_quadratic.R

@@ -17,4 +17,4 @@ export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 export CMDSTANR_CORES=$SLURM_CPUS_PER_TASK
 export cmdstanr_no_ver_check=TRUE
 
-Rscript Scripts/prior_sensitivity_model1.R
+Rscript Scripts/main/fit_prior_sensitivity.R
