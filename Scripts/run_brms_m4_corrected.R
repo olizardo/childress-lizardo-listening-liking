@@ -19,8 +19,21 @@ cat("Loading corrected model input...\n")
 df_long <- read_dta("dta/analysis_model_input.dta")
 df_long$id <- as.factor(df_long$id)
 df_long$genre_id <- as.factor(df_long$genre_id)
+df_long$engagement_state <- factor(
+  as.integer(df_long$engagement_state),
+  levels = 1:4,
+  labels = c("Neither", "ListenOnly", "LikeOnly", "Both")
+)
+# Categorical predictors entered as factors (matching the legacy run_brms.R
+# specification); bug fix 2026-11-12 -- race5 and platform previously entered
+# as numeric codes in the corrected fits.
+df_long$race5 <- factor(as.integer(df_long$race5), levels = 1:5,
+                        labels = c("White", "Black", "Hispanic", "Asian", "Other/Mixed"))
+df_long$platform <- factor(as.integer(df_long$platform), levels = 1:5,
+                           labels = c("Free Recall", "Spotify", "iTunes", "Winamp", "Other"))
 
 cat("Sample size:", nrow(df_long), "rows across", n_distinct(df_long$id), "respondents.\n")
+stopifnot(is.factor(df_long$race5), is.factor(df_long$platform))  # response coding guard: race5/platform must be factors
 
 n_cpus <- as.integer(Sys.getenv("SLURM_CPUS_PER_TASK",
                                 unset = as.integer(Sys.getenv("NSLOTS", unset = 16))))

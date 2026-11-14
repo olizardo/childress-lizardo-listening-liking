@@ -1,0 +1,5 @@
+"Statistic","Median","CrI_2.5","CrI_97.5","p_bayes"
+"Pearson r (education slope vs prestige)",0.872,0.773,0.937,0
+"Spearman rho (education slope vs prestige)",0.878,0.768,0.946,0
+"Pearson r (arts slope vs prestige, same fit)",0.654,0.497,0.783,0
+"Pearson r (education slope vs arts slope)",0.525,0.261,0.755,6e-04

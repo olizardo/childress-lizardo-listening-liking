@@ -11,7 +11,6 @@ rds/*.rds
 # Manuscript and local-only working files
 AGENTS.md
 references.bib
-Tabs/
 docs/
 .posit/
 Scripts/sync_manuscript.R
@@ -22,5 +21,11 @@ Scripts/__pycache__/
 
 # Local working files
 TODO.md
+TODO_missing_analyses.md
 manuscript/
+manuscript_additions.md
 data_coding_issue_memo.md
+
+# Superseded material and handoff files stay local
+archive/
+zotero_import_missing.bib

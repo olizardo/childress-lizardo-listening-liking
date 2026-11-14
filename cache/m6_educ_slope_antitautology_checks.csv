@@ -1,0 +1,10 @@
+"Statistic","Value"
+"Pearson r (educ slope vs racial preference ratio)",-0.016
+"Spearman rho (educ slope vs racial preference ratio)",0.08
+"Bootstrap 95% CI lower (educ slope vs racial preference ratio)",-0.423
+"Bootstrap 95% CI upper (educ slope vs racial preference ratio)",0.487
+"Pearson r (educ slope vs College Preference Ratio, medians)",0.942
+"Pearson r (educ slope vs raw liking gradient)",0.953
+"Pearson r (educ slope vs raw listening gradient)",0.787
+"Partial coefficient on listening gradient (slope ~ like_grad + lis_grad)",-0.07
+"SE on listening gradient",0.024

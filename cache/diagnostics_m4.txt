@@ -1,0 +1,19 @@
+Model 4 (corrected) diagnostics
+Posterior draws: 10000
+Max R-hat: 1.0073
+Parameters with R-hat > 1.01: 0 of 4507
+Min bulk ESS: 690
+Min tail ESS: 1185
+Divergent transitions: 0
+Iterations hitting max treedepth 13: 0
+
+WAIC:
+
+Computed from 10000 by 28655 log-likelihood matrix.
+
+          Estimate    SE
+elpd_waic -25296.6 126.8
+p_waic      2071.3  16.7
+waic       50593.2 253.7
+
+549 (1.9%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
