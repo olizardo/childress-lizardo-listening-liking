@@ -1,7 +1,7 @@
-#' @title Anti-tautology checks for the Model 6 education slopes (Figure 7)
+#' @title Anti-tautology checks for the Model 6 education slopes (Figure 8)
 #' @description The educational prestige measure (College Preference Ratio) is
 #'   built from liking shares by education, and the Model 6 education slopes on
-#'   the y-axis of Figure 7 are education gradients of overclaiming. A reviewer
+#'   the y-axis of Figure 8 are education gradients of overclaiming. A reviewer
 #'   could therefore suspect that the strong correlation reported in the text
 #'   is true by definition. This script assembles the checks that rule that out.
 #'
@@ -32,7 +32,7 @@ slopes <- read.csv("cache/m6_educ_genre_slopes.csv", stringsAsFactors = FALSE)
 stopifnot(nrow(slopes) == 20)
 
 # Education slope expressed as the full-range odds ratio (five steps from less
-# than high school to graduate degree), matching Figure 7.
+# than high school to graduate degree), matching Figure 8.
 slopes <- slopes |>
   mutate(or_educ = exp(educ_slope_med * 5))
 

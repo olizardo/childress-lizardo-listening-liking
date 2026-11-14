@@ -11,7 +11,7 @@
 #'   (model_brms_slopes.rds / Model 5), which never matched the manuscript's own
 #'   text and equation, both of which describe the pure-intercepts baseline (Model 1).
 #'   Fixed to load Model 1 directly so code and prose agree.
-#'   Generates: Plots/fig1_profiles.png
+#'   Generates: Plots/fig2_profiles.png
 
 library(brms)
 library(tidybayes)
@@ -157,8 +157,8 @@ p_purged_combined <- ggplot(tb_wide, aes(x = purged_u0, y = y_key, fill = cred_s
 
 dir.create("Plots", showWarnings = FALSE)
 dir.create("cache", showWarnings = FALSE)
-ggsave("Plots/fig1_profiles.png", p_purged_combined, width = 13, height = 8, dpi = 300)
+ggsave("Plots/fig2_profiles.png", p_purged_combined, width = 13, height = 8, dpi = 300)
 write.csv(cred_summary, "cache/purged_genre_profiles_credsummary.csv", row.names = FALSE)
 
-cat("Successfully generated Plots/fig1_profiles.png with 95% directional credibility rule!\n")
+cat("Successfully generated Plots/fig2_profiles.png with 95% directional credibility rule!\n")
 cat("Saved per-genre-per-state credibility classifications to cache/purged_genre_profiles_credsummary.csv\n")

@@ -1,5 +1,5 @@
 #' @title Bayesian Categorical Model, Education Effect Ordered by Genre Prestige (Model 9)
-#' @description Model-level companion to Figure 7. Figure 7 correlates the
+#' @description Model-level companion to Figure 8. Figure 8 correlates the
 #'   genre education slopes extracted from Model 6 with the College Preference
 #'   Ratio after the fact; this fit puts the ratio inside the likelihood as a
 #'   fixed effect on the education slope, so the claim that education orders
@@ -141,7 +141,7 @@ sink()
 cat(readLines("cache/diagnostics_m9.txt"), sep = "\n")
 
 # Does the education gradient rise with genre prestige?
-# educ2 spans levels 1-6, so 5 units is the full observed range used in Figure 7.
+# educ2 spans levels 1-6, so 5 units is the full observed range used in Figure 8.
 dr <- as_draws_df(fit)
 rng_p <- diff(range(prest$ratio_col))
 educ_step <- 5
@@ -167,7 +167,7 @@ m9 <- bind_rows(lapply(c("muListenOnly", "muLikeOnly", "muBoth"), function(s) {
   )
 }))
 write.csv(m9, "cache/educ_prestige_test.csv", row.names = FALSE)
-cat("\n===== EDUCATION EFFECT BY GENRE PRESTIGE (Figure 7 as a model test) =====\n")
+cat("\n===== EDUCATION EFFECT BY GENRE PRESTIGE (Figure 8 as a model test) =====\n")
 print(m9)
 cat("Saved cache/educ_prestige_test.csv\n")
 

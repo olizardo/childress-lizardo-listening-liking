@@ -1,4 +1,4 @@
-#' @title Figure 2: Predicted probabilities of engagement states by childhood arts exposure
+#' @title Figure 3: Predicted probabilities of engagement states by childhood arts exposure
 #' @description Corrected-data replacement for the unverifiable legacy
 #'   ChildArts_Effects_Bayesian_CrI.png (which had NO generating script; see
 #'   2026-11-11 audit). Sources corrected Model 1 (crossed random intercepts,
@@ -7,7 +7,7 @@
 #'   effects held at their estimated values), posterior_epred draws are averaged
 #'   within draw across all person-genre rows, giving the population-adjusted
 #'   predicted probability of each engagement state. Outputs
-#'   Plots/fig2_predicted_probs.png and
+#'   Plots/fig3_predicted_probs.png and
 #'   cache/childarts_predicted_probs.csv.
 #' @details Memory: uses ndraws = 1000 and frees each level's array before the
 #'   next, so peak stays around 1 GB per posterior_epred call.
@@ -111,6 +111,6 @@ p_pred <- ggplot(pred_df, aes(x = child_arts, y = median, color = state, fill = 
   )
 
 dir.create("Plots", showWarnings = FALSE)
-ggsave("Plots/fig2_predicted_probs.png", p_pred,
+ggsave("Plots/fig3_predicted_probs.png", p_pred,
        width = 9.5, height = 6.5, dpi = 300, bg = "white")
-cat("Saved Plots/fig2_predicted_probs.png\n")
+cat("Saved Plots/fig3_predicted_probs.png\n")

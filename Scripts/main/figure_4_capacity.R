@@ -1,7 +1,7 @@
 # plot_omnivorousness_capacity.R
 # Visualizes the divergence between Abstract Liking (Omnivorousness) 
 # and Concrete Listening across levels of Cultural Capital
-# Outputs to Plots/fig3_capacity.png
+# Outputs to Plots/fig4_capacity.png
 # NOTE: only the fitted model's stored $data (identical analysis data frame
 # across all 5 specifications) is used here -- no random effects are pulled
 # from the model itself -- but the source is kept aligned with the preferred
@@ -32,14 +32,21 @@ person_stats <- df %>%
     .groups = "drop"
   )
 
-sum_df <- person_stats %>%
+sum_wide <- person_stats %>%
   group_by(child_arts) %>%
   summarize(
-    `Abstract Liking (Number of Genres Liked)` = mean(num_liked),
-    `Concrete Listening (Number of Genres Listened To)` = mean(num_listened),
     n = n(),
+    mean_liked = mean(num_liked),
+    mean_listened = mean(num_listened),
     .groups = "drop"
-  ) %>%
+  )
+
+dir.create("cache", showWarnings = FALSE)
+write.csv(sum_wide, "cache/capacity_by_arts.csv", row.names = FALSE)
+
+sum_df <- sum_wide %>%
+  rename(`Abstract Liking (Number of Genres Liked)` = mean_liked,
+         `Concrete Listening (Number of Genres Listened To)` = mean_listened) %>%
   pivot_longer(
     cols = c(`Abstract Liking (Number of Genres Liked)`, `Concrete Listening (Number of Genres Listened To)`),
     names_to = "Engagement Type",
@@ -75,6 +82,6 @@ p_diverge <- ggplot(sum_df, aes(x = child_arts, y = mean_genres, color = `Engage
   )
 
 dir.create("Plots", showWarnings = FALSE)
-output_file <- "Plots/fig3_capacity.png"
+output_file <- "Plots/fig4_capacity.png"
 ggsave(output_file, p_diverge, width = 8.5, height = 6.5, dpi = 300, bg = "white")
 cat("SUCCESS: Plot saved to", output_file, "\n")

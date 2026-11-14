@@ -1,10 +1,10 @@
-#' @title Figure 7 preview: education-by-genre overclaiming odds against prestige
-#' @description Companion to Figure 6, using Model 6 (education slopes in the
+#' @title Figure 8 preview: education-by-genre overclaiming odds against prestige
+#' @description Companion to Figure 7, using Model 6 (education slopes in the
 #'   genre random effects) instead of Model 4 (arts slopes). For each genre the
 #'   plot pairs the genre-specific education slope for overclaiming, expressed
 #'   as an odds ratio across the full six-category range of education, with the
 #'   genre's educational prestige (College Preference Ratio). Styled to match
-#'   Figure 6: posterior medians with 95% credible intervals on the odds ratio.
+#'   Figure 7: posterior medians with 95% credible intervals on the odds ratio.
 #'
 #'   Read from cache, not from the fit: cache/m6_educ_genre_slopes.csv holds the
 #'   posterior medians and 95% bounds produced by
@@ -16,7 +16,7 @@
 #'   correlation as describing how tightly education slopes follow the prestige
 #'   ordering, not as an independent causal test.
 #'
-#'   Output: Plots/fig7_educ_prestige_vs_odds.png
+#'   Output: Plots/fig8_educ_prestige_vs_odds.png
 
 library(ggplot2)
 library(ggrepel)
@@ -111,6 +111,6 @@ p <- ggplot(d, aes(x = ratio_col, y = odds_ratio)) +
   )
 
 dir.create("Plots", showWarnings = FALSE)
-ggsave("Plots/fig7_educ_prestige_vs_odds.png", p, width = 9.5, height = 7, dpi = 300, bg = "white")
-cat("Saved Plots/fig7_educ_prestige_vs_odds.png\n")
+ggsave("Plots/fig8_educ_prestige_vs_odds.png", p, width = 9.5, height = 7, dpi = 300, bg = "white")
+cat("Saved Plots/fig8_educ_prestige_vs_odds.png\n")
 print(d[, c("genre_name", "ratio_col", "odds_ratio", "or_lo", "or_hi", "pref_cat")])

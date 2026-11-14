@@ -1,12 +1,12 @@
-#' @title Figure 4 (corrected): Genre overclaiming odds ratios, colored by directional credibility
+#' @title Figure 5 (corrected): Genre overclaiming odds ratios, colored by directional credibility
 #' @description Corrected-data version sourced from model_brms_m4_corrected.rds.
 #'   CHANGE vs. legacy: genres are now colored by posterior directional
 #'   credibility of the odds ratio exceeding 1, using pd >= 0.975 so the color
 #'   rule exactly matches the plotted two-sided 95% intervals (audit fix; user
 #'   decision 2026-11-12). Colors: Credibly > 1 (blue), Credibly < 1 (orange),
 #'   Not Credible (gray). Educational preference coloring was removed from this
-#'   figure; prestige contrasts live in Figure 6.
-#'   Outputs Plots/fig4_genre_odds.png and
+#'   figure; prestige contrasts live in Figure 7.
+#'   Outputs Plots/fig5_genre_odds.png and
 #'   cache/odds_overclaiming_by_genre.csv.
 
 library(brms)
@@ -119,6 +119,6 @@ p_halfeye_odds <- ggplot(tb_draws, aes(x = odds_ratio, y = genre_name, fill = cr
   )
 
 dir.create("Plots", showWarnings = FALSE)
-output_file <- "Plots/fig4_genre_odds.png"
+output_file <- "Plots/fig5_genre_odds.png"
 ggsave(output_file, p_halfeye_odds, width = 9.5, height = 8, dpi = 300, bg = "white")
 cat("SUCCESS: Plot saved to", output_file, "\n")
