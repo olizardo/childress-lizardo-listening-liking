@@ -1,7 +1,7 @@
 #' @title Bayesian Categorical Model, Arts Effect Ordered by Genre Prestige (Model 8)
 #' @description Model-level test of H3A versus H3B. Instead of correlating
 #'   extracted genre slopes with prestige after the fact (the descriptive
-#'   companion in Figure 7 and cache/correlation_draws_summary.csv), this
+#'   companion in Figure 8 and cache/correlation_draws_summary.csv), this
 #'   model puts prestige inside the likelihood as a fixed effect on the arts
 #'   slope, so the highbrow-versus-lowbrow contrast is a single coefficient
 #'   with a posterior probability attached.

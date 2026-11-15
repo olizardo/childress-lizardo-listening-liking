@@ -1,9 +1,13 @@
-"Model","elpd_diff","se_diff","WAIC","WAIC_SE","ratio"
-"1. Crossed Random Intercepts",0,0,50808.0269010098,252.745464776835,NA
-"2. Constrained Slopes (Overclaiming)",41.8696042201281,9.17220908814517,50724.2876925691,253.498601735566,4.56483316262856
-"3. Constrained Slopes (Underclaiming & Overclaiming)",43.1392081080937,9.20338084410927,50721.7484847938,253.513009876142,4.68732184822118
-"4. Constrained Slopes (Overclaiming & Consistent Engagement)",107.401276864445,14.458605507731,50593.2243472811,253.659532895311,7.42819055454676
-"5. Full Crossed Random Slopes",106.366377974205,14.4999889083354,50595.2941450607,253.670292913308,7.33561788540818
-"6. Full Crossed Slopes, Education Slopes by Genre",224.590204802337,20.9121458202933,50358.8464914044,254.309706218173,10.7397015462848
-"7. Random Intercepts, Quadratic Arts Term",0.596289891608285,1.55458290507886,50806.8343212262,252.789696152646,0.383569052290612
-"8. Full Crossed Slopes, Arts × College Preference Ratio",106.985900069396,14.7537846208585,50594.055100871,253.681540048072,7.25142075872126
+"Model","elpd_diff","se_diff","WAIC","WAIC_SE","Crossed genre slopes","ratio"
+"1. Crossed Random Intercepts",0,0,50808.0269010098,252.745464776835,"None",NA
+"2. Constrained Slopes (Overclaiming)",41.8696042201281,9.17220908814517,50724.2876925691,253.498601735566,"Arts: Overclaiming only",4.56483316262856
+"3. Constrained Slopes (Underclaiming & Overclaiming)",43.1392081080937,9.20338084410927,50721.7484847938,253.513009876142,"Arts: Underclaiming, Overclaiming",4.68732184822118
+"4. Constrained Slopes (Overclaiming & Consistent Engagement)",107.401276864445,14.458605507731,50593.2243472811,253.659532895311,"Arts: Overclaiming, Consistent Engagement",7.42819055454676
+"5. Full Crossed Random Slopes",106.366377974205,14.4999889083354,50595.2941450607,253.670292913308,"Arts: all three equations",7.33561788540818
+"6. Full Crossed Slopes, Education Slopes by Genre",224.590204802337,20.9121458202933,50358.8464914044,254.309706218173,"Arts and education: all three equations",10.7397015462848
+"7. Random Intercepts, Quadratic Arts Term",0.596289891608285,1.55458290507886,50806.8343212262,252.789696152646,"None (fixed quadratic arts term)",0.383569052290612
+"8. Full Crossed Slopes, Arts × College Preference Ratio",106.985900069396,14.7537846208585,50594.055100871,253.681540048072,"Arts: all three equations",7.25142075872126
+"9. Model 6 Structure, Education × College Preference Ratio",239.976893958785,21.5058847480888,50328.0731130922,254.183317084474,"Arts and education: all three equations",11.1586617695471
+"10. Model 6 Structure, Education Slopes on Overclaiming & Consistent Engagement",220.564872233918,20.6562300237249,50366.8971565416,254.38351494146,"Arts: all three equations; education: Overclaiming, Consistent Engagement",10.6778861380119
+"13. Model 6 Structure, Arts and Education × College Preference Ratio",240.074017854462,21.6435085906728,50327.8788653007,254.184987833125,"Arts and education: all three equations",11.0921950038138
+"14. Model 4 Structure, Arts and Education × College Preference Ratio",242.565940425481,21.5884416947143,50322.8950201585,254.061184475511,"Arts and education: Overclaiming, Consistent Engagement",11.2359170641237

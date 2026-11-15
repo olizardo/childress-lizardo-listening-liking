@@ -1,0 +1,7 @@
+"State","Moderator","slope_at_mean_prestige","interaction","int_CrI_2.5","int_CrI_97.5","p_interaction","multiplier_across_prestige_range","term"
+"ListenOnly","child_arts",0.007,0.089,-0.096,0.273,0.331,1.125,"b_muListenOnly_child_arts:prestige_c"
+"ListenOnly","educ2",-0.006,0.395,0.186,0.599,6e-04,1.685,"b_muListenOnly_prestige_c:educ2"
+"LikeOnly","child_arts",0.222,0.161,0.064,0.256,0.0026,1.237,"b_muLikeOnly_child_arts:prestige_c"
+"LikeOnly","educ2",0.072,0.315,0.248,0.381,0,1.516,"b_muLikeOnly_prestige_c:educ2"
+"Both","child_arts",0.171,0.063,-0.145,0.263,0.5094,1.087,"b_muBoth_child_arts:prestige_c"
+"Both","educ2",0.129,0.593,0.406,0.759,0,2.188,"b_muBoth_prestige_c:educ2"

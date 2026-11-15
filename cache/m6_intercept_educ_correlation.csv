@@ -1,0 +1,5 @@
+"Statistic","Median","CrI_2.5","CrI_97.5","P_below_zero"
+"Intercept at mean education vs. education slope (Pearson)",-0.276,-0.481,-0.051,0.993
+"Intercept at mean education vs. education slope (Spearman)",-0.254,-0.469,-0.017,0.98
+"Raw intercept vs. education slope (Pearson)",-0.568,-0.705,-0.387,1
+"Raw intercept vs. education slope (Spearman)",-0.608,-0.747,-0.413,1

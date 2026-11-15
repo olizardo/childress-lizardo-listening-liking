@@ -1,0 +1,4 @@
+"State","educ_slope_at_mean_prestige","interaction","int_CrI_2.5","int_CrI_97.5","p_interaction","OR_educ_fullrange_mean_prest","OR_educ_fullrange_min_prest","OR_educ_fullrange_max_prest","OR_multiplier_across_prestige_range"
+"ListenOnly",-0.005,0.406,0.194,0.613,0.0012,1.008,0.329,5.16,1.71
+"LikeOnly",0.071,0.329,0.26,0.404,0,1.443,0.571,5.049,1.545
+"Both",0.129,0.601,0.422,0.763,0,1.94,0.364,19.895,2.211
