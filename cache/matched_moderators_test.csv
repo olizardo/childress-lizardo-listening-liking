@@ -1,0 +1,7 @@
+"State","Exposure","Moderator","slope_at_mean_moderator","interaction","int_CrI_2.5","int_CrI_97.5","p_interaction","multiplier_across_moderator_range"
+"ListenOnly","child_arts","popularity",0,0.126,-0.196,0.454,0.4448,1.078
+"ListenOnly","educ2","prestige (CPR)",-0.002,0.43,0.251,0.611,0,1.765
+"LikeOnly","child_arts","popularity",0.222,-0.348,-0.564,-0.12,0.0056,0.812
+"LikeOnly","educ2","prestige (CPR)",0.071,0.324,0.257,0.395,0,1.535
+"Both","child_arts","popularity",0.165,0.017,-0.482,0.611,0.9998,1.01
+"Both","educ2","prestige (CPR)",0.135,0.591,0.412,0.75,0,2.184

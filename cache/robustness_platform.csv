@@ -1,0 +1,10 @@
+"Specification","State","Mean","SD","CrI_2.5","CrI_97.5","p_bayes"
+"Corrected M1 v2 (Winamp included, N=10)","ListenOnly",0.027,0.034,-0.04,0.094,0.430571428571429
+"Corrected M1 v2 (Winamp included, N=10)","LikeOnly",0.223,0.02,0.184,0.262,0
+"Corrected M1 v2 (Winamp included, N=10)","Both",0.151,0.017,0.118,0.184,0
+"Winamp dropped","ListenOnly",0.027,0.034,-0.04,0.095,0.422285714285714
+"Winamp dropped","LikeOnly",0.221,0.02,0.183,0.26,0
+"Winamp dropped","Both",0.151,0.017,0.116,0.184,0
+"Winamp collapsed into Other","ListenOnly",0.027,0.035,-0.042,0.095,0.448
+"Winamp collapsed into Other","LikeOnly",0.223,0.02,0.184,0.262,0
+"Winamp collapsed into Other","Both",0.151,0.017,0.117,0.185,0

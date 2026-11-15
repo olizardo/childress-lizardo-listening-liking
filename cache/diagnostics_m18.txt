@@ -1,0 +1,20 @@
+== Model 18 (quadratic arts exposure and education), corrected data ==
+[1] 1.00299
+min bulk ESS ratio: 0.1121799 
+Divergences: 0 
+Max treedepth hits: 0 
+
+Centered curvature and linear terms:
+                         Estimate   Est.Error         Q2.5       Q97.5
+muListenOnly_arts_c   0.029309584 0.035207747 -0.039946163 0.098423145
+muListenOnly_arts_c2 -0.009299730 0.018575451 -0.045786533 0.026799635
+muListenOnly_educ_c  -0.057045849 0.048723743 -0.152899925 0.038222582
+muListenOnly_educ_c2  0.031856145 0.029440163 -0.026155088 0.089138615
+muLikeOnly_arts_c     0.211425521 0.020297763  0.171160925 0.250965425
+muLikeOnly_arts_c2    0.022314323 0.010484260  0.001744537 0.043077782
+muLikeOnly_educ_c     0.081008612 0.028649556  0.024662973 0.136869525
+muLikeOnly_educ_c2   -0.008147914 0.017421518 -0.042008660 0.026092507
+muBoth_arts_c         0.146670684 0.017824216  0.112050875 0.181918775
+muBoth_arts_c2        0.009694336 0.008988555 -0.007972892 0.027424305
+muBoth_educ_c         0.086789751 0.024758677  0.037937750 0.135584350
+muBoth_educ_c2       -0.023617840 0.015015596 -0.052946690 0.005305784

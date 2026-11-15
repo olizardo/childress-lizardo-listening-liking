@@ -1,0 +1,467 @@
+This is cmdstanr version 0.8.0
+- CmdStanR documentation and vignettes: mc-stan.org/cmdstanr
+- CmdStan path: /u/home/o/olizardo/.cmdstan/cmdstan-2.33.1
+- CmdStan version: 2.33.1
+Loading required package: Rcpp
+Loading 'brms' package (version 2.23.0). Useful instructions
+can be found by typing help('brms'). A more detailed introduction
+to the package is available through vignette('brms_overview').
+
+Attaching package: ‘brms’
+
+The following object is masked from ‘package:stats’:
+
+    ar
+
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+CmdStan path set to: /u/home/o/olizardo/.cmdstan/cmdstan-2.33.1
+Loading corrected model input...
+centering means | arts: 3.1931 | educ2: 3.27 
+cor(arts_c, arts_c2) = 0.2834 | cor(educ_c, educ_c2) = 0.4555 
+Sample size: 28655 rows across 1450 respondents.
+CPUs: 16 | chains: 4 | threads/chain: 4 
+Sampling Model 18 (quadratic arts exposure and education) via cmdstanr...
+Start sampling
+Running MCMC with 4 parallel chains, with 4 thread(s) per chain...
+
+Chain 1 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 2 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 3 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 4 Iteration:    1 / 6000 [  0%]  (Warmup) 
+Chain 1 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 3 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 1 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 1 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 3 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 2 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 1 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 3 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 4 Iteration:  100 / 6000 [  1%]  (Warmup) 
+Chain 2 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 1 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 3 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 1 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 4 Iteration:  200 / 6000 [  3%]  (Warmup) 
+Chain 1 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 2 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 3 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 2 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 4 Iteration:  300 / 6000 [  5%]  (Warmup) 
+Chain 3 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 4 Iteration:  400 / 6000 [  6%]  (Warmup) 
+Chain 3 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 1 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 2 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 4 Iteration:  500 / 6000 [  8%]  (Warmup) 
+Chain 1 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 2 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 4 Iteration:  600 / 6000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 1 Iteration: 1100 / 6000 [ 18%]  (Warmup) 
+Chain 2 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 4 Iteration:  700 / 6000 [ 11%]  (Warmup) 
+Chain 3 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 1 Iteration: 1200 / 6000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 4 Iteration:  800 / 6000 [ 13%]  (Warmup) 
+Chain 3 Iteration: 1100 / 6000 [ 18%]  (Warmup) 
+Chain 1 Iteration: 1300 / 6000 [ 21%]  (Warmup) 
+Chain 2 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  900 / 6000 [ 15%]  (Warmup) 
+Chain 3 Iteration: 1200 / 6000 [ 20%]  (Warmup) 
+Chain 1 Iteration: 1400 / 6000 [ 23%]  (Warmup) 
+Chain 2 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 4 Iteration: 1000 / 6000 [ 16%]  (Warmup) 
+Chain 3 Iteration: 1300 / 6000 [ 21%]  (Warmup) 
+Chain 1 Iteration: 1500 / 6000 [ 25%]  (Warmup) 
+Chain 2 Iteration: 1100 / 6000 [ 18%]  (Warmup) 
+Chain 4 Iteration: 1100 / 6000 [ 18%]  (Warmup) 
+Chain 3 Iteration: 1400 / 6000 [ 23%]  (Warmup) 
+Chain 1 Iteration: 1600 / 6000 [ 26%]  (Warmup) 
+Chain 2 Iteration: 1200 / 6000 [ 20%]  (Warmup) 
+Chain 4 Iteration: 1200 / 6000 [ 20%]  (Warmup) 
+Chain 3 Iteration: 1500 / 6000 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1700 / 6000 [ 28%]  (Warmup) 
+Chain 2 Iteration: 1300 / 6000 [ 21%]  (Warmup) 
+Chain 4 Iteration: 1300 / 6000 [ 21%]  (Warmup) 
+Chain 3 Iteration: 1600 / 6000 [ 26%]  (Warmup) 
+Chain 1 Iteration: 1800 / 6000 [ 30%]  (Warmup) 
+Chain 2 Iteration: 1400 / 6000 [ 23%]  (Warmup) 
+Chain 4 Iteration: 1400 / 6000 [ 23%]  (Warmup) 
+Chain 3 Iteration: 1700 / 6000 [ 28%]  (Warmup) 
+Chain 1 Iteration: 1900 / 6000 [ 31%]  (Warmup) 
+Chain 2 Iteration: 1500 / 6000 [ 25%]  (Warmup) 
+Chain 4 Iteration: 1500 / 6000 [ 25%]  (Warmup) 
+Chain 3 Iteration: 1800 / 6000 [ 30%]  (Warmup) 
+Chain 1 Iteration: 2000 / 6000 [ 33%]  (Warmup) 
+Chain 2 Iteration: 1600 / 6000 [ 26%]  (Warmup) 
+Chain 4 Iteration: 1600 / 6000 [ 26%]  (Warmup) 
+Chain 3 Iteration: 1900 / 6000 [ 31%]  (Warmup) 
+Chain 1 Iteration: 2100 / 6000 [ 35%]  (Warmup) 
+Chain 2 Iteration: 1700 / 6000 [ 28%]  (Warmup) 
+Chain 4 Iteration: 1700 / 6000 [ 28%]  (Warmup) 
+Chain 3 Iteration: 2000 / 6000 [ 33%]  (Warmup) 
+Chain 1 Iteration: 2200 / 6000 [ 36%]  (Warmup) 
+Chain 2 Iteration: 1800 / 6000 [ 30%]  (Warmup) 
+Chain 4 Iteration: 1800 / 6000 [ 30%]  (Warmup) 
+Chain 3 Iteration: 2100 / 6000 [ 35%]  (Warmup) 
+Chain 1 Iteration: 2300 / 6000 [ 38%]  (Warmup) 
+Chain 2 Iteration: 1900 / 6000 [ 31%]  (Warmup) 
+Chain 4 Iteration: 1900 / 6000 [ 31%]  (Warmup) 
+Chain 3 Iteration: 2200 / 6000 [ 36%]  (Warmup) 
+Chain 1 Iteration: 2400 / 6000 [ 40%]  (Warmup) 
+Chain 2 Iteration: 2000 / 6000 [ 33%]  (Warmup) 
+Chain 4 Iteration: 2000 / 6000 [ 33%]  (Warmup) 
+Chain 3 Iteration: 2300 / 6000 [ 38%]  (Warmup) 
+Chain 2 Iteration: 2100 / 6000 [ 35%]  (Warmup) 
+Chain 4 Iteration: 2100 / 6000 [ 35%]  (Warmup) 
+Chain 3 Iteration: 2400 / 6000 [ 40%]  (Warmup) 
+Chain 1 Iteration: 2500 / 6000 [ 41%]  (Warmup) 
+Chain 1 Iteration: 2501 / 6000 [ 41%]  (Sampling) 
+Chain 2 Iteration: 2200 / 6000 [ 36%]  (Warmup) 
+Chain 4 Iteration: 2200 / 6000 [ 36%]  (Warmup) 
+Chain 2 Iteration: 2300 / 6000 [ 38%]  (Warmup) 
+Chain 4 Iteration: 2300 / 6000 [ 38%]  (Warmup) 
+Chain 3 Iteration: 2500 / 6000 [ 41%]  (Warmup) 
+Chain 3 Iteration: 2501 / 6000 [ 41%]  (Sampling) 
+Chain 1 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 2 Iteration: 2400 / 6000 [ 40%]  (Warmup) 
+Chain 4 Iteration: 2400 / 6000 [ 40%]  (Warmup) 
+Chain 2 Iteration: 2500 / 6000 [ 41%]  (Warmup) 
+Chain 2 Iteration: 2501 / 6000 [ 41%]  (Sampling) 
+Chain 3 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 4 Iteration: 2500 / 6000 [ 41%]  (Warmup) 
+Chain 4 Iteration: 2501 / 6000 [ 41%]  (Sampling) 
+Chain 1 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 2 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 4 Iteration: 2600 / 6000 [ 43%]  (Sampling) 
+Chain 2 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 3 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 4 Iteration: 2700 / 6000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 2 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 4 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 2 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 3 Iteration: 2800 / 6000 [ 46%]  (Sampling) 
+Chain 4 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 1 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 2 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 3 Iteration: 2900 / 6000 [ 48%]  (Sampling) 
+Chain 4 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 1 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 4 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 2 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 3000 / 6000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 2 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 4 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 2 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 3 Iteration: 3100 / 6000 [ 51%]  (Sampling) 
+Chain 4 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 1 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 2 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 4 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 3 Iteration: 3200 / 6000 [ 53%]  (Sampling) 
+Chain 4 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 1 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 4 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 2 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 3300 / 6000 [ 55%]  (Sampling) 
+Chain 4 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 2 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 4 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 2 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 3 Iteration: 3400 / 6000 [ 56%]  (Sampling) 
+Chain 4 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 1 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 2 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 3 Iteration: 3500 / 6000 [ 58%]  (Sampling) 
+Chain 2 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 4 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 1 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 4 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 3 Iteration: 3600 / 6000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 4 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 2 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 4 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 3 Iteration: 3700 / 6000 [ 61%]  (Sampling) 
+Chain 2 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 4 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 1 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 2 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 4 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 3800 / 6000 [ 63%]  (Sampling) 
+Chain 2 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 4 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 1 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 4 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 3 Iteration: 3900 / 6000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 4 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 2 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 4 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 3 Iteration: 4000 / 6000 [ 66%]  (Sampling) 
+Chain 2 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 4 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 1 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 2 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 4 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 4100 / 6000 [ 68%]  (Sampling) 
+Chain 2 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 4 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 1 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 4 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 3 Iteration: 4200 / 6000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 2 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 4 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 3 Iteration: 4300 / 6000 [ 71%]  (Sampling) 
+Chain 2 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 4 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 1 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 2 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 2 finished in 14150.4 seconds.
+Chain 4 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 4 finished in 14222.8 seconds.
+Chain 3 Iteration: 4400 / 6000 [ 73%]  (Sampling) 
+Chain 1 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 4500 / 6000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 3 Iteration: 4600 / 6000 [ 76%]  (Sampling) 
+Chain 1 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 3 Iteration: 4700 / 6000 [ 78%]  (Sampling) 
+Chain 1 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 4800 / 6000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 3 Iteration: 4900 / 6000 [ 81%]  (Sampling) 
+Chain 1 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 3 Iteration: 5000 / 6000 [ 83%]  (Sampling) 
+Chain 1 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 3 Iteration: 5100 / 6000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 3 Iteration: 5200 / 6000 [ 86%]  (Sampling) 
+Chain 1 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 3 Iteration: 5300 / 6000 [ 88%]  (Sampling) 
+Chain 1 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 5400 / 6000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 3 Iteration: 5500 / 6000 [ 91%]  (Sampling) 
+Chain 1 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 3 Iteration: 5600 / 6000 [ 93%]  (Sampling) 
+Chain 1 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 5700 / 6000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 3 Iteration: 5800 / 6000 [ 96%]  (Sampling) 
+Chain 1 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 3 Iteration: 5900 / 6000 [ 98%]  (Sampling) 
+Chain 1 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 1 finished in 18101.6 seconds.
+Chain 3 Iteration: 6000 / 6000 [100%]  (Sampling) 
+Chain 3 finished in 18229.2 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 16176.0 seconds.
+Total execution time: 18229.8 seconds.
+
+Loading required namespace: rstan
+ Family: categorical 
+  Links: muListenOnly = logit; muLikeOnly = logit; muBoth = logit 
+Formula: engagement_state ~ arts_c + arts_c2 + educ_c + educ_c2 + parent_educ + agecat + female + income + race5 + platform + (1 | id) + (1 | genre_id) 
+   Data: df_long (Number of observations: 28655) 
+  Draws: 4 chains, each with iter = 6000; warmup = 2500; thin = 1;
+         total post-warmup draws = 14000
+
+Multilevel Hyperparameters:
+~genre_id (Number of levels: 20) 
+                           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+sd(muListenOnly_Intercept)     1.18      0.20     0.85     1.64 1.00     4138
+sd(muLikeOnly_Intercept)       0.75      0.13     0.55     1.05 1.00     3005
+sd(muBoth_Intercept)           1.43      0.24     1.05     2.00 1.00     3205
+                           Tail_ESS
+sd(muListenOnly_Intercept)     6719
+sd(muLikeOnly_Intercept)       5612
+sd(muBoth_Intercept)           5688
+
+~id (Number of levels: 1450) 
+                           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+sd(muListenOnly_Intercept)     1.01      0.07     0.87     1.15 1.00     5800
+sd(muLikeOnly_Intercept)       1.00      0.03     0.95     1.06 1.00     4585
+sd(muBoth_Intercept)           0.62      0.03     0.56     0.68 1.00     5330
+                           Tail_ESS
+sd(muListenOnly_Intercept)     8883
+sd(muLikeOnly_Intercept)       8520
+sd(muBoth_Intercept)           8984
+
+Regression Coefficients:
+                              Estimate Est.Error l-95% CI u-95% CI Rhat
+muListenOnly_Intercept           -3.94      0.39    -4.71    -3.17 1.00
+muLikeOnly_Intercept             -0.96      0.23    -1.42    -0.50 1.00
+muBoth_Intercept                 -1.87      0.35    -2.55    -1.19 1.00
+muListenOnly_arts_c               0.03      0.04    -0.04     0.10 1.00
+muListenOnly_arts_c2             -0.01      0.02    -0.05     0.03 1.00
+muListenOnly_educ_c              -0.06      0.05    -0.15     0.04 1.00
+muListenOnly_educ_c2              0.03      0.03    -0.03     0.09 1.00
+muListenOnly_parent_educ          0.04      0.04    -0.03     0.12 1.00
+muListenOnly_agecat              -0.01      0.04    -0.08     0.06 1.00
+muListenOnly_female              -0.16      0.11    -0.38     0.06 1.00
+muListenOnly_income              -0.03      0.02    -0.06     0.01 1.00
+muListenOnly_race5Black           0.12      0.17    -0.20     0.45 1.00
+muListenOnly_race5Hispanic        0.37      0.16     0.06     0.69 1.00
+muListenOnly_race5Asian           0.31      0.23    -0.16     0.76 1.00
+muListenOnly_race5OtherDMixed    -0.06      0.28    -0.63     0.48 1.00
+muListenOnly_platformSpotify      0.18      0.15    -0.12     0.47 1.00
+muListenOnly_platformiTunes       0.42      0.13     0.16     0.68 1.00
+muListenOnly_platformWinamp      -0.00      0.64    -1.31     1.20 1.00
+muLikeOnly_arts_c                 0.21      0.02     0.17     0.25 1.00
+muLikeOnly_arts_c2                0.02      0.01     0.00     0.04 1.00
+muLikeOnly_educ_c                 0.08      0.03     0.02     0.14 1.00
+muLikeOnly_educ_c2               -0.01      0.02    -0.04     0.03 1.00
+muLikeOnly_parent_educ           -0.00      0.02    -0.05     0.04 1.00
+muLikeOnly_agecat                 0.08      0.02     0.04     0.13 1.00
+muLikeOnly_female                 0.02      0.07    -0.10     0.16 1.00
+muLikeOnly_income                 0.00      0.01    -0.02     0.02 1.00
+muLikeOnly_race5Black             0.25      0.10     0.06     0.44 1.00
+muLikeOnly_race5Hispanic         -0.02      0.10    -0.22     0.17 1.00
+muLikeOnly_race5Asian             0.23      0.14    -0.04     0.50 1.00
+muLikeOnly_race5OtherDMixed      -0.01      0.16    -0.32     0.31 1.00
+muLikeOnly_platformSpotify        0.16      0.09    -0.02     0.33 1.00
+muLikeOnly_platformiTunes         0.29      0.08     0.13     0.45 1.00
+muLikeOnly_platformWinamp         0.02      0.40    -0.77     0.81 1.00
+muBoth_arts_c                     0.15      0.02     0.11     0.18 1.00
+muBoth_arts_c2                    0.01      0.01    -0.01     0.03 1.00
+muBoth_educ_c                     0.09      0.02     0.04     0.14 1.00
+muBoth_educ_c2                   -0.02      0.02    -0.05     0.01 1.00
+muBoth_parent_educ               -0.01      0.02    -0.05     0.03 1.00
+muBoth_agecat                     0.05      0.02     0.02     0.09 1.00
+muBoth_female                     0.04      0.06    -0.07     0.15 1.00
+muBoth_income                    -0.02      0.01    -0.03     0.00 1.00
+muBoth_race5Black                 0.02      0.09    -0.15     0.19 1.00
+muBoth_race5Hispanic              0.03      0.09    -0.14     0.21 1.00
+muBoth_race5Asian                 0.07      0.12    -0.17     0.31 1.00
+muBoth_race5OtherDMixed           0.07      0.14    -0.20     0.33 1.00
+muBoth_platformSpotify            0.16      0.08    -0.00     0.31 1.00
+muBoth_platformiTunes             0.03      0.07    -0.11     0.17 1.00
+muBoth_platformWinamp             0.04      0.34    -0.64     0.71 1.00
+                              Bulk_ESS Tail_ESS
+muListenOnly_Intercept            3953     7435
+muLikeOnly_Intercept              2286     4787
+muBoth_Intercept                  1797     3559
+muListenOnly_arts_c              13430    10755
+muListenOnly_arts_c2             14875    11356
+muListenOnly_educ_c              12490    11092
+muListenOnly_educ_c2             12067    11018
+muListenOnly_parent_educ         12374    10651
+muListenOnly_agecat              12816    11198
+muListenOnly_female              13825    11937
+muListenOnly_income              14476    11429
+muListenOnly_race5Black          14548    11383
+muListenOnly_race5Hispanic       12414    11319
+muListenOnly_race5Asian          14866    11210
+muListenOnly_race5OtherDMixed    16262    11619
+muListenOnly_platformSpotify     13554    11294
+muListenOnly_platformiTunes      12548    11480
+muListenOnly_platformWinamp      16122    10773
+muLikeOnly_arts_c                 5240     8035
+muLikeOnly_arts_c2                5399     7721
+muLikeOnly_educ_c                 4649     7677
+muLikeOnly_educ_c2                4930     8274
+muLikeOnly_parent_educ            4855     8133
+muLikeOnly_agecat                 5579     7897
+muLikeOnly_female                 5108     7274
+muLikeOnly_income                 5245     7533
+muLikeOnly_race5Black             5480     8680
+muLikeOnly_race5Hispanic          5232     8246
+muLikeOnly_race5Asian             5313     7670
+muLikeOnly_race5OtherDMixed       5084     7537
+muLikeOnly_platformSpotify        5099     7759
+muLikeOnly_platformiTunes         4896     8142
+muLikeOnly_platformWinamp         7801     9970
+muBoth_arts_c                    13496    11646
+muBoth_arts_c2                   13558    11435
+muBoth_educ_c                    10861    11398
+muBoth_educ_c2                   12355    11560
+muBoth_parent_educ               11941    11894
+muBoth_agecat                    12101    11415
+muBoth_female                    11366    10937
+muBoth_income                    13439    10933
+muBoth_race5Black                13368    11258
+muBoth_race5Hispanic             11002    10372
+muBoth_race5Asian                14628    11596
+muBoth_race5OtherDMixed          13094    11103
+muBoth_platformSpotify           13185    11428
+muBoth_platformiTunes            12725    11221
+muBoth_platformWinamp            13933    11176
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+== Model 18 (quadratic arts exposure and education), corrected data ==
+[1] 1.00299
+min bulk ESS ratio: 0.1121799 
+Divergences: 0 
+Max treedepth hits: 0 
+
+Centered curvature and linear terms:
+                         Estimate   Est.Error         Q2.5       Q97.5
+muListenOnly_arts_c   0.029309584 0.035207747 -0.039946163 0.098423145
+muListenOnly_arts_c2 -0.009299730 0.018575451 -0.045786533 0.026799635
+muListenOnly_educ_c  -0.057045849 0.048723743 -0.152899925 0.038222582
+muListenOnly_educ_c2  0.031856145 0.029440163 -0.026155088 0.089138615
+muLikeOnly_arts_c     0.211425521 0.020297763  0.171160925 0.250965425
+muLikeOnly_arts_c2    0.022314323 0.010484260  0.001744537 0.043077782
+muLikeOnly_educ_c     0.081008612 0.028649556  0.024662973 0.136869525
+muLikeOnly_educ_c2   -0.008147914 0.017421518 -0.042008660 0.026092507
+muBoth_arts_c         0.146670684 0.017824216  0.112050875 0.181918775
+muBoth_arts_c2        0.009694336 0.008988555 -0.007972892 0.027424305
+muBoth_educ_c         0.086789751 0.024758677  0.037937750 0.135584350
+muBoth_educ_c2       -0.023617840 0.015015596 -0.052946690 0.005305784
+Computing WAIC...
+Warning message:
+
+546 (1.9%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+
+===== MODEL 18: CURVATURE IN ARTS EXPOSURE AND EDUCATION =====
+         Variable      State b_linear b_quadratic quad_CrI_2.5 quad_CrI_97.5
+2.5%...1     arts ListenOnly    0.029     -0.0093      -0.0458        0.0268
+2.5%...2     arts   LikeOnly    0.211      0.0223       0.0017        0.0431
+2.5%...3     arts       Both    0.147      0.0097      -0.0080        0.0274
+2.5%...4     educ ListenOnly   -0.057      0.0319      -0.0262        0.0891
+2.5%...5     educ   LikeOnly    0.081     -0.0081      -0.0420        0.0261
+2.5%...6     educ       Both    0.087     -0.0236      -0.0529        0.0053
+         p_quad vertex vertex_CrI_2.5 vertex_CrI_97.5 vertex_in_range
+2.5%...1 0.6229   3.69         -10.04           16.07           0.790
+2.5%...2 0.0326  -1.46         -22.55            1.21           0.021
+2.5%...3 0.2741  -2.48         -75.83           72.58           0.014
+2.5%...4 0.2841   3.97          -3.36           10.55           0.853
+2.5%...5 0.6393   5.06         -26.03           32.04           0.442
+2.5%...6 0.1130   4.96          -5.24           17.47           0.720
+Saved cache/m18_curvature.csv
+Done: rds/model_brms_m18_both_curvature.rds

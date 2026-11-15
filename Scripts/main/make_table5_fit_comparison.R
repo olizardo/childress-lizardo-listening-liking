@@ -26,7 +26,8 @@ labels <- c(
   "14. Model 4 Structure, Arts and Education × College Preference Ratio",
   "15. Model 4 Structure, Both Interactions on the Liking States Only",
   "17. Random Intercepts, Race Slopes (Black in Overclaiming, Hispanic in Underclaiming)",
-  "18. Random Intercepts, Quadratic Arts and Quadratic Education"
+  "18. Random Intercepts, Quadratic Arts and Quadratic Education",
+  "19. Model 11 Structure, Matched Moderators (Arts \u00d7 Popularity, Education \u00d7 Ratio)"
 )
 # Which exposures carry a genre-level random slope, and in which equations.
 # Read off the formulas in the fit scripts; the three states are the equations
@@ -49,7 +50,8 @@ crossed_slopes <- c(
   "14. Model 4 Structure, Arts and Education × College Preference Ratio" = "Arts and education: Overclaiming, Consistent Engagement",
   "15. Model 4 Structure, Both Interactions on the Liking States Only" = "Arts and education: Overclaiming, Consistent Engagement",
   "17. Random Intercepts, Race Slopes (Black in Overclaiming, Hispanic in Underclaiming)" = "None on capital; Black and Hispanic: one equation each",
-  "18. Random Intercepts, Quadratic Arts and Quadratic Education" = "None (fixed quadratic terms in both capital indicators)"
+  "18. Random Intercepts, Quadratic Arts and Quadratic Education" = "None (fixed quadratic terms in both capital indicators)",
+  "19. Model 11 Structure, Matched Moderators (Arts \u00d7 Popularity, Education \u00d7 Ratio)" = "Arts and education: Overclaiming, Consistent Engagement"
 )
 
 # Which models the paper actually uses. Models 1-4 are numbered in the doc;
@@ -66,13 +68,14 @@ paper_role <- setNames(c(
   "Internal methods point only",
   "Not cited",
   "Not cited",
-  "Paper Model 3 (Table 5 row 3, Figures 5-10)",
+  "Paper Model 3 (Table 5 row 3, Figures 5-7)",
   "Not cited (popularity check)",
   "Not cited (full-structure check for Model 4)",
-  "Paper Model 4 (Table 5 row 4, Figures 11-12)",
+  "Symmetric-moderators tie with Model 4; not in paper since 2026-11-15",
   "Reviewer-question result, not in paper",
   "Reviewer question, not in paper; Figure 14",
-  "Exploratory, not in paper"
+  "Reviewer-question robustness check, not in paper",
+  "Paper Model 4 (Table 5 row 4, Figure 8)"
 ), labels)   # keyed by labels, in the same order, so the text can carry the UI multiplication sign
 
 waic_paths <- c(
@@ -89,7 +92,8 @@ waic_paths <- c(
   "rds/waic_m14_both_mods_restricted.rds",
   "rds/waic_m15_interactions_liking.rds",
   "rds/waic_m17_race_slopes.rds",
-  "rds/waic_m18_both_curvature.rds"
+  "rds/waic_m18_both_curvature.rds",
+  "rds/waic_m19_poparts_eduprestige.rds"
 )
 names(waic_paths) <- labels
 
@@ -146,7 +150,7 @@ fmt <- full %>%
 
 word_num <- c("one", "two", "three", "four", "five", "six", "seven",
               "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen",
-              "fifteen", "sixteen", "seventeen")[nrow(full)]
+              "fifteen", "sixteen", "seventeen", "eighteen", "nineteen")[nrow(full)]
 sink("cache/table5_fit.md")
 cat(sprintf("**Model fit ladder (corrected data): paired comparison of %s fitted models against the random-intercepts baseline (28,655 obs / 1,450 respondents)**\n\n",
             word_num))

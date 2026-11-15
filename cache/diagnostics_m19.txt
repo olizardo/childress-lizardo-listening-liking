@@ -1,0 +1,5 @@
+== Model 19 (arts x popularity, education x prestige, restricted 80-slope structure) ==
+[1] 1.00384
+min bulk ESS ratio: 0.2216776 
+Divergences: 0 
+Max treedepth hits: 0 

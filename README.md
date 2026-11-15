@@ -116,32 +116,36 @@ rebuilds without the cluster.
 | :--- | :--- | :--- | :--- |
 | 1 | `Plots/fig1_state_prevalences.png` | `Scripts/main/figure_1_state_prevalences.R` | `cache/state_prevalences_marginal_m1.csv` only, no fit; rebuilt by `Scripts/main/check_state_prevalences.R` |
 | 2 | `Plots/fig2_profiles.png` | `Scripts/main/figure_2_profiles.R` | M1 v2 fit; writes `cache/purged_genre_profiles_credsummary.csv` |
-| 3 | `Plots/fig3_predicted_probs.png` | `Scripts/main/figure_3_predicted_probs.R` | M1 v2 fit; writes `cache/childarts_predicted_probs.csv` |
+| 3 | `Plots/fig3_predicted_probs.png` | `Scripts/main/figure_3_predicted_probs.R` | `cache/childarts_predicted_probs_draws.csv.gz` (from job 1733163); half-eye plots of the 1,000 draws per arts level, no fit needed unless `RECOMPUTE <- TRUE`, which rebuilds the draw cache from the M1 v2 fit |
 | 4 | `Plots/fig4_capacity.png` | `Scripts/main/figure_4_capacity.R` | `dta/analysis_model_input.dta` only, no fit; writes `cache/capacity_by_arts.csv` (per-level `n`, means for liked and listened genres) |
 | 5 | `Plots/fig5_genre_odds_both.png` | `Scripts/main/figure_5_genre_odds_both_exposures.R` | `cache/m11_arts_slope_draws.csv` and `cache/m11_educ_slope_draws.csv`, rebuilds in seconds; writes `cache/odds_overclaiming_by_genre.csv` and `cache/odds_education_by_genre.csv`. One two-panel figure, each panel ordered by its own effect sizes. Paper Model 3 = M11 |
 | 6 | `Plots/fig6_popularity_vs_slopes.png` | `Scripts/main/figure_6_popularity_vs_slopes.R` | `cache/m1_genre_popularity_draws.csv` (baseline fit) and the M11 slope draws; writes `cache/popularity_slope_correlations.csv` and `cache/popularity_slope_points.csv`. Two panels, arts and education slopes against popularity |
 | 7 | `Plots/fig7_prestige_odds.png` | `Scripts/main/figure_7_prestige_odds.R` | `cache/m11_genre_summary.csv` and `cache/m11_correlations.csv`; two panels, arts and education odds against the College Preference Ratio, log odds ratio scale |
-| 8 | `Plots/fig8_arts_by_prestige.png` | `Scripts/main/figure_8_arts_by_prestige.R` | `cache/m14_moderator_draws.csv` (arts draws) and `cache/m6_arts_slope_by_state.csv`, rebuilds in seconds; arts interaction curve across the College Preference Ratio for the three states, from paper Model 6 (M14) |
-| 9 | `Plots/fig9_education_by_prestige.png` | `Scripts/main/figure_9_education_by_prestige.R` | `cache/m14_moderator_draws.csv` (education draws) and `cache/m6_educ_slope_by_state.csv`, rebuilds in seconds; education interaction curve, companion to Figure 8 |
+| 8 | `Plots/fig8_moderator_interactions.png` | `Scripts/main/figure_8_moderator_interactions.R` | `cache/m19_moderator_draws.csv` (from `post_m19_moderator_draws.R`, job 1749119), `cache/m11_{arts,educ}_slope_by_state.csv`, `cache/m1_genre_popularity.csv` and `cache/ame_genre_ratios.csv`; three panels — arts x popularity overclaiming, education x CPR overclaiming, education x CPR consistent engagement — curves from paper Model 4 (M19), grey points from Model 3 (M11), no fit loaded |
 
-The doc holds nine figures since 2026-11-15, when three pairs were merged two
-panels to a figure, and the local file numbers now match the paper's. The five
+The doc holds eight figures since 2026-11-15: three pairs were merged two
+panels to a figure earlier in the day, and late on 2026-11-15 Figures 8 and 9
+became a single three-panel interaction figure (`fig8_moderator_interactions.png`)
+after paper Model 4 switched from M14 to M19. The five
 single-panel scripts behind the merged pairs are archived in `Scripts/legacy/`
 and no longer feed the manuscript: `figure_5_genre_odds.R` and
 `figure_6_education_genre_odds.R` (now the two panels of Figure 5),
 `figure_7_9_correlations.R` and `figure_8_intercept_vs_education_slope.R`
 (the intercept-versus-slope plots, dropped from the paper), and
-`figure_10_education_slopes.R` (now the right panel of Figure 7). Their PNGs
+`figure_10_education_slopes.R` (now the right panel of Figure 7), joined by
+`figure_8_arts_by_prestige.R` and `figure_9_education_by_prestige.R` after the
+consolidation into the three-panel Figure 8. Their PNGs
 were deleted from `Plots/`; they can be rebuilt from the archived scripts. The
-Figure 3b posterior-draws companion (`figure_3b_posterior_draws.R`, reading
-`cache/childarts_predicted_probs_draws.csv.gz`) is archived there as well.
+Figure 3b posterior-draws companion is gone as of 2026-11-15: Figure 3 itself
+now plots the 1,000 draws per arts level as half-eyes (median point, 50% and
+95% intervals), so the ridgeline version had nothing left to add.
 
-Figures 5–9 plot posterior medians with 95% credible intervals, and Figures 5–7
-share the same regression-line colour and styling. Figures 8 and 9 carry a bold
-boxed coefficient-and-p-value inset, with draws from
-`Scripts/main/post_m14_moderator_draws.R` (`submit_post_m14_moderator_draws.sh`)
-and free-slope points from `Scripts/main/post_m6_arts_slopes_by_state.R`
-(`submit_post_m6_arts_slopes_by_state.sh`) and the existing education by-state file.
+Figures 5–8 plot posterior medians with 95% credible intervals, and Figures 5–7
+share the same regression-line colour and styling. Figure 8 carries a bold
+boxed coefficient-and-p-value inset in each panel, with curves from
+`Scripts/main/post_m19_moderator_draws.R` (`submit_post_m19_moderator_draws.sh`,
+job 1749119) and free-slope points from the M11 by-state files
+(`post_m11_genre_effects.R`).
 
 `Scripts/legacy/submit_figure_7_9_correlations.sh` belongs to the archived
 intercept-versus-slope figures and no longer builds anything in the paper.

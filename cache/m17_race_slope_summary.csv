@@ -1,0 +1,15 @@
+"State","Quantity","Median","CrI_2.5","CrI_97.5","p_bayes"
+"Overclaiming","Fixed coefficient (average genre)",0.235,-0.078,0.548,0.138
+"Overclaiming","Random-slope SD",0.527,0.37,0.784,0
+"Overclaiming","Intercept-slope correlation",-0.141,-0.534,0.302,0.532
+"Overclaiming","Genre intercept SD",0.765,0.569,1.099,0
+"Overclaiming","SD of the 20 total slopes",0.502,0.41,0.598,0
+"Overclaiming","Smallest total slope",-0.642,-1.052,-0.307,2e-04
+"Overclaiming","Largest total slope",1.153,0.851,1.495,0
+"Underclaiming","Fixed coefficient (average genre)",0.395,0.065,0.726,0.018
+"Underclaiming","Random-slope SD",0.111,0.005,0.392,0
+"Underclaiming","Intercept-slope correlation",-0.154,-0.844,0.717,0.7512
+"Underclaiming","Genre intercept SD",1.17,0.866,1.668,0
+"Underclaiming","SD of the 20 total slopes",0.106,0.005,0.351,0
+"Underclaiming","Smallest total slope",0.175,-0.384,0.566,0.4624
+"Underclaiming","Largest total slope",0.604,0.187,1.201,0.0032
