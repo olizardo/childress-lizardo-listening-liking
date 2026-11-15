@@ -1,6 +1,6 @@
 #' @title Figure 11: arts exposure odds and genre prestige, three engagement states
 #' @description Arts counterpart of Figure 12, visualizing the direction of the
-#'   Model 14 (paper Model 6) arts-exposure-by-prestige interaction. For each of
+#'   Model 14 (paper Model 4) arts-exposure-by-prestige interaction. For each of
 #'   the three non-reference states the figure plots the arts exposure odds ratio
 #'   for the five-point contrast used in Figure 5 (levels 6-7 versus levels 1-2)
 #'   as a function of the genre's College Preference Ratio. The curve is
@@ -8,12 +8,17 @@
 #'   posterior of the two coefficients, so the band carries their correlation
 #'   rather than combining separate intervals.
 #'
-#'   Draws come from cache/m14_moderator_draws.csv, written by
-#'   Scripts/main/post_m14_moderator_draws.R, and the free genre arts slopes in
-#'   each panel come from cache/m6_arts_slope_by_state.csv, written by
-#'   Scripts/main/post_m6_arts_slopes_by_state.R. Points are the twenty genre
-#'   slopes estimated with the genre random effects free; the line is the
-#'   interaction's version of the same quantity. No fit is loaded here.
+#'   Curves come from cache/m14_moderator_draws.csv, written by
+#'   Scripts/main/post_m14_moderator_draws.R. The points deliberately come from
+#'   fits WITHOUT the prestige interaction, because inside Model 14 the fixed
+#'   interaction carries the whole prestige gradient and the genre random slopes
+#'   are reduced to small residual departures from the line. Overclaiming and
+#'   consistent engagement use cache/m11_arts_slope_by_state.csv (paper Model 3,
+#'   the fit behind Figures 5-10, so these points equal Figure 5's); the
+#'   underclaiming equation has no slopes in Model 14, so that panel uses the
+#'   slopes of Model 6, which estimates arts slopes in all three equations.
+#'   Points are then free evidence for the interaction, not a restatement of it.
+#'   No fit is loaded here.
 #'
 #'   Output: Plots/fig11_arts_by_prestige.png
 
@@ -47,9 +52,15 @@ band <- curves |>
             med = quantile(odds_ratio, 0.5),
             hi = quantile(odds_ratio, 0.975), .groups = "drop")
 
-# Free genre arts slopes from Model 6, all three equations, as a check.
-slopes <- read.csv("cache/m6_arts_slope_by_state.csv", stringsAsFactors = FALSE)
-stopifnot(nrow(slopes) == 60)
+# Free genre arts slopes from fits without the prestige interaction: Model 3
+# (M11) for the two states it estimates slopes in, and Model 6 for
+# underclaiming, which Model 14 leaves with an intercept-only genre effect.
+slopes_m11 <- read.csv("cache/m11_arts_slope_by_state.csv", stringsAsFactors = FALSE)
+slopes_m6 <- read.csv("cache/m6_arts_slope_by_state.csv", stringsAsFactors = FALSE) |>
+  filter(State == "Underclaiming")
+slopes <- bind_rows(slopes_m11, slopes_m6)
+stopifnot(nrow(slopes) == 60, all(c("Overclaiming", "Underclaiming",
+                                    "Consistent Engagement") %in% slopes$State))
 points_df <- slopes |>
   transmute(State = State,
             genre_name = genre_name,

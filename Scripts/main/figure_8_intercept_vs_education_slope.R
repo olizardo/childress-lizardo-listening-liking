@@ -6,10 +6,10 @@
 #'   lowest (the scarcity reading); this panel asks whether the education gradient
 #'   is simply a restatement of baseline popularity.
 #'
-#'   Reads cache/m6_intercept_educ_genre.csv and
-#'   cache/m6_intercept_educ_correlation.csv, both written by
-#'   Scripts/main/check_m6_intercept_educ_correlation.R (Model 6). Needs no fit in
-#'   memory and rebuilds in seconds.
+#'   Reads cache/m11_intercept_educ_genre.csv and
+#'   cache/m11_intercept_educ_correlation.csv, both written by
+#'   Scripts/main/post_m11_genre_effects.R (paper Model 3 = local Model 11).
+#'   Needs no fit in memory and rebuilds in seconds.
 #'
 #'   Output: Plots/fig8_intercept_vs_education_slope.png
 
@@ -17,8 +17,8 @@ library(ggplot2)
 library(ggrepel)
 library(dplyr)
 
-genres <- read.csv("cache/m6_intercept_educ_genre.csv", stringsAsFactors = FALSE)
-cors <- read.csv("cache/m6_intercept_educ_correlation.csv", stringsAsFactors = FALSE)
+genres <- read.csv("cache/m11_intercept_educ_genre.csv", stringsAsFactors = FALSE)
+cors <- read.csv("cache/m11_intercept_educ_correlation.csv", stringsAsFactors = FALSE)
 stopifnot(nrow(genres) == 20)
 
 r_mean <- cors$Median[cors$Statistic == "Intercept at mean education vs. education slope (Pearson)"]
@@ -93,7 +93,7 @@ p <- ggplot(d, aes(x = u0_med, y = educ_slope_med)) +
     y = expression(bold("Genre Education Slope for Overclaiming")~(u["2j, LikeOnly"])),
     caption = paste(
       "Intercepts and education slopes extracted from the Bayesian crossed random coefficients model",
-      "with education in the genre random effects (Model 6); horizontal and vertical bars are 95%",
+      "with arts and education in the genre random effects (paper Model 3); horizontal and vertical bars are 95%",
       "credible intervals. Intercepts are evaluated at the sample's mean education (educ2 = 3.27),",
       "because the raw intercept sits at educ2 = 0 and education enters the same random-effect block.",
       sep = "\n"

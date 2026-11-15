@@ -3,16 +3,16 @@
 #'   half-eye posteriors, colours and theme. For each genre the plot shows the
 #'   odds ratio of overclaiming (Like Only vs. Neither) between respondents with
 #'   a bachelor's degree or higher and respondents with high school or less,
-#'   computed from the genre-specific education slope of Model 6.
+#'   computed from the genre-specific education slope of paper Model 3.
 #'
 #'   educ2 enters as one linear term over six ordered categories, so the
 #'   college-and-above versus high-school-or-less contrast is the gap between the
 #'   mean of categories 5-6 (5.5) and the mean of categories 1-2 (1.5), four
 #'   steps, the same contrast the College Preference Ratio uses.
 #'
-#'   Reads cache/m6_educ_slope_draws.csv, written by
-#'   Scripts/main/post_m6_educ_slope_draws.R (10,000 draws per genre), so
-#'   this script runs in seconds and needs no fit in memory.
+#'   Reads cache/m11_educ_slope_draws.csv, written by
+#'   Scripts/main/post_m11_genre_effects.R (10,000 draws per genre, paper Model 3
+#'   = local Model 11), so this script runs in seconds and needs no fit in memory.
 #'
 #'   Outputs Plots/fig6_education_genre_odds.png and
 #'   cache/odds_education_by_genre.csv.
@@ -23,7 +23,7 @@ library(dplyr)
 library(ggplot2)
 library(ggdist)
 
-draws <- read.csv("cache/m6_educ_slope_draws.csv", stringsAsFactors = FALSE)
+draws <- read.csv("cache/m11_educ_slope_draws.csv", stringsAsFactors = FALSE)
 stopifnot(n_distinct(draws$genre_name) == 20, !any(is.na(draws$total_educ)))
 
 # College and above (categories 5-6) vs. high school or less (categories 1-2).
@@ -86,7 +86,7 @@ p_halfeye_odds <- ggplot(tb_draws, aes(x = odds_ratio, y = genre_name, fill = cr
       "Contrast compares respondents educated to the bachelor's level or above (education categories 5-6,\n",
       "mean 5.5) with respondents educated to high school or less (categories 1-2, mean 1.5), a four-point\n",
       "gap, matching the contrast behind the College Preference Ratio. Bayesian crossed random coefficients\n",
-      "model with genre-specific education slopes (Model 6), corrected data (10,000 post-warmup MCMC\n",
+      "model with genre-specific education slopes (paper Model 3), corrected data (10,000 post-warmup MCMC\n",
       "draws). Points are posterior medians; bars are 95% credible intervals. Color rule: pd >= 0.975 of\n",
       "the odds ratio exceeding 1, matching the plotted two-sided intervals."
     )

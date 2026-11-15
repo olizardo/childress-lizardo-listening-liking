@@ -1,5 +1,5 @@
 "Statistic","Value"
-"Pearson r (u0 vs u1)",-0.801
-"Spearman rho (u0 vs u1)",-0.779
-"Pearson r (Prestige vs OR, medians)",0.698
-"Spearman rho (Prestige vs OR, medians)",0.617
+"Pearson r (u0 vs u1)",-0.881
+"Spearman rho (u0 vs u1)",-0.865
+"Pearson r (Prestige vs OR, medians)",0.71
+"Spearman rho (Prestige vs OR, medians)",0.651

@@ -1,8 +1,9 @@
-#' @title Figures 7 and 9 (corrected): correlation plots from corrected Model 4
-#' @description Corrected-data version of plot_correlations.R, sourced from
-#'   model_brms_m4_corrected.rds and rds/ame_genre_constrained.rds
-#'   (built by Scripts/main/prep_genre_preference_ratios.R from the corrected model
-#'   input). Updates the legacy caption's draw count to 10,000 post-warmup.
+#' @title Figures 7 and 9 (corrected): correlation plots from paper Model 3
+#' @description Sourced from cache/m11_genre_summary.csv and
+#'   cache/m11_correlations.csv, both written by
+#'   Scripts/main/post_m11_genre_effects.R from local Model 11 (paper Model 3,
+#'   the restricted arts-and-education random-slope fit). Reads no fit, so it
+#'   rebuilds in seconds.
 #'   Outputs:
 #'   Plots/fig7_intercept_vs_slope.png  (both axes carry 95% credible intervals)
 #'   Plots/fig9_prestige_vs_odds.png
@@ -10,105 +11,50 @@
 #'   cache/correlation_point_estimates.csv
 #'   cache/genre_summary_correlations.csv
 
-library(brms)
-library(tidybayes)
 library(ggplot2)
 library(ggrepel)
 library(dplyr)
 library(tibble)
-library(tidyr)
+library(grid)
 
-cat("Loading corrected Model 4 (Constrained Over/True Slopes -- preferred specification)...\n")
-model_fit <- readRDS("rds/model_brms_m4_corrected.rds")
+cat("Reading Model 11 genre summary (paper Model 3)...\n")
+gs <- read.csv("cache/m11_genre_summary.csv", stringsAsFactors = FALSE)
+stopifnot(nrow(gs) == 20, !any(is.na(gs$ratio_col)))
 
-genre_names <- c(
-  "1" = "Swing/Big Band", "2" = "Bluegrass", "3" = "R&B/Blues", "4" = "Classic Rock",
-  "5" = "Classical", "6" = "Contemporary Pop", "7" = "Contemporary Rock", "8" = "Country",
-  "9" = "Easy Listening", "10" = "Folk", "11" = "Gospel", "12" = "Heavy Metal",
-  "13" = "Jazz", "14" = "Latin", "15" = "Musicals", "16" = "New Age",
-  "17" = "Oldies", "18" = "Opera", "19" = "Rap/Hip Hop", "20" = "Reggae"
-)
+pref_levels <- c("Preferred (> 1.25)", "Slightly Preferred (1.0 - 1.25)", "Less Preferred (< 1.0)")
 
-ame_df <- readRDS("rds/ame_genre_constrained.rds")
-
-tb_draws <- model_fit %>%
-  spread_draws(
-    b_muLikeOnly_Intercept,
-    b_muLikeOnly_child_arts,
-    r_genre_id__muLikeOnly[genre_id, term]
+# Figure 9 keeps its six-point contrast (arts level 7 versus level 1), the
+# or6_* columns; Figure 5 carries the five-point contrast the text reports.
+genre_summary <- gs |>
+  transmute(
+    genre_name,
+    u0_med, u1_med, u0_lo, u0_hi, u1_lo, u1_hi,
+    or_med = or6_med, or_lo = or6_lo, or_hi = or6_hi,
+    ratio_col, ratio_black,
+    pref_cat = factor(pref_cat, levels = pref_levels)
   )
 
-tb_wide_effects <- tb_draws %>%
-  mutate(genre_id = as.character(genre_id)) %>%
-  pivot_wider(names_from = term, values_from = r_genre_id__muLikeOnly) %>%
-  rename(u0 = Intercept, u1 = child_arts) %>%
-  mutate(
-    genre_name = genre_names[genre_id],
-    total_slope = b_muLikeOnly_child_arts + u1,
-    odds_ratio = exp(total_slope * 6)
-  )
-
-draw_level <- tb_wide_effects %>%
-  left_join(ame_df %>% select(genre_name, ratio_col, ratio_black), by = "genre_name")
-
-cor_draws_summary <- draw_level %>%
-  group_by(.draw) %>%
-  summarise(
-    pearson_prestige = cor(odds_ratio, ratio_col, method = "pearson"),
-    spearman_prestige = cor(odds_ratio, ratio_col, method = "spearman"),
-    spearman_racial = cor(odds_ratio, ratio_black, method = "spearman"),
-    .groups = "drop"
-  )
+cr <- read.csv("cache/m11_correlations.csv", stringsAsFactors = FALSE)
+pick <- function(nm) cr[cr$Statistic == nm, c("Median", "CrI_2.5", "CrI_97.5")]
 
 cor_draws_report <- tibble::tibble(
-  Statistic = c("Pearson r (Class Prestige)", "Spearman rho (Class Prestige)", "Spearman rho (Racial Preference)"),
-  Median = c(
-    median(cor_draws_summary$pearson_prestige),
-    median(cor_draws_summary$spearman_prestige),
-    median(cor_draws_summary$spearman_racial)
-  ),
-  CrI_2.5 = c(
-    quantile(cor_draws_summary$pearson_prestige, 0.025),
-    quantile(cor_draws_summary$spearman_prestige, 0.025),
-    quantile(cor_draws_summary$spearman_racial, 0.025)
-  ),
-  CrI_97.5 = c(
-    quantile(cor_draws_summary$pearson_prestige, 0.975),
-    quantile(cor_draws_summary$spearman_prestige, 0.975),
-    quantile(cor_draws_summary$spearman_racial, 0.975)
-  )
-) %>%
-  mutate(across(c(Median, CrI_2.5, CrI_97.5), ~round(., 3)))
+  Statistic = c("Pearson r (Class Prestige)", "Spearman rho (Class Prestige)",
+                "Spearman rho (Racial Preference)"),
+  Median = c(pick("arts_prestige_pearson")$Median,
+             pick("arts_prestige_spearman")$Median,
+             pick("arts_racial_spearman")$Median),
+  CrI_2.5 = c(pick("arts_prestige_pearson")$CrI_2.5,
+              pick("arts_prestige_spearman")$CrI_2.5,
+              pick("arts_racial_spearman")$CrI_2.5),
+  CrI_97.5 = c(pick("arts_prestige_pearson")$CrI_97.5,
+               pick("arts_prestige_spearman")$CrI_97.5,
+               pick("arts_racial_spearman")$CrI_97.5)
+)
 
 dir.create("cache", showWarnings = FALSE)
 write.csv(cor_draws_report, "cache/correlation_draws_summary.csv", row.names = FALSE)
-cat("\n===== POSTERIOR DRAW-WISE CORRELATION SUMMARY (corrected Model 4) =====\n")
+cat("\n===== POSTERIOR DRAW-WISE CORRELATION SUMMARY (paper Model 3) =====\n")
 print(cor_draws_report)
-
-genre_summary <- tb_wide_effects %>%
-  group_by(genre_name) %>%
-  summarise(
-    u0_med = median(u0),
-    u1_med = median(u1),
-    u0_lo = as.numeric(quantile(u0, 0.025)),
-    u0_hi = as.numeric(quantile(u0, 0.975)),
-    u1_lo = as.numeric(quantile(u1, 0.025)),
-    u1_hi = as.numeric(quantile(u1, 0.975)),
-    slope_med = median(total_slope),
-    or_med = median(odds_ratio),
-    or_lo = as.numeric(quantile(odds_ratio, 0.025)),
-    or_hi = as.numeric(quantile(odds_ratio, 0.975)),
-    .groups = "drop"
-  ) %>%
-  left_join(ame_df %>% select(genre_name, ratio_col, ratio_black), by = "genre_name") %>%
-  mutate(
-    pref_cat = case_when(
-      ratio_col < 1.0 ~ "Less Preferred (< 1.0)",
-      ratio_col >= 1.0 & ratio_col <= 1.25 ~ "Slightly Preferred (1.0 - 1.25)",
-      ratio_col > 1.25 ~ "Preferred (> 1.25)"
-    ),
-    pref_cat = factor(pref_cat, levels = c("Preferred (> 1.25)", "Slightly Preferred (1.0 - 1.25)", "Less Preferred (< 1.0)"))
-  )
 
 pref_colors <- c(
   "Preferred (> 1.25)"              = "#1b9e77",
@@ -177,7 +123,7 @@ p_int_slope_corr <- ggplot(genre_summary, aes(x = u0_med, y = u1_med)) +
     subtitle = "Posterior Genre Random Intercepts (u0) vs. Arts Random Slopes (u1) for Overclaiming",
     x = expression(bold("Baseline Overclaiming Propensity")~(u["0j, LikeOnly"])),
     y = expression(bold("Childhood Arts Random Slope")~(u["1j, LikeOnly"])),
-    caption = "Extracted from the corrected Bayesian crossed random slopes model (Model 4)."
+    caption = "Extracted from the Bayesian crossed random slopes model (paper Model 3)."
   )
 
 p_prestige_corr <- ggplot(genre_summary, aes(x = ratio_col, y = or_med)) +
@@ -227,7 +173,7 @@ p_prestige_corr <- ggplot(genre_summary, aes(x = ratio_col, y = or_med)) +
     x = "Educational Preference Ratio (College Grad % Liking / High School or Less % Liking)",
     y = "Overclaiming Odds Ratio\n(Arts Exposure L7 vs. L1)",
     caption = paste(
-      "Odds ratios extracted from the corrected Bayesian crossed random slopes model (Model 4);",
+      "Odds ratios extracted from the Bayesian crossed random slopes model (paper Model 3);",
       "vertical bars are 95% credible intervals. Class prestige computed from the corrected",
       "model input as the ratio of abstract liking rates among college graduates vs.",
       "respondents with a high school education or less.",

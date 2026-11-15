@@ -1,0 +1,5 @@
+"Model","Crossed genre slopes","WAIC","WAIC_SE","elpd_diff","se_diff","ratio"
+"1. Random Intercepts (Reference)","None",50808.0269010098,252.745464776835,0,0,NA
+"2. Arts Random Slopes, Overclaiming and Consistent Engagement","Arts: Overclaiming & Consistent Engagement",50593.2243472811,253.659532895311,107.401276864445,14.458605507731,7.42819055454676
+"3. Arts and Education Random Slopes, Overclaiming and Consistent Engagement","Arts and education: Overclaiming & Consistent Engagement",50369.3195116235,254.388924162851,219.353694693116,20.6308986294413,10.6322898790307
+"4. Restricted Slopes with Both Ratio Interactions","Arts and education: Overclaiming & Consistent Engagement, both moderated by the ratio",50322.8950201585,254.061184475511,242.565940425481,21.5884416947143,11.2359170641237

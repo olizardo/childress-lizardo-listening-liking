@@ -1,5 +1,8 @@
 #' @title Figure 5 (corrected): Genre overclaiming odds ratios, colored by directional credibility
-#' @description Corrected-data version sourced from model_brms_m4_corrected.rds.
+#' @description Sourced from paper Model 3 (local Model 11, the restricted
+#'   arts-and-education random-slope fit), via cache/m11_arts_slope_draws.csv
+#'   written by Scripts/main/post_m11_genre_effects.R. Reads no fit, so it
+#'   rebuilds in seconds.
 #'   CHANGE vs. legacy: genres are now colored by posterior directional
 #'   credibility of the odds ratio exceeding 1, using pd >= 0.975 so the color
 #'   rule exactly matches the plotted two-sided 95% intervals (audit fix; user
@@ -9,33 +12,19 @@
 #'   Outputs Plots/fig5_genre_odds.png and
 #'   cache/odds_overclaiming_by_genre.csv.
 
-library(brms)
-library(tidybayes)
-library(posterior)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(ggdist)
 
-cat("Loading corrected Model 4 (Constrained Over/True Slopes -- preferred specification)...\n")
-model_fit <- readRDS("rds/model_brms_m4_corrected.rds")
+cat("Reading Model 11 arts slope draws (paper Model 3)...\n")
+draws <- read.csv("cache/m11_arts_slope_draws.csv", stringsAsFactors = FALSE)
+stopifnot(n_distinct(draws$genre_name) == 20, !any(is.na(draws$total_arts)))
 
-genre_names <- c(
-  "1" = "Swing/Big Band", "2" = "Bluegrass", "3" = "R&B/Blues", "4" = "Classic Rock",
-  "5" = "Classical", "6" = "Contemporary Pop", "7" = "Contemporary Rock", "8" = "Country",
-  "9" = "Easy Listening", "10" = "Folk", "11" = "Gospel", "12" = "Heavy Metal",
-  "13" = "Jazz", "14" = "Latin", "15" = "Musicals", "16" = "New Age",
-  "17" = "Oldies", "18" = "Opera", "19" = "Rap/Hip Hop", "20" = "Reggae"
-)
-
-cat("Extracting posterior draws with tidybayes::spread_draws...\n")
-tb_draws <- model_fit %>%
-  spread_draws(b_muLikeOnly_child_arts, r_genre_id__muLikeOnly[genre_id, term]) %>%
-  filter(term == "child_arts") %>%
+tb_draws <- draws %>%
   mutate(
     genre_id = as.character(genre_id),
-    genre_name = genre_names[genre_id],
-    total_slope = b_muLikeOnly_child_arts + r_genre_id__muLikeOnly,
+    total_slope = total_arts,
     # Contrast: mean of arts levels 6-7 (6.5) vs mean of levels 1-2 (1.5), a 5-point gap.
     odds_ratio = exp(total_slope * 5)
   )

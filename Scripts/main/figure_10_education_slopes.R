@@ -1,15 +1,16 @@
 #' @title Figure 10 preview: education-by-genre overclaiming odds against prestige
-#' @description Companion to Figure 9, using Model 6 (education slopes in the
-#'   genre random effects) instead of Model 4 (arts slopes). For each genre the
+#' @description Companion to Figure 9, using paper Model 3 (arts and education
+#'   slopes in the same genre random effects). For each genre the
 #'   plot pairs the genre-specific education slope for overclaiming, expressed
 #'   as an odds ratio across the full six-category range of education, with the
 #'   genre's educational prestige (College Preference Ratio). Styled to match
 #'   Figure 9: posterior medians with 95% credible intervals on the odds ratio.
 #'
-#'   Read from cache, not from the fit: cache/m6_educ_genre_slopes.csv holds the
-#'   posterior medians and 95% bounds produced by
-#'   Scripts/main/check_education_prestige_correlation.R, so this script runs in seconds and
-#'   needs no fit in memory.
+#'   Read from cache, not from the fit: cache/m11_genre_summary.csv holds the
+#'   posterior medians and 95% bounds, and cache/m11_correlations.csv the
+#'   draw-level correlations, both produced by
+#'   Scripts/main/post_m11_genre_effects.R (paper Model 3 = local Model 11), so
+#'   this script runs in seconds and needs no fit in memory.
 #'
 #'   Note on interpretation: educational prestige is itself built from an
 #'   education contrast, so the two axes share the education variable. Read the
@@ -22,7 +23,7 @@ library(ggplot2)
 library(ggrepel)
 library(dplyr)
 
-slopes <- read.csv("cache/m6_educ_genre_slopes.csv", stringsAsFactors = FALSE)
+slopes <- read.csv("cache/m11_genre_summary.csv", stringsAsFactors = FALSE)
 stopifnot(nrow(slopes) == 20)
 
 # educ2 enters as a linear term over six ordered categories, so the full-range
@@ -53,9 +54,10 @@ pref_colors <- c(
 
 # Annotate with the draw-level posterior correlations, so the figure reports the
 # same quantity as the text rather than a correlation of point medians.
-cor_tab <- read.csv("cache/m6_educ_prestige_correlations.csv", stringsAsFactors = FALSE)
-r_prestige_or <- cor_tab$Median[cor_tab$Statistic == "Pearson r (education slope vs prestige)"]
-rho_prestige_or <- cor_tab$Median[cor_tab$Statistic == "Spearman rho (education slope vs prestige)"]
+cor_tab <- read.csv("cache/m11_correlations.csv", stringsAsFactors = FALSE)
+r_prestige_or <- cor_tab$Median[cor_tab$Statistic == "educ_prestige_pearson"]
+rho_prestige_or <- cor_tab$Median[cor_tab$Statistic == "educ_prestige_spearman"]
+stopifnot(length(r_prestige_or) == 1, length(rho_prestige_or) == 1)
 
 p <- ggplot(d, aes(x = ratio_col, y = odds_ratio)) +
   geom_smooth(method = "lm", color = "#2b8cbe", fill = "#a6bddb", alpha = 0.25, linewidth = 1.1) +
@@ -104,7 +106,7 @@ p <- ggplot(d, aes(x = ratio_col, y = odds_ratio)) +
     x = "Educational Preference Ratio (College Grad % Liking / High School or Less % Liking)",
     y = "Education Odds Ratio for Overclaiming\n(Graduate Degree vs. Less Than High School)",
     caption = paste(
-      "Genre education slopes from Model 6 (education slopes in the genre random effects).",
+      "Genre education slopes from paper Model 3 (arts and education slopes in the genre random effects).",
       "Points are posterior medians; vertical bars are 95% credible intervals.",
       "Educational prestige is itself built from an education contrast, so the two axes are not independent.",
       sep = "\n"

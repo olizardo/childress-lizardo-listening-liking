@@ -10,12 +10,23 @@
 #'   Plots/fig3_predicted_probs.png and
 #'   cache/childarts_predicted_probs.csv.
 #' @details Memory: uses ndraws = 1000 and frees each level's array before the
-#'   next, so peak stays around 1 GB per posterior_epred call.
+#'   next, so peak stays around 1 GB per posterior_epred call. Loading the fit
+#'   itself needs 24-40 GB, so by default the script re-plots the cached summary
+#'   (cache/childarts_predicted_probs.csv), which is the table the manuscript
+#'   numbers come from. Set RECOMPUTE <- TRUE to rebuild that summary from the
+#'   fit.
 
-library(brms)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+
+RECOMPUTE <- FALSE
+
+if (!RECOMPUTE && file.exists("cache/childarts_predicted_probs.csv")) {
+  cat("Reading cached summary cache/childarts_predicted_probs.csv\n")
+  pred_df <- read.csv("cache/childarts_predicted_probs.csv")
+} else {
+library(brms)
 
 cat("Loading corrected Model 1 (crossed random intercepts)...\n")
 fit <- readRDS("rds/model_brms_m1_corrected_v2.rds")
@@ -53,6 +64,10 @@ pred_df <- bind_rows(results) |>
     .groups = "drop"
   )
 
+dir.create("cache", showWarnings = FALSE)
+write.csv(pred_df, "cache/childarts_predicted_probs.csv", row.names = FALSE)
+}
+
 state_labels <- c(
   "Neither" = "Neither (No Liking, No Listening)",
   "ListenOnly" = "Listen Only (Underclaiming)",
@@ -66,9 +81,6 @@ state_colors <- c(
   "Listen Only (Underclaiming)" = "#D55E00"
 )
 
-dir.create("cache", showWarnings = FALSE)
-write.csv(pred_df, "cache/childarts_predicted_probs.csv", row.names = FALSE)
-
 pred_df <- pred_df |>
   mutate(state = factor(
     state,
@@ -77,7 +89,8 @@ pred_df <- pred_df |>
   ))
 
 p_pred <- ggplot(pred_df, aes(x = child_arts, y = median, color = state, fill = state)) +
-  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.18, color = NA) +
+  # 95% credible interval as a bare vertical line, no end caps
+  geom_linerange(aes(ymin = lo, ymax = hi), linewidth = 0.7, alpha = 0.55) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 3) +
   scale_x_continuous(
@@ -94,7 +107,9 @@ p_pred <- ggplot(pred_df, aes(x = child_arts, y = median, color = state, fill = 
   scale_fill_manual(values = state_colors) +
   labs(
     title = "Predicted Engagement-State Probabilities by Childhood Arts Exposure",
-    subtitle = "Corrected data; crossed random-intercepts model (Model 1). Person and genre effects held at posterior estimates; 95% credible bands.",
+    subtitle = paste("Corrected data; crossed random-intercepts model (Model 1).",
+                     "Person and genre effects held at posterior estimates; 95% credible intervals.",
+                     sep = "\n"),
     x = "Childhood Arts Exposure",
     y = "Predicted Probability"
   ) +

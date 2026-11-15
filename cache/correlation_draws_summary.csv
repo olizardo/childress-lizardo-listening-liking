@@ -1,4 +1,4 @@
 "Statistic","Median","CrI_2.5","CrI_97.5"
-"Pearson r (Class Prestige)",0.656,0.509,0.766
-"Spearman rho (Class Prestige)",0.589,0.433,0.732
-"Spearman rho (Racial Preference)",0.457,0.257,0.611
+"Pearson r (Class Prestige)",0.655,0.497,0.783
+"Spearman rho (Class Prestige)",0.6,0.42,0.755
+"Spearman rho (Racial Preference)",0.445,0.247,0.605

@@ -1,0 +1,9 @@
+"Statistic","Median","CrI_2.5","CrI_97.5","p_bayes"
+"arts_prestige_pearson",0.655,0.497,0.783,0
+"arts_prestige_spearman",0.6,0.42,0.755,0
+"arts_racial_spearman",0.445,0.247,0.605,2e-04
+"educ_prestige_pearson",0.874,0.773,0.938,0
+"educ_prestige_spearman",0.877,0.767,0.946,0
+"educ_arts_pearson",0.529,0.265,0.76,0
+"u0_u1_pearson",-0.847,-0.928,-0.73,0
+"u0_u1_spearman",-0.829,-0.925,-0.683,0

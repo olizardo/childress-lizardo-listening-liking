@@ -104,11 +104,11 @@ Slurm wrappers sit beside their R scripts (`Scripts/main/submit_<stem>.sh`).
 | 2 | `Tabs/table2_overclaim.md` | `Scripts/main/make_tables.R` | M1 v2 |
 | 3 | `Tabs/table3_underclaim.md` | `Scripts/main/make_tables.R` | M1 v2 |
 | 4 | `Tabs/table4_consistent.md` | `Scripts/main/make_tables.R` | M1 v2 |
-| 5 | `Tabs/table5_fit.md`, `Tabs/table5_fit_raw.csv` | `Scripts/main/make_table5_fit_comparison.R` | the five `rds/waic_m*_corrected*.rds` objects only (never the full fits) |
+| 5 | `Tabs/table5_fit.md`, `Tabs/table5_fit_raw.csv` (full ladder), `Tabs/table5_fit_reduced.md`, `Tabs/table5_fit_reduced.csv` (the doc's six rows) | `Scripts/main/make_table5_fit_comparison.R`, `Scripts/main/make_table5_reduced.R` | the `rds/waic_m*.rds` objects only (never the full fits) |
 
-Both table scripts write to `cache/`; their output was copied to `Tabs/`. Table
-5's `cache/` copies are not kept locally, so regenerate them with
-`Scripts/main/make_table5_fit_comparison.R` if needed.
+Both table scripts write to `cache/`; their output was copied to `Tabs/`. Every
+fitted model now has a local `rds/waic_m*.rds`, so the full fifteen-row ladder
+rebuilds without the cluster.
 
 ## Figures
 
@@ -118,12 +118,12 @@ Both table scripts write to `cache/`; their output was copied to `Tabs/`. Table
 | 2 | `Plots/fig2_profiles.png` | `Scripts/main/figure_2_profiles.R` | M1 v2 fit; writes `cache/purged_genre_profiles_credsummary.csv` |
 | 3 | `Plots/fig3_predicted_probs.png` | `Scripts/main/figure_3_predicted_probs.R` | M1 v2 fit; writes `cache/childarts_predicted_probs.csv` |
 | 4 | `Plots/fig4_capacity.png` | `Scripts/main/figure_4_capacity.R` | `dta/analysis_model_input.dta` only, no fit; writes `cache/capacity_by_arts.csv` (per-level `n`, means for liked and listened genres) |
-| 5 | `Plots/fig5_genre_odds.png` | `Scripts/main/figure_5_genre_odds.R` | M4 fit; writes `cache/odds_overclaiming_by_genre.csv` |
-| 6 | `Plots/fig6_education_genre_odds.png` | `Scripts/main/figure_6_education_genre_odds.R` | `cache/m6_educ_slope_draws.csv`, rebuilds in seconds; education companion to Figure 5, bachelor's or higher vs. high school or less; writes `cache/odds_education_by_genre.csv`. The draws come from `Scripts/main/post_m6_educ_slope_draws.R` (`submit_post_m6_educ_slope_draws.sh`, 48 GB), which loads the M6 fit once |
-| 7 | `Plots/fig7_intercept_vs_slope.png` | `Scripts/main/figure_7_9_correlations.R` | M4 fit + `rds/ame_genre_constrained.rds`; writes `cache/genre_summary_correlations.csv`, `cache/correlation_point_estimates.csv` |
-| 8 | `Plots/fig8_intercept_vs_education_slope.png` | `Scripts/main/figure_8_intercept_vs_education_slope.R` | `cache/m6_intercept_educ_genre.csv` and `cache/m6_intercept_educ_correlation.csv`, written by `Scripts/main/check_m6_intercept_educ_correlation.R` (`submit_check_m6_intercept_educ.sh`, 48 GB); education counterpart to Figure 7 |
-| 9 | `Plots/fig9_prestige_vs_odds.png` | `Scripts/main/figure_7_9_correlations.R` | same as Figure 7; writes `cache/correlation_draws_summary.csv` |
-| 10 | `Plots/fig10_educ_prestige_vs_odds.png` | `Scripts/main/figure_10_education_slopes.R` | `cache/m6_educ_genre_slopes.csv` only, rebuilds in seconds; companion to Figure 9, from the education-slopes fit |
+| 5 | `Plots/fig5_genre_odds.png` | `Scripts/main/figure_5_genre_odds.R` | `cache/m11_arts_slope_draws.csv`, rebuilds in seconds; writes `cache/odds_overclaiming_by_genre.csv`. Paper Model 3 = M11 |
+| 6 | `Plots/fig6_education_genre_odds.png` | `Scripts/main/figure_6_education_genre_odds.R` | `cache/m11_educ_slope_draws.csv`, rebuilds in seconds; education companion to Figure 5, bachelor's or higher vs. high school or less; writes `cache/odds_education_by_genre.csv`. Draws come from `Scripts/main/post_m11_genre_effects.R` |
+| 7 | `Plots/fig7_intercept_vs_slope.png` | `Scripts/main/figure_7_9_correlations.R` | `cache/m11_genre_summary.csv` and `cache/m11_correlations.csv`; writes `cache/genre_summary_correlations.csv`, `cache/correlation_point_estimates.csv` |
+| 8 | `Plots/fig8_intercept_vs_education_slope.png` | `Scripts/main/figure_8_intercept_vs_education_slope.R` | `cache/m11_intercept_educ_genre.csv` and `cache/m11_intercept_educ_correlation.csv`, written by `Scripts/main/post_m11_genre_effects.R`; education counterpart to Figure 7 |
+| 9 | `Plots/fig9_prestige_vs_odds.png` | `Scripts/main/figure_7_9_correlations.R` | same as Figure 7; writes `cache/correlation_draws_summary.csv`. Keeps its six-point contrast (arts level 7 vs 1) while Figure 5 uses five points |
+| 10 | `Plots/fig10_educ_prestige_vs_odds.png` | `Scripts/main/figure_10_education_slopes.R` | `cache/m11_genre_summary.csv` and `cache/m11_correlations.csv`, rebuilds in seconds; companion to Figure 9 |
 | 11 | `Plots/fig11_arts_by_prestige.png` | `Scripts/main/figure_11_arts_by_prestige.R` | `cache/m14_moderator_draws.csv` (arts draws) and `cache/m6_arts_slope_by_state.csv`, rebuilds in seconds; arts interaction curve across the College Preference Ratio for the three states, from paper Model 6 (M14) |
 | 12 | `Plots/fig12_education_by_prestige.png` | `Scripts/main/figure_12_education_by_prestige.R` | `cache/m14_moderator_draws.csv` (education draws) and `cache/m6_educ_slope_by_state.csv`, rebuilds in seconds; education interaction curve, companion to Figure 11 |
 
