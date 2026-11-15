@@ -11,11 +11,11 @@ library(dplyr)
 reduced <- data.frame(
   row = c(
     "1. Random Intercepts (Reference)",
-    "2. Random Slopes for Arts Exposure",
-    "3. Random Slopes for Education (with Arts Exposure)",
-    "4. Random Slopes for Arts Exposure (Overclaiming and Consistent Engagement)",
-    "5. Random Slopes for Education and Arts Exposure (Overclaiming and Consistent Engagement)",
-    "6. Model 5 Plus Education-by-Genre and Arts-by-Genre College Preference Ratio Interactions"
+    "2. Arts Random Slopes, All Equations",
+    "3. Arts and Education Random Slopes, All Equations",
+    "4. Arts Random Slopes, Overclaiming and Consistent Engagement",
+    "5. Arts and Education Random Slopes, Overclaiming and Consistent Engagement",
+    "6. Restricted Slopes with Both Ratio Interactions"
   ),
   model = c(
     "1. Crossed Random Intercepts",

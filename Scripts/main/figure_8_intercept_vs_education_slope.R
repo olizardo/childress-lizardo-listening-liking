@@ -1,4 +1,4 @@
-#' @title Figure 10: genre intercepts against genre education slopes
+#' @title Figure 8: genre intercepts against genre education slopes
 #' @description Education counterpart to Figure 7. For each genre the plot pairs
 #'   the random intercept of the overclaiming equation, evaluated at the sample's
 #'   mean education, with that genre's total education slope for overclaiming.
@@ -11,7 +11,7 @@
 #'   Scripts/main/check_m6_intercept_educ_correlation.R (Model 6). Needs no fit in
 #'   memory and rebuilds in seconds.
 #'
-#'   Output: Plots/fig10_intercept_vs_education_slope.png
+#'   Output: Plots/fig8_intercept_vs_education_slope.png
 
 library(ggplot2)
 library(ggrepel)
@@ -101,6 +101,6 @@ p <- ggplot(d, aes(x = u0_med, y = educ_slope_med)) +
   )
 
 dir.create("Plots", showWarnings = FALSE)
-ggsave("Plots/fig10_intercept_vs_education_slope.png", p, width = 9.5, height = 7, dpi = 300, bg = "white")
-cat("Saved Plots/fig10_intercept_vs_education_slope.png\n")
+ggsave("Plots/fig8_intercept_vs_education_slope.png", p, width = 9.5, height = 7, dpi = 300, bg = "white")
+cat("Saved Plots/fig8_intercept_vs_education_slope.png\n")
 print(as.data.frame(d[, c("genre_name", "u0_med", "educ_slope_med", "ratio_col")]))

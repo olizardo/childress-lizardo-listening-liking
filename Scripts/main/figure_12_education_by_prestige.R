@@ -1,27 +1,27 @@
-#' @title Figure 11: education odds and genre prestige, three engagement states
-#' @description Visualizes the direction of the Model 9 education-by-prestige
-#'   interaction. For each of the three non-reference states the figure plots the
+#' @title Figure 12: education odds and genre prestige, three engagement states
+#' @description Visualizes the direction of the Model 14 (paper Model 6)
+#'   education-by-prestige interaction. For each of the three non-reference states the figure plots the
 #'   education odds ratio for the full six-category range (less than high school
 #'   to graduate degree) as a function of the genre's College Preference Ratio.
 #'   The curve is exp((b_educ + b_int * (p - mean prestige)) * 5), traced from the
 #'   joint posterior of the two coefficients, so the band carries their
 #'   correlation rather than combining separate intervals.
 #'
-#'   Draws come from cache/m9_educ_prestige_draws.csv, written by
-#'   Scripts/main/post_m9_prestige_draws.R, and the free genre education slopes in
+#'   Draws come from cache/m14_moderator_draws.csv, written by
+#'   Scripts/main/post_m14_moderator_draws.R, and the free genre education slopes in
 #'   each panel come from cache/m6_educ_slope_by_state.csv, written by
 #'   Scripts/main/post_m6_educ_slopes_by_state.R. Points are the twenty genre
 #'   slopes estimated with the genre random effects free; the line is the
 #'   interaction's version of the same quantity. No fit is loaded here.
 #'
-#'   Output: Plots/fig11_education_by_prestige.png
+#'   Output: Plots/fig12_education_by_prestige.png
 
 library(ggplot2)
 library(ggrepel)
 library(dplyr)
 
-draws <- read.csv("cache/m9_educ_prestige_draws.csv", stringsAsFactors = FALSE)
-stopifnot(nrow(draws) > 0, all(c("draw", "State", "b_educ", "b_int") %in% names(draws)))
+draws <- read.csv("cache/m14_moderator_draws.csv", stringsAsFactors = FALSE)
+stopifnot(nrow(draws) > 0, all(c("draw", "State", "b_educ", "b_educ_int") %in% names(draws)))
 
 prest <- readRDS("rds/ame_genre_constrained.rds")
 mean_p <- mean(prest$ratio_col)
@@ -33,7 +33,7 @@ n_steps <- 5
 curves <- lapply(split(draws, draws$State), function(d) {
   p <- rep(grid_p, times = nrow(d))
   or <- exp((rep(d$b_educ, each = length(grid_p)) +
-               rep(d$b_int, each = length(grid_p)) * (p - mean_p)) * n_steps)
+               rep(d$b_educ_int, each = length(grid_p)) * (p - mean_p)) * n_steps)
   data.frame(State = d$State[1], prestige = p, odds_ratio = or)
 })
 curves <- bind_rows(curves)
@@ -59,9 +59,24 @@ state_levels <- c("Overclaiming", "Underclaiming", "Consistent Engagement")
 band$State <- factor(band$State, levels = state_levels)
 points_df$State <- factor(points_df$State, levels = state_levels)
 
+# Per-panel interaction coefficient and two-sided Bayesian p.
+ann <- draws |>
+  group_by(State) |>
+  summarise(coef = mean(b_educ_int),
+            p = 2 * min(mean(b_educ_int <= 0), mean(b_educ_int >= 0)),
+            .groups = "drop") |>
+  mutate(State = factor(State, levels = state_levels),
+         x = 0.63, y = 30,
+         label = ifelse(p < 0.001, sprintf("\u03b2 = %.3f\np < 0.001", coef), sprintf("\u03b2 = %.3f\np = %.3f", coef, p)))
+
 ggplot(band, aes(x = prestige, y = med)) +
   geom_ribbon(aes(ymin = lo, ymax = hi), fill = "#a6bddb", alpha = 0.25) +
   geom_line(color = "#2b8cbe", linewidth = 1.1) +
+  geom_label(data = ann, aes(x = x, y = y, label = label),
+             hjust = 0, vjust = 1, size = 3.1, fontface = "bold",
+             color = "gray15", fill = "white", linewidth = 0.4,
+             label.padding = grid::unit(0.3, "lines"),
+             lineheight = 0.95, inherit.aes = FALSE) +
   geom_hline(yintercept = 1, linetype = "dashed", color = "gray40", linewidth = 0.5) +
   geom_errorbar(data = points_df, aes(x = prestige, ymin = or_lo, ymax = or_hi),
                 width = 0, linewidth = 0.5, color = "gray45", alpha = 0.35,
@@ -77,7 +92,7 @@ ggplot(band, aes(x = prestige, y = med)) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(limits = c(0.58, 2.18), breaks = c(1.0, 1.5, 2.0)) +
   # a common log scale, so the three panels can be compared for slope
-  scale_y_log10(limits = c(0.12, 45),
+  scale_y_log10(limits = c(0.07, 50),
                 breaks = c(0.25, 0.5, 1, 2, 5, 10, 20, 40),
                 labels = scales::label_number(accuracy = 0.01)) +
   labs(
@@ -94,6 +109,6 @@ ggplot(band, aes(x = prestige, y = med)) +
   )
 
 dir.create("Plots", showWarnings = FALSE)
-ggsave("Plots/fig11_education_by_prestige.png", width = 13.5, height = 6, dpi = 300, bg = "white")
-cat("Saved Plots/fig11_education_by_prestige.png\n")
+ggsave("Plots/fig12_education_by_prestige.png", width = 13.5, height = 6, dpi = 300, bg = "white")
+cat("Saved Plots/fig12_education_by_prestige.png\n")
 print(band |> filter(prestige %in% range(prestige)) |> as.data.frame())

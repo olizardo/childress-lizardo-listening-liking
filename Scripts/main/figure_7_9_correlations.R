@@ -1,11 +1,11 @@
-#' @title Figures 7 and 8 (corrected): correlation plots from corrected Model 4
+#' @title Figures 7 and 9 (corrected): correlation plots from corrected Model 4
 #' @description Corrected-data version of plot_correlations.R, sourced from
 #'   model_brms_m4_corrected.rds and rds/ame_genre_constrained.rds
 #'   (built by Scripts/main/prep_genre_preference_ratios.R from the corrected model
 #'   input). Updates the legacy caption's draw count to 10,000 post-warmup.
 #'   Outputs:
 #'   Plots/fig7_intercept_vs_slope.png  (both axes carry 95% credible intervals)
-#'   Plots/fig8_prestige_vs_odds.png
+#'   Plots/fig9_prestige_vs_odds.png
 #'   cache/correlation_draws_summary.csv
 #'   cache/correlation_point_estimates.csv
 #'   cache/genre_summary_correlations.csv
@@ -237,5 +237,5 @@ p_prestige_corr <- ggplot(genre_summary, aes(x = ratio_col, y = or_med)) +
 
 dir.create("Plots", showWarnings = FALSE)
 ggsave("Plots/fig7_intercept_vs_slope.png", p_int_slope_corr, width = 9.5, height = 7, dpi = 300, bg = "white")
-ggsave("Plots/fig8_prestige_vs_odds.png", p_prestige_corr, width = 9.5, height = 7, dpi = 300, bg = "white")
+ggsave("Plots/fig9_prestige_vs_odds.png", p_prestige_corr, width = 9.5, height = 7, dpi = 300, bg = "white")
 cat("Successfully generated both corrected correlation plots.\n")

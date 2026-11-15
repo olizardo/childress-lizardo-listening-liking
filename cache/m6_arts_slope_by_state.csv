@@ -1,0 +1,61 @@
+"State","genre_name","slope_med","slope_lo","slope_hi","ratio_col"
+"Overclaiming","Folk",0.4137,0.3236,0.5059,2.0412
+"Overclaiming","Bluegrass",0.2528,0.1754,0.3301,2.0022
+"Overclaiming","New Age",0.365,0.2903,0.4421,1.8946
+"Overclaiming","Swing/Big Band",0.2694,0.1948,0.3453,1.578
+"Overclaiming","Classical",0.2773,0.2053,0.3508,1.5527
+"Overclaiming","Contemporary Rock",0.2766,0.2051,0.353,1.5015
+"Overclaiming","Latin",0.2091,0.1357,0.2817,1.3626
+"Overclaiming","Heavy Metal",0.1674,0.0893,0.243,1.3462
+"Overclaiming","Oldies",0.1586,0.0786,0.2374,1.2171
+"Overclaiming","Jazz",0.2535,0.1793,0.3283,1.1941
+"Overclaiming","Contemporary Pop",0.3286,0.2516,0.4095,1.1827
+"Overclaiming","Reggae",0.1173,0.0423,0.1924,1.1779
+"Overclaiming","R&B/Blues",0.1931,0.1179,0.2675,1.1638
+"Overclaiming","Opera",0.132,0.0548,0.2086,1.0708
+"Overclaiming","Easy Listening",0.1179,0.0367,0.1984,1.044
+"Overclaiming","Musicals",0.1423,0.0596,0.226,1.0207
+"Overclaiming","Country",0.2709,0.194,0.3507,0.9574
+"Overclaiming","Rap/Hip Hop",0.1398,0.0573,0.2223,0.9129
+"Overclaiming","Classic Rock",0.1601,0.0807,0.2386,0.7848
+"Overclaiming","Gospel",0.1859,0.1007,0.272,0.7202
+"Underclaiming","Folk",0.0067,-0.1358,0.169,2.0412
+"Underclaiming","Bluegrass",-4e-04,-0.1337,0.1142,2.0022
+"Underclaiming","New Age",0.0105,-0.1122,0.1562,1.8946
+"Underclaiming","Swing/Big Band",-0.006,-0.1643,0.1084,1.578
+"Underclaiming","Classical",-0.004,-0.1448,0.1108,1.5527
+"Underclaiming","Contemporary Rock",1e-04,-0.1325,0.115,1.5015
+"Underclaiming","Latin",0.0179,-0.0822,0.1466,1.3626
+"Underclaiming","Heavy Metal",0.0024,-0.1334,0.1267,1.3462
+"Underclaiming","Oldies",0.0474,-0.0467,0.1777,1.2171
+"Underclaiming","Jazz",-0.0096,-0.1709,0.1093,1.1941
+"Underclaiming","Contemporary Pop",-0.0209,-0.2139,0.0838,1.1827
+"Underclaiming","Reggae",1e-04,-0.1251,0.102,1.1779
+"Underclaiming","R&B/Blues",-0.0091,-0.1692,0.1042,1.1638
+"Underclaiming","Opera",-0.001,-0.1119,0.0923,1.0708
+"Underclaiming","Easy Listening",-0.0028,-0.1444,0.1065,1.044
+"Underclaiming","Musicals",8e-04,-0.1221,0.1017,1.0207
+"Underclaiming","Country",0.0083,-0.0999,0.1224,0.9574
+"Underclaiming","Rap/Hip Hop",0.0131,-0.0882,0.1167,0.9129
+"Underclaiming","Classic Rock",-0.0012,-0.1273,0.1041,0.7848
+"Underclaiming","Gospel",1e-04,-0.121,0.1055,0.7202
+"Consistent Engagement","Folk",0.2942,0.0787,0.5205,2.0412
+"Consistent Engagement","Bluegrass",0.1783,0.0442,0.3096,2.0022
+"Consistent Engagement","New Age",0.2202,0.0817,0.3556,1.8946
+"Consistent Engagement","Swing/Big Band",0.2975,0.1554,0.441,1.578
+"Consistent Engagement","Classical",0.2835,0.1531,0.4163,1.5527
+"Consistent Engagement","Contemporary Rock",0.2948,0.1256,0.4727,1.5015
+"Consistent Engagement","Latin",0.1479,0.0508,0.244,1.3626
+"Consistent Engagement","Heavy Metal",0.1627,-0.0169,0.3246,1.3462
+"Consistent Engagement","Oldies",0.234,0.1525,0.3151,1.2171
+"Consistent Engagement","Jazz",0.2978,0.1786,0.414,1.1941
+"Consistent Engagement","Contemporary Pop",0.1764,0.0458,0.3011,1.1827
+"Consistent Engagement","Reggae",0.0523,-0.0519,0.1569,1.1779
+"Consistent Engagement","R&B/Blues",-0.0112,-0.1312,0.1045,1.1638
+"Consistent Engagement","Opera",0.1588,0.0778,0.2426,1.0708
+"Consistent Engagement","Easy Listening",0.0358,-0.0666,0.1352,1.044
+"Consistent Engagement","Musicals",0.0409,-0.0407,0.122,1.0207
+"Consistent Engagement","Country",0.3064,0.1787,0.4414,0.9574
+"Consistent Engagement","Rap/Hip Hop",-0.1596,-0.2415,-0.0809,0.9129
+"Consistent Engagement","Classic Rock",0.1723,0.0779,0.2677,0.7848
+"Consistent Engagement","Gospel",0.2453,0.169,0.3252,0.7202
