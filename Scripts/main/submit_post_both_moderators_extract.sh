@@ -11,4 +11,4 @@
 module load intel/2026.2.0 R/4.6.1
 export R_LIBS_USER=$HOME/R/x86_64-pc-linux-gnu-library/4.5
 
-Rscript Scripts/main/post_both_moderators_extract.R
+Rscript Scripts/main/post_both_moderators_extract.R "$@"

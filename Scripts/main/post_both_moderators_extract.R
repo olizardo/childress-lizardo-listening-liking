@@ -23,7 +23,10 @@ runs <- list(
              label = "Model 13 (arts and education moderated by prestige, 120 slopes)"),
   m14 = list(fit = "rds/model_brms_m14_both_mods_restricted.rds",
              csv = "cache/both_moderators_restricted_test.csv",
-             label = "Model 14 (same interactions, 80 slopes)")
+             label = "Model 14 (same interactions, 80 slopes)"),
+  m15 = list(fit = "rds/model_brms_m15_interactions_liking.rds",
+             csv = "cache/interactions_liking_test.csv",
+             label = "Model 15 (interactions on the two liking equations only, 80 slopes)")
 )
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -37,10 +40,17 @@ prest <- readRDS("rds/ame_genre_constrained.rds") |> select(genre_name, ratio_co
 stopifnot(nrow(prest) == 20)
 rng_p <- diff(range(prest$ratio_col))
 
+int_cands <- function(st, v) {
+  c(paste0("b_", st, "_", v, ":prestige_c"), paste0("b_", st, "_prestige_c:", v))
+}
+
+# Model 15 carries no prestige terms in the underclaiming equation, so that
+# state is skipped rather than treated as an error.
+has_int <- function(dr, st, v) any(int_cands(st, v) %in% names(dr))
+
 draw_col <- function(dr, st, v) {
-  cands <- c(paste0("b_", st, "_", v, ":prestige_c"),
-             paste0("b_", st, "_prestige_c:", v))
-  hit <- cands[cands %in% names(dr)]
+  hit <- int_cands(st, v)
+  hit <- hit[hit %in% names(dr)]
   if (!length(hit)) {
     stop("no interaction column for ", st, " x ", v, ". Columns present: ",
          paste(grep(paste0("^b_", st, "_.*prestige"), names(dr), value = TRUE),
@@ -57,6 +67,10 @@ extract_one <- function(fit_path) {
 
   rows <- lapply(c("muListenOnly", "muLikeOnly", "muBoth"), function(st) {
     bind_rows(lapply(c("child_arts", "educ2"), function(v) {
+      if (!has_int(dr, st, v)) {
+        cat("  no", v, "x prestige term in", st, "- skipped\n")
+        return(NULL)
+      }
       b_int <- draw_col(dr, st, v)
       b_main <- dr[[paste0("b_", st, "_", v)]]
       data.frame(

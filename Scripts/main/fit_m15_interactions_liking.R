@@ -143,7 +143,11 @@ rng_p <- diff(range(prest$ratio_col))
 
 rows <- lapply(c("muLikeOnly", "muBoth"), function(st) {
   bind_rows(lapply(c("child_arts", "educ2"), function(v) {
-    b_int <- dr[[paste0("b_", st, "_", v, ":prestige_c")]]
+    # brms orders the interaction by variable position, so try both name orders
+    cands <- c(paste0("b_", st, "_", v, ":prestige_c"), paste0("b_", st, "_prestige_c:", v))
+    hit <- cands[cands %in% names(dr)]
+    stopifnot(length(hit) == 1)
+    b_int <- dr[[hit]]
     b_main <- dr[[paste0("b_", st, "_", v)]]
     data.frame(
       State = gsub("^mu", "", st),
