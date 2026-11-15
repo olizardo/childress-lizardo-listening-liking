@@ -1,47 +1,43 @@
-#' @title Figure 11: arts exposure odds and genre prestige, three engagement states
-#' @description Arts counterpart of Figure 12, visualizing the direction of the
-#'   Model 14 (paper Model 4) arts-exposure-by-prestige interaction. For each of
-#'   the three non-reference states the figure plots the arts exposure odds ratio
-#'   for the five-point contrast used in Figure 5 (levels 6-7 versus levels 1-2)
-#'   as a function of the genre's College Preference Ratio. The curve is
-#'   exp((b_arts + b_arts_int * (p - mean prestige)) * 5), traced from the joint
-#'   posterior of the two coefficients, so the band carries their correlation
-#'   rather than combining separate intervals.
+#' @title Figure 9: education odds and genre prestige, three engagement states
+#' @description Visualizes the direction of the Model 14 (paper Model 4)
+#'   education-by-prestige interaction. For each of the three non-reference states the figure plots the
+#'   education odds ratio for the full six-category range (less than high school
+#'   to graduate degree) as a function of the genre's College Preference Ratio.
+#'   The curve is exp((b_educ + b_int * (p - mean prestige)) * 5), traced from the
+#'   joint posterior of the two coefficients, so the band carries their
+#'   correlation rather than combining separate intervals.
 #'
 #'   Curves come from cache/m14_moderator_draws.csv, written by
 #'   Scripts/main/post_m14_moderator_draws.R. The points deliberately come from
 #'   fits WITHOUT the prestige interaction, because inside Model 14 the fixed
 #'   interaction carries the whole prestige gradient and the genre random slopes
 #'   are reduced to small residual departures from the line. Overclaiming and
-#'   consistent engagement use cache/m11_arts_slope_by_state.csv (paper Model 3,
-#'   the fit behind Figures 5-10, so these points equal Figure 5's); the
-#'   underclaiming equation has no slopes in Model 14, so that panel uses the
-#'   slopes of Model 6, which estimates arts slopes in all three equations.
-#'   Points are then free evidence for the interaction, not a restatement of it.
-#'   No fit is loaded here.
+#'   consistent engagement use cache/m11_educ_slope_by_state.csv (paper Model 3,
+#'   the fit behind Figures 5-10); the underclaiming equation has no slopes in
+#'   Model 14, so that panel uses the slopes of Model 6, which estimates
+#'   education slopes in all three equations. Points are then free evidence for
+#'   the interaction, not a restatement of it. No fit is loaded here.
 #'
-#'   Output: Plots/fig11_arts_by_prestige.png
+#'   Output: Plots/fig9_education_by_prestige.png
 
-suppressMessages({
-  library(ggplot2)
-  library(ggrepel)
-  library(dplyr)
-})
+library(ggplot2)
+library(ggrepel)
+library(dplyr)
 
 draws <- read.csv("cache/m14_moderator_draws.csv", stringsAsFactors = FALSE)
-stopifnot(nrow(draws) > 0, all(c("draw", "State", "b_arts", "b_arts_int") %in% names(draws)))
+stopifnot(nrow(draws) > 0, all(c("draw", "State", "b_educ", "b_educ_int") %in% names(draws)))
 
 prest <- readRDS("rds/ame_genre_constrained.rds")
 mean_p <- mean(prest$ratio_col)
 grid_p <- seq(min(prest$ratio_col), max(prest$ratio_col), length.out = 120)
 
-# child_arts is a linear term; use the five-point contrast of Figure 5.
+# educ2 is a linear term over six ordered categories: five steps end to end.
 n_steps <- 5
 
 curves <- lapply(split(draws, draws$State), function(d) {
   p <- rep(grid_p, times = nrow(d))
-  or <- exp((rep(d$b_arts, each = length(grid_p)) +
-               rep(d$b_arts_int, each = length(grid_p)) * (p - mean_p)) * n_steps)
+  or <- exp((rep(d$b_educ, each = length(grid_p)) +
+               rep(d$b_educ_int, each = length(grid_p)) * (p - mean_p)) * n_steps)
   data.frame(State = d$State[1], prestige = p, odds_ratio = or)
 })
 curves <- bind_rows(curves)
@@ -52,11 +48,11 @@ band <- curves |>
             med = quantile(odds_ratio, 0.5),
             hi = quantile(odds_ratio, 0.975), .groups = "drop")
 
-# Free genre arts slopes from fits without the prestige interaction: Model 3
+# Free genre education slopes from fits without the prestige interaction: Model 3
 # (M11) for the two states it estimates slopes in, and Model 6 for
 # underclaiming, which Model 14 leaves with an intercept-only genre effect.
-slopes_m11 <- read.csv("cache/m11_arts_slope_by_state.csv", stringsAsFactors = FALSE)
-slopes_m6 <- read.csv("cache/m6_arts_slope_by_state.csv", stringsAsFactors = FALSE) |>
+slopes_m11 <- read.csv("cache/m11_educ_slope_by_state.csv", stringsAsFactors = FALSE)
+slopes_m6 <- read.csv("cache/m6_educ_slope_by_state.csv", stringsAsFactors = FALSE) |>
   filter(State == "Underclaiming")
 slopes <- bind_rows(slopes_m11, slopes_m6)
 stopifnot(nrow(slopes) == 60, all(c("Overclaiming", "Underclaiming",
@@ -76,11 +72,11 @@ points_df$State <- factor(points_df$State, levels = state_levels)
 # Per-panel interaction coefficient and two-sided Bayesian p.
 ann <- draws |>
   group_by(State) |>
-  summarise(coef = mean(b_arts_int),
-            p = 2 * min(mean(b_arts_int <= 0), mean(b_arts_int >= 0)),
+  summarise(coef = mean(b_educ_int),
+            p = 2 * min(mean(b_educ_int <= 0), mean(b_educ_int >= 0)),
             .groups = "drop") |>
   mutate(State = factor(State, levels = state_levels),
-         x = 0.63, y = 13,
+         x = 0.63, y = 30,
          label = ifelse(p < 0.001, sprintf("\u03b2 = %.3f\np < 0.001", coef), sprintf("\u03b2 = %.3f\np = %.3f", coef, p)))
 
 ggplot(band, aes(x = prestige, y = med)) +
@@ -106,12 +102,12 @@ ggplot(band, aes(x = prestige, y = med)) +
   coord_cartesian(clip = "off") +
   scale_x_continuous(limits = c(0.58, 2.18), breaks = c(1.0, 1.5, 2.0)) +
   # a common log scale, so the three panels can be compared for slope
-  scale_y_log10(limits = c(0.2, 20),
-                breaks = c(0.25, 0.5, 1, 2, 5, 10),
+  scale_y_log10(limits = c(0.07, 50),
+                breaks = c(0.25, 0.5, 1, 2, 5, 10, 20, 40),
                 labels = scales::label_number(accuracy = 0.01)) +
   labs(
     x = "College Preference Ratio",
-    y = "Arts exposure odds ratio\n(top two versus bottom two levels)"
+    y = "Education odds ratio\n(less than high school to graduate degree)"
   ) +
   theme_minimal(base_size = 13) +
   theme(
@@ -123,6 +119,6 @@ ggplot(band, aes(x = prestige, y = med)) +
   )
 
 dir.create("Plots", showWarnings = FALSE)
-ggsave("Plots/fig11_arts_by_prestige.png", width = 13.5, height = 6, dpi = 300, bg = "white")
-cat("Saved Plots/fig11_arts_by_prestige.png\n")
+ggsave("Plots/fig9_education_by_prestige.png", width = 13.5, height = 6, dpi = 300, bg = "white")
+cat("Saved Plots/fig9_education_by_prestige.png\n")
 print(band |> filter(prestige %in% range(prestige)) |> as.data.frame())
