@@ -1,0 +1,5 @@
+== Model 20 (full cross: arts and education x popularity and prestige, restricted 80-slope structure) ==
+[1] 1.003876
+min bulk ESS ratio: 0.2189158 
+Divergences: 0 
+Max treedepth hits: 0 

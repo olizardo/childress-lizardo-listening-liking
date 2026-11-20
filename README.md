@@ -104,9 +104,10 @@ Slurm wrappers sit beside their R scripts (`Scripts/main/submit_<stem>.sh`).
 | 2 | `Tabs/table2_overclaim.md` | `Scripts/main/make_tables.R` | M1 v2 |
 | 3 | `Tabs/table3_underclaim.md` | `Scripts/main/make_tables.R` | M1 v2 |
 | 4 | `Tabs/table4_consistent.md` | `Scripts/main/make_tables.R` | M1 v2 |
-| 5 | `Tabs/table5_fit.md`, `Tabs/table5_fit_raw.csv` (full ladder), `Tabs/table5_fit_reduced.md`, `Tabs/table5_fit_reduced.csv` (the doc's six rows) | `Scripts/main/make_table5_fit_comparison.R`, `Scripts/main/make_table5_reduced.R` | the `rds/waic_m*.rds` objects only (never the full fits) |
+| 5 | `Tabs/table5_fit.md`, `Tabs/table5_fit_raw.csv` (full ladder), `Tabs/table5_fit_reduced.md`, `Tabs/table5_fit_reduced.csv` (the doc's four rows) | `Scripts/main/make_table5_fit_comparison.R`, `Scripts/main/make_table5_reduced.R` | the `rds/waic_m*.rds` objects only (never the full fits) |
+| 6 | `Tabs/table_interactions_m19.md`, `Tabs/table_interactions_m19.csv` | `Scripts/main/make_table_interactions_m19.R` | M19 draws only (`cache/m19_moderator_draws.csv`) |
 
-Both table scripts write to `cache/`; their output was copied to `Tabs/`. Every
+The table scripts write to `Tabs/` (the earlier ones via `cache/`). Every
 fitted model now has a local `rds/waic_m*.rds`, so the full fifteen-row ladder
 rebuilds without the cluster.
 
@@ -122,7 +123,7 @@ rebuilds without the cluster.
 | 6 | `Plots/fig6_popularity_vs_slopes.png` | `Scripts/main/figure_6_popularity_vs_slopes.R` | `cache/m1_genre_popularity_draws.csv` (baseline fit) and the M11 slope draws; writes `cache/popularity_slope_correlations.csv` and `cache/popularity_slope_points.csv`. Two panels, arts and education slopes against popularity |
 | 7 | `Plots/fig7_prestige_odds.png` | `Scripts/main/figure_7_prestige_odds.R` | `cache/m11_genre_summary.csv` and `cache/m11_correlations.csv`; two panels, arts and education odds against the College Preference Ratio, log odds ratio scale |
 | 8 | `Plots/fig8_moderator_interactions.png` | `Scripts/main/figure_8_moderator_interactions.R` | `cache/m19_moderator_draws.csv` (from `post_m19_moderator_draws.R`, job 1749119), `cache/m11_{arts,educ}_slope_by_state.csv`, `cache/m1_genre_popularity.csv` and `cache/ame_genre_ratios.csv`; three panels — arts x popularity overclaiming, education x CPR overclaiming, education x CPR consistent engagement — curves from paper Model 4 (M19), grey points from Model 3 (M11), no fit loaded |
-
+| — (local only, not in the Doc) | `Plots/fig15_full_cross_interactions.png` | `Scripts/main/figure_15_full_cross_interactions.R` | `cache/full_cross_interactions.csv` (from the Model 20 full-cross fit, job 1788499), plus moderator spread from `cache/m1_genre_popularity.csv` and `rds/ame_genre_constrained.rds`; twelve interactions expressed per SD of their own moderator, three state panels; no fit loaded |
 The doc holds eight figures since 2026-11-15: three pairs were merged two
 panels to a figure earlier in the day, and late on 2026-11-15 Figures 8 and 9
 became a single three-panel interaction figure (`fig8_moderator_interactions.png`)
@@ -139,6 +140,12 @@ were deleted from `Plots/`; they can be rebuilt from the archived scripts. The
 Figure 3b posterior-draws companion is gone as of 2026-11-15: Figure 3 itself
 now plots the 1,000 draws per arts level as half-eyes (median point, 50% and
 95% intervals), so the ridgeline version had nothing left to add.
+
+Figure 15 is journal-length only and not in the Doc. It puts the twelve
+Model 20 interactions in three state panels, expressed per standard deviation
+of each interaction's own moderator so popularity and the College Preference
+Ratio are on one scale, and it reads `cache/full_cross_interactions.csv` rather
+than a fit, so it rebuilds in seconds.
 
 Figures 5–8 plot posterior medians with 95% credible intervals, and Figures 5–7
 share the same regression-line colour and styling. Figure 8 carries a bold
@@ -170,6 +177,7 @@ named `*_corrected` file on some machines is stale and must not be used.
 | PSIS-LOO for the three models whose ranking matters (M4, M5, M6), plus Pareto-k diagnostics | `Scripts/main/post_loo_m4_m5_m6.R` (+ `Scripts/main/submit_post_loo_m4_m5_m6.sh`) | `rds/loo_m{4,5,6}*.rds`, `cache/loo_m4_m5_m6_compare.csv`, `cache/loo_pareto_k_summary.csv` |
 | Arts-by-prestige interaction (M8) | `Scripts/main/fit_m8_arts_by_prestige.R` | `cache/prestige_slope_test.csv` |
 | WAIC recompute for a saved fit | `Scripts/main/post_waic.R <tag>` | `rds/waic_<tag>.rds` |
+| Full 2 × 2 cross of both moderators on both exposures (M20, journal length only) | `Scripts/main/fit_m20_full_cross.R` (+ `Scripts/main/submit_fit_m20_full_cross.sh`, job 1788499) | `cache/full_cross_interactions.csv`, `cache/full_cross_waic.csv`, `cache/diagnostics_m20.txt` |
 | Fit diagnostics | `Scripts/supporting/diagnose_m1_v2.R`, `Scripts/supporting/diagnose_fit.R` | `cache/diagnostics_m*.{md,txt}` |
 
 ## Conventions

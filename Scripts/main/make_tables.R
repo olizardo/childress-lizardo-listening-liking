@@ -191,10 +191,11 @@ extract_eq <- function(draws, state) {
     # round before starring so the printed pd and the stars cannot disagree
     pd_val <- round(max(mean(d > 0), mean(d < 0)), 3)
     
-    # Statistical significance based on pd
+    # Statistical significance based on pd: * 95% CrI excludes 0,
+    # ** 99% CrI, *** 99.9% CrI
     stars <- if (pd_val >= 0.999) {
       "***"
-    } else if (pd_val >= 0.99) {
+    } else if (pd_val >= 0.995) {
       "**"
     } else if (pd_val >= 0.975) {
       "*"
